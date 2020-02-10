@@ -9,10 +9,18 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       product_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Products',
+          key: 'id'
+        }
       },
       transaction_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Transactions',
+          key: 'id'
+        }
       },
       real_price: {
         type: Sequelize.FLOAT

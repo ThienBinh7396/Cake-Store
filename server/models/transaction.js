@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Transaction = sequelize.define('Transaction', {
     transaction_code: DataTypes.STRING,
-    customer_id: DataTypes.INTEGER,
+    customer_info: DataTypes.JSONB,
     total: DataTypes.FLOAT,
     status: DataTypes.INTEGER,
     address_delivery: DataTypes.STRING,

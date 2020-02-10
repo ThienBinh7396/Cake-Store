@@ -1,19 +1,25 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('CakeCategories', {
+    return queryInterface.createTable('ProductReviews', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        type: Sequelize.STRING
+      product_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Products',
+          key: 'id'
+        }
       },
-      thumbnail: {
-        type: Sequelize.STRING,
-        defaultValue: '/img/birthday-cake.jpg'
+      customer_info: {
+        type: Sequelize.JSONB
+      },
+      content: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
@@ -26,6 +32,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('CakeCategories');
+    return queryInterface.dropTable('ProductReviews');
   }
 };
