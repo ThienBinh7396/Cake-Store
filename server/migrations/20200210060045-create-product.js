@@ -15,7 +15,11 @@ module.exports = {
         type: Sequelize.STRING
       },
       category_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'CakeCategories',
+          key: 'id'
+        }
       },
       price: {
         type: Sequelize.FLOAT
@@ -30,7 +34,11 @@ module.exports = {
         type: Sequelize.FLOAT
       },
       employee_update_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Customers',
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,

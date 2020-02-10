@@ -18,7 +18,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       thumbnail: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: '/img/avatar.png'
       },
       createdAt: {
         allowNull: false,

@@ -11,8 +11,10 @@ module.exports = {
       transaction_code: {
         type: Sequelize.STRING
       },
-      customer_id: {
-        type: Sequelize.INTEGER
+      // Ex: {type: anonymous, email: Ex..., phone: Ex...} 
+      // {type: customer, customer_id: Ex...}
+      customer_info: {
+        type: Sequelize.JSONB
       },
       total: {
         type: Sequelize.FLOAT
@@ -24,7 +26,11 @@ module.exports = {
         type: Sequelize.STRING
       },
       employee_update_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Customers',
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,
