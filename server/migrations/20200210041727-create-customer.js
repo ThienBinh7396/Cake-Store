@@ -11,6 +11,12 @@ module.exports = {
       email: {
         type: Sequelize.STRING
       },
+      phone: {
+        type: Sequelize.STRING
+      },
+      address: {
+        type: Sequelize.STRING
+      },
       password: {
         type: Sequelize.STRING
       },
@@ -20,6 +26,10 @@ module.exports = {
       thumbnail: {
         type: Sequelize.STRING,
         defaultValue: '/img/avatar.png'
+      },
+      anonymous: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

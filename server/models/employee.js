@@ -3,10 +3,15 @@ module.exports = (sequelize, DataTypes) => {
   const Employee = sequelize.define('Employee', {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    role: DataTypes.INTEGER
+    role: DataTypes.INTEGER,
+    active: DataTypes.BOOLEAN
   }, {});
   Employee.associate = function(models) {
-    // associations can be defined here
+
+    Employee.belongsTo(models.Role, {
+      foreignKey: 'role',
+      targetKey: 'id'
+    })
   };
   return Employee;
 };

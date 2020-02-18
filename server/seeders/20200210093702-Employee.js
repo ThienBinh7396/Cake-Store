@@ -8,6 +8,7 @@ module.exports = {
         email: 'admin@admin.com',
         password: '72c41692163d6d502dc65a53a82719df55157bbb',
         role: 1,
+        active: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -16,6 +17,7 @@ module.exports = {
         email: 'product-manage@admin.com',
         password: '72c41692163d6d502dc65a53a82719df55157bbb',
         role: 2,
+        active: false,
         createdAt: new Date(),
         updatedAt: new Date()
       }], {});

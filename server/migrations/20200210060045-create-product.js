@@ -14,13 +14,6 @@ module.exports = {
       thumbnail: {
         type: Sequelize.STRING
       },
-      category_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'CakeCategories',
-          key: 'id'
-        }
-      },
       price: {
         type: Sequelize.FLOAT
       },
@@ -28,10 +21,13 @@ module.exports = {
         type: Sequelize.TEXT
       },
       status: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       discount: {
         type: Sequelize.FLOAT
+      },
+      rate: {
+        type: Sequelize.JSONB,
       },
       employee_update_id: {
         type: Sequelize.INTEGER,
