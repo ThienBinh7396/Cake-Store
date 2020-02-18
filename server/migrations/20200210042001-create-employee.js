@@ -15,7 +15,15 @@ module.exports = {
         type: Sequelize.STRING
       },
       role: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        reference: {
+          model: 'Role',
+          key: 'id'
+        } 
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,

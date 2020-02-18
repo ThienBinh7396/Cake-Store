@@ -13,8 +13,12 @@ module.exports = {
       },
       // Ex: {type: anonymous, email: Ex..., phone: Ex...} 
       // {type: customer, customer_id: Ex...}
-      customer_info: {
-        type: Sequelize.JSONB
+      customer_id: {
+        type: Sequelize.INTEGER,
+        reference: {
+          model: 'Customer',
+          key: 'id'
+        }
       },
       total: {
         type: Sequelize.FLOAT

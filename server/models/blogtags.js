@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     employee_update_id: DataTypes.INTEGER
   }, {});
   BlogTags.associate = function(models) {
-    // associations can be defined here
+    BlogTags.belongsTo(models.Employee, {
+      foreignKey: 'employee_update_id',
+      targetKey: 'id'
+    });
+
   };
   return BlogTags;
 };
