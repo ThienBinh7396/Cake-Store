@@ -28,8 +28,7 @@ const allowCrossDomain = (req, res, next) => {
 
   const origin = req.headers.origin;
 
-    console.log(origin);
-    
+  console.log(origin);
 
   if (allowOrigins.indexOf(origin) > -1) {
     res.setHeader("Access-Control-Allow-Origin", origin);
@@ -42,9 +41,11 @@ app.use(allowCrossDomain);
 // route server
 
 const adminRouter = require("./server/routers/admin");
+const clientRouter = require("./server/routers/client");
 const commonRouter = require("./server/routers/common");
 
 app.use("/api/admin", adminRouter);
+app.use("/api/client", clientRouter);
 app.use("/api", commonRouter);
 
 // this * route is to serve project on different page routes except root `/`
@@ -57,3 +58,5 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log("Server listening at %d ", port);
 });
+
+

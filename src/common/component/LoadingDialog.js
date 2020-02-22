@@ -3,6 +3,8 @@ import React from 'react';
 
 const dialogUseStyles = makeStyles(theme => ({
   dialog: {
+    zIndex: "1400 !important",
+    fontFamily: "Roboto, sans-serif",
     "& .MuiPaper-root": {
       backgroundColor: "transparent"
     }

@@ -1,9 +1,12 @@
 import React from "react";
+
+import "../../../css/admin.css";
+
 import { AdminContext } from "../context/AdminProvider";
 import LoadingDialog from "../../../common/component/LoadingDialog";
-import { withStyles } from "@material-ui/core";
+import { withStyles, Breadcrumbs } from "@material-ui/core";
+import { NavLink, withRouter, Link } from "react-router-dom";
 
-import { NavLink, withRouter } from "react-router-dom";
 import {
   AppBar,
   CardMedia,
@@ -21,6 +24,7 @@ import * as adminAction from "../../../actions/admin";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import LoadingComponent from "../../../common/component/LoadingComponent";
+import BaseDialog from "../../../common/component/BaseDialog";
 
 const drawerWidth = 72;
 const drawerOpenWidth = 280;
@@ -28,7 +32,8 @@ const drawerOpenWidth = 280;
 const useStyles = theme => ({
   root: {
     display: "flex",
-    paddingTop: "56px"
+    paddingTop: "56px",
+    fontFamily: "'Roboto', sans-serif"
   },
   appbar: {
     width: "100%",
@@ -113,12 +118,15 @@ const useStyles = theme => ({
   },
   headerMenu: {
     "& .MuiMenu-list": {
-      padding: "8px",
+      padding: "0",
+      borderTop: "4px solid #3f6ad8",
       "& .MuiMenuItem-root": {
-        paddingLeft: "8px",
+        width: "152px",
+        fontSize: "15px",
+        padding: "8px 12px 8px 12px",
         alignItems: "center",
         "& i": {
-          marginRight: "4px"
+          marginRight: "8px"
         },
         "& .MuiBox-root": {
           marginTop: "2px"
@@ -183,10 +191,14 @@ const useStyles = theme => ({
         textAlign: "center",
         position: "absolute",
         opacity: "0.4",
+        color: "#000000d4",
         left: "4px",
         top: "50%",
         marginTop: "-17px",
         fontSize: "1.5rem"
+      },
+      "&.active i": {
+        color: "#2a4384"
       },
       "&:hover i": {
         opacity: "0.7"
@@ -212,17 +224,32 @@ const nav = [
   {
     path: "/admin/dashboard",
     title: "Dashboard",
+    route: "dashboard",
     icon: "pe-7s-rocket"
   },
   {
     path: "/admin/employee",
     title: "Employee",
+    route: "employee",
     icon: "pe-7s-users"
   },
   {
     path: "/admin/cake",
     title: "Cakes",
+    route: "cake",
     icon: "pe-7s-plugin"
+  },
+  {
+    path: "/admin/tag",
+    title: "Tags",
+    route: "tag",
+    icon: "pe-7s-ticket"
+  },
+  {
+    path: "/admin/blog",
+    title: "Blogs",
+    route: "blog",
+    icon: "pe-7s-diamond"
   }
 ];
 
@@ -243,7 +270,8 @@ class CommonComponent extends React.Component {
     anchorEl: null,
     setAnchorEl: value => {
       this.setState({ anchorEl: value });
-    }
+    },
+    breadcrumbs: []
   };
 
   handleDrawer = val => {
@@ -275,6 +303,7 @@ class CommonComponent extends React.Component {
     const { adminActions } = this.props;
     this.adminActions = adminActions;
 
+    this.updateBreadcrumbs();
     this.handleResizeWindow();
     window.addEventListener("resize", () => this.handleResizeWindow());
   }
@@ -283,18 +312,71 @@ class CommonComponent extends React.Component {
     window.removeEventListener("resize", () => this.handleResizeWindow());
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      this.updateBreadcrumbs();
+    }
+  }
+
+  updateBreadcrumbs() {
+    console.log("%c Render", "color:red;font-size:32px");
+    let _path = this.props.location.pathname.split("/");
+
+    let _breadcrumbs = [];
+
+    for (let i = _path.length - 1; i >= 0; --i) {
+      let find = nav.find(it => it.route === _path[i]);
+
+      if (find) {
+        _breadcrumbs.push({
+          type: i === _path.length - 1 ? "text" : "link",
+          text: find.title,
+          to: find.path
+        });
+        break;
+      } else {
+        _breadcrumbs.push({
+          type: "text",
+          text: _path[i]
+        });
+      }
+    }
+    _breadcrumbs.push({ type: "link", text: "Home", to: "/admin" });
+
+    this.setState({
+      breadcrumbs: _breadcrumbs.reverse()
+    });
+  }
+
   render() {
-    const { progressDialog, loadingComponent } = this.context;
+    const { progressDialog, loadingComponent, dialogReloadPage } = this.context;
     const { classes, admin } = this.props;
 
     return (
       <div className={classes.root}>
-        <LoadingComponent open={loadingComponent.show} dense={!this.state.open}></LoadingComponent>
+        <LoadingComponent
+          open={loadingComponent.show}
+          dense={!this.state.open}
+        ></LoadingComponent>
         <LoadingDialog
           open={progressDialog.open}
           title={progressDialog.message}
         />
-
+        <BaseDialog
+          zIndex={2000}
+          open={dialogReloadPage.open}
+          maxWidth="xs"
+          fullWidth={true}
+          title="Something went wrong"
+          type="text"
+          onClose={() => {
+            window.location.reload();
+            dialogReloadPage.update(false);
+          }}
+        >
+          Please try refreshing the page or closing and re-opening your browser
+          window.
+        </BaseDialog>
         <AppBar position="fixed" className={classes.appbar}>
           <div
             className={`${classes.appbarLogo} ${this.state.open ? "open" : ""}`}
@@ -328,7 +410,7 @@ class CommonComponent extends React.Component {
                 aria-haspopup="true"
                 onClick={this.handleClick}
               >
-                <Box className="email">
+                <Box className="email" mr={0.5}>
                   {admin ? admin.email : ""}
                 </Box>
                 <BaseIcon icon="pe-7s-angle-down" className="dropdownIcon" />
@@ -352,11 +434,11 @@ class CommonComponent extends React.Component {
                 className={classes.headerMenu}
               >
                 <MenuItem onClick={this.handleClose}>
-                  <BaseIcon icon="pe-7s-user" />
+                  <BaseIcon size="17" icon="pe-7s-user" />
                   <Box>My account</Box>
                 </MenuItem>
                 <MenuItem onClick={() => this.handleClose(this.logout)}>
-                  <BaseIcon icon="pe-7s-next-2" />
+                  <BaseIcon size="16" icon="pe-7s-next-2" />
                   <Box>Logout</Box>
                 </MenuItem>
               </Menu>
@@ -387,7 +469,11 @@ class CommonComponent extends React.Component {
                       className="effect-wrapper underline-from-left"
                       style={{ backgroundColor: "#8aa2de" }}
                     ></div>
-                    <BaseIcon className={"navIcon"} icon={it.icon}></BaseIcon>
+                    <BaseIcon
+                      className={"navIcon"}
+                      size="20"
+                      icon={it.icon}
+                    ></BaseIcon>
                     <div className={"navTitle"}>{it.title}</div>
                   </NavLink>
                 );
@@ -396,6 +482,26 @@ class CommonComponent extends React.Component {
           </PerfectScrollbar>
         </div>
         <PerfectScrollbar className={classes.mainContent}>
+          {this.state.breadcrumbs.length !== 0 && (
+            <Breadcrumbs style={{ margin: "14px 0px 2px 8px" }}>
+              {this.state.breadcrumbs.map(it =>
+                it.type === "link" ? (
+                  <Link key={it.text} className="link" to={it.to}>
+                    {it.text}
+                  </Link>
+                ) : (
+                  <span
+                    key={it.text}
+                    color="textPrimary"
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {it.text}
+                  </span>
+                )
+              )}
+            </Breadcrumbs>
+          )}
+
           {this.props.children}
         </PerfectScrollbar>
       </div>

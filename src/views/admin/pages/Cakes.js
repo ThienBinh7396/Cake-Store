@@ -1,61 +1,42 @@
 import React, { useEffect, useRef, useContext, useState } from "react";
 import {
   Box,
-  TableCell,
-  TableRow,
-  withStyles,
   makeStyles,
   TableContainer,
   Table,
   TableHead,
   TableBody,
   Paper,
-  LinearProgress,
-  Typography,
   CardMedia,
   IconButton,
   ButtonBase,
-  Button
+  Button,
+  Select,
+  MenuItem
 } from "@material-ui/core";
 
 import { connect } from "react-redux";
-import { useSnackbar } from "notistack";
 import { AdminContext } from "../context/AdminProvider";
 import BaseIcon from "../../../common/component/BaseIcon";
 
-import { CSSTransition } from "react-transition-group";
 import { withRouter } from "react-router-dom";
+import {
+  StyledTableRow,
+  StyledTableCell,
+  StyledTableHelperRow
+} from "../../../common/component/StyledTable";
+import BaseDialog from "../../../common/component/BaseDialog";
+import { withSnackbar } from "notistack";
 
-const StyledTableCell = withStyles(theme => ({
-  head: {
-    backgroundColor: "#fff",
-    color: "#3f6ad8",
-    fontWeight: "bold",
-    padding: "10px 16px"
-  },
-  body: {
-    fontSize: 15,
-    padding: "8px 16px"
-  }
-}))(TableCell);
-
-const StyledTableRow = withStyles(theme => ({
-  root: {
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.background.default
-    },
-    "&:hover": {
-      backgroundColor: "#2524241a"
-    },
-    "&:last-child": {
-      "& td": {
-        border: "none"
-      }
-    }
-  }
-}))(TableRow);
-
-function TablePagination({ _columns, _products, page, setPage, pageLength }) {
+function TablePagination({
+  _columns,
+  _products,
+  page,
+  setPage,
+  pageLength,
+  setPageLength
+}) {
+  const pageLengths = [5, 10, 25];
   return (
     <StyledTableRow>
       <Box
@@ -64,6 +45,29 @@ function TablePagination({ _columns, _products, page, setPage, pageLength }) {
         className={"table-pagination-wrapper"}
       >
         <Box className={"table-pagination"}>
+          <Box
+            className="table-pagination-pageLength"
+            display="flex"
+            alignItems="center"
+          >
+            <Box mr={2}>Rows per page</Box>
+            <Select
+              value={pageLength}
+              onChange={e => {
+                setPageLength(e.target.value);
+              }}
+              displayEmpty
+            >
+              {_products.data && (
+                <MenuItem value={_products.data.length}>All</MenuItem>
+              )}
+              {pageLengths.map((it, index) => (
+                <MenuItem key={`#pageLength-${index}`} value={it}>
+                  {it}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
           <Box className="table-pagination-content">
             {page * pageLength + 1}-
             {_products.data && (page + 1) * pageLength > _products.data.length
@@ -180,13 +184,9 @@ function Cakes(props) {
     document.title = "Admin - Cakes";
   }, [props.history]);
 
-  const { enqueueSnackbar } = useSnackbar();
-
-  const showToast = (message, variant = "default") => {
-    enqueueSnackbar(message, { variant });
-  };
-
   const admin = useContext(AdminContext);
+
+  const { progressDialog, axios } = admin;
   const _admin = useRef(admin);
 
   let _products = admin.products;
@@ -202,7 +202,7 @@ function Cakes(props) {
   }, []);
 
   const [page, setPage] = useState(0);
-  const pageLength = 5;
+  const [pageLength, setPageLength] = useState(5);
 
   useEffect(() => {
     setPage(0);
@@ -213,8 +213,167 @@ function Cakes(props) {
     return page * pageLength <= index && (page + 1) * pageLength > index;
   };
 
+  const [dialog, setDialog] = useState(false);
+  const [cake, setCake] = useState(null);
+
+  const showToast = (message, type = "default") => {
+    props.enqueueSnackbar(message, { variant: type });
+  };
+
+  const deleteCake = () => {
+    progressDialog.updateState(true, "Deleting...");
+
+    axios
+      .connect({
+        method: "POST",
+        url: "admin/products/delete",
+        data: {
+          id: cake.id
+        }
+      })
+      .then(rs => {
+        let { type, message } = rs.data;
+
+        showToast(message, type);
+        progressDialog.updateState(false, "Deleting...");
+        _products.remove(cake);
+      })
+      .catch(err => {
+        progressDialog(false, "Deleting...");
+        showToast("Delete product failed!", "error");
+      });
+    console.log(cake);
+  };
+
+  const RowRender = ({ it, index }) => {
+    return (
+      <StyledTableRow
+        key={it.id}
+        style={{
+          display: checkInRange(index) ? "table-row" : "none"
+        }}
+      >
+        {_columns.map(_column => {
+          switch (_column.field) {
+            case "index":
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <strong>{index + 1}</strong>
+                </StyledTableCell>
+              );
+            case "title": {
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <Box className="text-truncate" style={{ width: "120px" }}>
+                    {it[_column.field]}
+                  </Box>
+                </StyledTableCell>
+              );
+            }
+            case "price":
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <strong style={{ color: "#FF0101" }}>
+                    {it[_column.field]
+                      .toFixed(2)
+                      .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
+                  </strong>
+                </StyledTableCell>
+              );
+            case "thumbnail":
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <CardMedia
+                    component="img"
+                    style={{ width: "80px" }}
+                    image={it[_column.field]}
+                  />
+                </StyledTableCell>
+              );
+            case "status":
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <Box
+                    className="base-chip small-size"
+                    style={{
+                      backgroundColor: statusColor[it.status]
+                    }}
+                  >
+                    {it[_column.field]}
+                  </Box>
+                </StyledTableCell>
+              );
+            case "action":
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  <ButtonBase
+                    className="button-icon round"
+                    style={{
+                      background: "#48ce4e",
+                      marginRight: "4px"
+                    }}
+                    onClick={() => {
+                      console.log(props);
+                      props.history.push(`/admin/cake/edit/${it.id}`);
+                    }}
+                  >
+                    <BaseIcon
+                      size="13"
+                      color="#fff"
+                      icon="fas fa-pen"
+                    ></BaseIcon>
+                  </ButtonBase>
+                  <ButtonBase
+                    className="button-icon round"
+                    style={{ background: "#ff0101" }}
+                    onClick={() => {
+                      setDialog(true);
+                      setCake(it);
+                    }}
+                  >
+                    <BaseIcon
+                      size="13"
+                      color="#fff"
+                      icon="fas fa-trash"
+                    ></BaseIcon>
+                  </ButtonBase>
+                </StyledTableCell>
+              );
+
+            default:
+              return (
+                <StyledTableCell key={`_product-${_column.field}-${index}`}>
+                  {it[_column.field]}
+                </StyledTableCell>
+              );
+          }
+        })}
+      </StyledTableRow>
+    );
+  };
+
   return (
-    <Box style={{ padding: "20px 8px" }}>
+    <Box style={{ padding: "16px 8px" }}>
+      <BaseDialog
+        style={{ zIndex: 100 }}
+        open={dialog}
+        maxWidth="xs"
+        fullWidth={true}
+        title="Comfirm"
+        type="text"
+        onClose={() => {
+          setDialog(false);
+        }}
+        onSubmit={() => {
+          if (cake) {
+            deleteCake();
+          }
+          setDialog(false);
+        }}
+      >
+        <strong style={{ color: "#2f55b7" }}>Are you sure?</strong> You won't be
+        able to revert this!
+      </BaseDialog>
       <TableContainer className={classes.tableWrapper} component={Paper}>
         <Button
           style={{
@@ -227,9 +386,7 @@ function Cakes(props) {
           color="primary"
           onClick={() => {
             console.log(props);
-            props.history.push(
-              `/admin/cake/add`
-            );
+            props.history.push(`/admin/cake/add`);
           }}
         >
           <BaseIcon icon="fas fa-plus" color="#fff" />
@@ -245,130 +402,31 @@ function Cakes(props) {
           </TableHead>
           <TableBody>
             {_products.loading ? (
-              <TableRow>
-                <TableCell className="table-loading" colSpan={_columns.length}>
-                  <LinearProgress className="table-loading-progress" />
-                  <Typography align={"center"} className="text-blur">
-                    Loading...Please wait.
-                  </Typography>
-                </TableCell>
-              </TableRow>
+              <StyledTableHelperRow columns={_columns.length} type="loading" />
             ) : (
               _products.data &&
-              _products.data.map((it, index) => (
-                <CSSTransition
-                  key={it.id}
-                  timeout={300}
-                  classNames="transition-zoom"
-                >
-                  <StyledTableRow
-                    style={{
-                      display: checkInRange(index) ? "table-row" : "none"
-                    }}
-                  >
-                    {_columns.map(_column => {
-                      switch (_column.field) {
-                        case "index":
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              <strong>{index + 1}</strong>
-                            </StyledTableCell>
-                          );
-                        case "price":
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              <strong style={{ color: "#FF0101" }}>
-                                {it[_column.field]
-                                  .toFixed(2)
-                                  .replace(/\d(?=(\d{3})+\.)/g, "$&,")}
-                              </strong>
-                            </StyledTableCell>
-                          );
-                        case "thumbnail":
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              <CardMedia
-                                style={{ width: "80px" }}
-                                component={"img"}
-                                image={it[_column.field]}
-                              ></CardMedia>
-                            </StyledTableCell>
-                          );
-                        case "status":
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              <Box
-                                className="base-chip small-size"
-                                style={{
-                                  backgroundColor: statusColor[it.status]
-                                }}
-                              >
-                                {it[_column.field]}
-                              </Box>
-                            </StyledTableCell>
-                          );
-                        case "action":
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              <ButtonBase
-                                className="button-icon round"
-                                style={{
-                                  background: "#48ce4e",
-                                  marginRight: "4px"
-                                }}
-                                onClick={() => {
-                                  console.log(props);
-                                  props.history.push(
-                                    `/admin/cake/edit/${it.id}`
-                                  );
-                                }}
-                              >
-                                <BaseIcon
-                                  size="17"
-                                  color="#fff"
-                                  icon="fas fa-pen"
-                                ></BaseIcon>
-                              </ButtonBase>
-                              <ButtonBase
-                                className="button-icon round"
-                                style={{ background: "#ff0101" }}
-                              >
-                                <BaseIcon
-                                  size="17"
-                                  color="#fff"
-                                  icon="fas fa-trash"
-                                ></BaseIcon>
-                              </ButtonBase>
-                            </StyledTableCell>
-                          );
-
-                        default:
-                          return (
-                            <StyledTableCell
-                              key={`_product-${_column.field}-${index}`}
-                            >
-                              {it[_column.field]}
-                            </StyledTableCell>
-                          );
-                      }
-                    })}
-                  </StyledTableRow>
-                </CSSTransition>
+              (_products.data.length === 0 ? (
+                <StyledTableHelperRow
+                  columns={_columns.length}
+                  type="no-data"
+                  loading={_products.loading}
+                />
+              ) : (
+                _products.data.map((it, index) => (
+                  <RowRender key={`#row-${index}`} it={it} index={index} />
+                ))
               ))
             )}
 
             <TablePagination
-              {...{ _columns, _products, page, setPage, pageLength }}
+              {...{
+                _columns,
+                _products,
+                page,
+                setPage,
+                pageLength,
+                setPageLength
+              }}
             />
           </TableBody>
         </Table>
@@ -381,4 +439,4 @@ const mapStateToProps = state => ({
   admin: state.admin
 });
 
-export default connect(mapStateToProps, {})(withRouter(Cakes));
+export default connect(mapStateToProps, {})(withRouter(withSnackbar(Cakes)));

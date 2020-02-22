@@ -7,8 +7,8 @@ import {
   Redirect
 } from "react-router-dom";
 import AdminLogin from "./admin/pages/Login";
-import AdminContentView from "./admin/layouts/ContentView";
-import ClientContentView from "./client/layouts/ContentViews";
+import AdminRouterView from "./admin/routers/RouterView";
+import ClientRouterView from "./client/routers/RouterView";
 import cookie from "../utils/cookie";
 
 class MainLayout extends React.Component {
@@ -58,23 +58,19 @@ const AdminProtectedRouter = ({ component: Component, ...rest }) => {
   );
 };
 function Client() {
-  let { path } = useRouteMatch();
-  console.log(path);
-  return (
-    <Switch>
-      <Route path={`${path}`}>
-        <ClientContentView />
-      </Route>
-    </Switch>
-  );
+  return <ClientRouterView />;
 }
 
 function Admin() {
   let { path } = useRouteMatch();
   return (
     <Switch>
-      <AdminProtectedRouter path={`${path}/login`} type="login" component={AdminLogin} />
-      <AdminProtectedRouter path={`${path}`} component={AdminContentView}/>
+      <AdminProtectedRouter
+        path={`${path}/login`}
+        type="login"
+        component={AdminLogin}
+      />
+      <AdminProtectedRouter path={`${path}`} component={AdminRouterView} />
     </Switch>
   );
 }

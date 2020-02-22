@@ -9,7 +9,7 @@ function Home(props) {
 
   console.log('xxx');
 
-  return (<Box component={"h1"}>Home admin pages</Box>);
+  return (<Box component={"h1"} style={{height: '1000px'}}>Home admin pages</Box>);
 }
 
 export default withRouter(Home);

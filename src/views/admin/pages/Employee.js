@@ -178,7 +178,7 @@ function Employee(props) {
   }, [_employees.data]);
 
   return (
-    <Box style={{ padding: "20px 8px" }}>
+    <Box style={{ padding: "16px 8px" }}>
       <TableContainer className={classes.tableWrapper} component={Paper}>
         <Table className="table-data">
           <TableHead>

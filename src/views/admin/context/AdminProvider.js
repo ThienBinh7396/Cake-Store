@@ -4,8 +4,16 @@ import { bindActionCreators } from "redux";
 
 import * as adminAction from "../../../actions/admin";
 import cookie from "../../../utils/cookie";
+import Axios from "axios";
 
 export const AdminContext = React.createContext();
+
+const axiosInstance = Axios.create({
+  baseURL: "http://localhost:5000/api/",
+  headers: {
+    "x-access-token": cookie.getCookie("_atk")
+  }
+});
 class AdminProvider extends Component {
   state = {
     loadingComponent: {
@@ -30,6 +38,57 @@ class AdminProvider extends Component {
         };
         this.setState({
           progressDialog: _progressDialog
+        });
+      }
+    },
+    dialogReloadPage: {
+      open: false,
+      update: _open => {
+        this.setState({
+          dialogReloadPage: {
+            ...this.state.dialogReloadPage,
+            open: _open
+          }
+        });
+      }
+    },
+    axios: {
+      data: axiosInstance,
+      updateData: () => {
+        const _axios = Axios.create({
+          baseURL: "http://localhost:5000/api/",
+          headers: {
+            "x-access-token": cookie.getCookie("_atk")
+          }
+        });
+
+        this.setState({
+          axios: {
+            ...this.state.axios,
+            data: _axios
+          }
+        });
+      },
+      connect: async config => {
+        return new Promise((res, rej) => {
+          this.state.axios
+            .data({
+              ...config
+            })
+            .then(rs => {
+              let { type } = rs.data;
+
+              if (type === "TokenInvaild") {
+                cookie.setCookie("_atk", null);
+                cookie.setCookie("_admin", null);
+                this.state.dialogReloadPage.update(true);
+              } else {
+                res(rs);
+              }
+            })
+            .catch(err => {
+              rej(err);
+            });
         });
       }
     },
@@ -65,18 +124,23 @@ class AdminProvider extends Component {
           loading: true
         };
         this.setState({ employees }, () => {
-          this.axios.get("admin/employees/findAll").then(rs => {
-            let { data, type } = rs.data;
+          this.state.axios
+            .connect({
+              method: "GET",
+              url: "admin/employees/findAll"
+            })
+            .then(rs => {
+              let { data, type } = rs.data;
 
-            if (type === "success") {
-              this.state.employees.handleChange({
-                data: data.filter(it => it.role !== 1),
-                loading: false
-              });
+              if (type === "success") {
+                this.state.employees.handleChange({
+                  data: data.filter(it => it.role !== 1),
+                  loading: false
+                });
 
-              this.state.loadingComponent.updateState(false);
-            }
-          });
+                this.state.loadingComponent.updateState(false);
+              }
+            });
         });
       }
     },
@@ -100,13 +164,21 @@ class AdminProvider extends Component {
           _data.splice(index, 1, _product);
         }
         console.log(this.state.products);
-        this.state.products.handleChange({...this.state.products, data: _data});
+        this.state.products.handleChange({
+          ...this.state.products,
+          data: _data
+        });
+      },
+      remove: _product => {
+        this.state.products.handleChange({
+          data: this.state.products.data.filter(it => it.id !== _product.id)
+        });
       },
       handleChange: _products => {
         let products = {
-          ...this.state.employees,
+          ...this.state.products,
           ..._products
-        }
+        };
         this.setState({
           products
         });
@@ -120,24 +192,163 @@ class AdminProvider extends Component {
             }
           },
           () => {
-            this.axios.get("admin/products/findAll").then(rs => {
-              let { data } = rs.data;
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "admin/products/findAll"
+              })
+              .then(rs => {
+                let { data } = rs.data;
 
-              data = data.map(it => {
-                return {
-                  ...it,
-                  gallery: it.Galleries
-                };
+                data = data.map(it => {
+                  return {
+                    ...it,
+                    gallery: it.Galleries
+                  };
+                });
+
+                this.state.products.handleChange({
+                  ...this.state.products,
+                  loading: false,
+                  data
+                });
+
+                this.state.loadingComponent.updateState(false);
               });
-
-              this.state.products.handleChange({
-                ...this.state.products,
-                loading: false,
-                data
+          }
+        );
+      }
+    },
+    tags: {
+      data: null,
+      loading: false,
+      updateData: _tags => {
+        this.setState({
+          tags: {
+            ...this.state.tags,
+            ..._tags
+          }
+        });
+      },
+      controlData: ({ type, tag }) => {
+        let tags = [];
+        switch (type) {
+          case "add":
+            tags = [...this.state.tags.data, tag];
+            break;
+          case "update":
+            tags = this.state.tags.data
+              ? this.state.tags.data.map(it => (it.id === tag.id ? tag : it))
+              : null;
+            break;
+          case "delete":
+            tags = this.state.tags.data
+              ? this.state.tags.data.filter(it => it.id !== tag.id)
+              : null;
+            break;
+          default:
+            break;
+        }
+        this.state.tags.updateData({ data: tags });
+      },
+      fetchData: () => {
+        this.setState(
+          {
+            tags: {
+              ...this.state.tags,
+              loading: true
+            }
+          },
+          () => {
+            console.log("loading: " + this.state.tags.loading);
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "admin/blogTags/findAll"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+                if (type === "success") {
+                  this.state.tags.updateData({ loading: false, data });
+                }
+                this.state.loadingComponent.updateState(false);
+              })
+              .catch(err => {
+                this.state.tags.updateData({ loading: false });
+                console.log("Fetch tags faild...");
               });
+          }
+        );
+      }
+    },
+    blogs: {
+      data: null,
+      loading: false,
+      handleChange: _blogs => {
+        this.setState({
+          blogs: {
+            ...this.state.blogs,
+            ..._blogs
+          }
+        });
+      },
+      updateData: ({ type, blog }) => {
+        let _blogs;
 
-              this.state.loadingComponent.updateState(false);
-            });
+        switch (type) {
+          case "add":
+            _blogs = this.state.blogs.data
+              ? [...this.state.blogs.data.filter(it => it.id !== blog.id), blog]
+              : [blog];
+
+            break;
+          case "update":
+            _blogs = this.state.blogs.data.map(it =>
+              it.id === blog.id ? blog : it
+            );
+            break;
+          case "delete":
+            _blogs = this.state.blogs.data.filter(it => it.id !== blog.id);
+            break;
+          default:
+            _blogs = this.state.blogs.data;
+            break;
+        }
+
+        console.log("%c Update.........", "color:red");
+        console.log(_blogs);
+        console.log(blog);
+        this.state.blogs.handleChange({ data: _blogs });
+      },
+      fetchData: () => {
+        this.setState(
+          {
+            blogs: {
+              ...this.state.blogs,
+              loading: true
+            }
+          },
+          () => {
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "admin/blog/findAll"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+                if (type === "success") {
+                  console.log(data);
+                  this.state.blogs.handleChange({
+                    data,
+                    loading: false
+                  });
+                  this.state.loadingComponent.updateState(false);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+                this.state.loadingComponent.updateState(false);
+              });
           }
         );
       }
@@ -152,6 +363,8 @@ class AdminProvider extends Component {
     adminActions.updateAdmin(cookie.getCookie("_admin"));
     adminActions.updateAdminToken(cookie.getCookie("_atk"));
     this.axios = admin.axios;
+
+    this.state.axios.updateData();
   }
 
   render() {

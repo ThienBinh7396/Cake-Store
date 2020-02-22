@@ -11,6 +11,9 @@ module.exports = {
       upload_id: {
         type: Sequelize.INTEGER
       },
+      title: {
+        type: Sequelize.STRING
+      },
       content: {
         type: Sequelize.TEXT
       },
@@ -18,10 +21,12 @@ module.exports = {
         type: Sequelize.STRING
       },
       views: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
+        defaultValue: []
       },
-      tags: {
-        type: Sequelize.JSONB
+      status: {
+        type: Sequelize.INTEGER,
+        default: 0
       },
       createdAt: {
         allowNull: false,

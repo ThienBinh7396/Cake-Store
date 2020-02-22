@@ -1,0 +1,225 @@
+html,
+.main-content {
+  position: relative;
+  width: calc(100vw);
+  overflow-x: hidden;
+}
+.relative {
+  position: relative;
+}
+
+.awesome-font {
+  font-family: "Pacifico", cursive;
+}
+.nav{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 102;
+}
+.sub-nav {
+  background-color: #0d0d0d;
+  color: #aaaaaa;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 13px;
+}
+.base-navbar {
+  width: 100%;
+  background-color: #fff;
+}
+.base-navbar::before,
+.base-navbar::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 100%;
+}
+.base-navbar::before {
+  height: 0;
+  border-top: 1px dashed #0d0d0d;
+}
+.base-navbar::after {
+  height: 17px;
+  background: url("/img/bg-header.png");
+  top: calc(100%);
+}
+
+.base-navbar-content {
+  padding-top: 16px;
+  padding-bottom: 14px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  align-items: center;
+}
+.base-navbar .header-logo a {
+  font-size: 32px;
+  text-decoration: none;
+  color: #5e3c3e;
+}
+.base-navbar .header-logo a span {
+  color: #e47277;
+  font-family: "Pacifico", cursive;
+  margin-left: 2px;
+}
+.base-navbar .header-menu {
+  display: -webkit-box;
+  display: flex;
+}
+.base-navbar .header-menu .main-menu {
+  padding-right: 32px;
+}
+.base-navbar .header-menu .main-menu a {
+  text-decoration: none;
+  padding: 0 32px;
+  padding-right: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #5e3c3e;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+.base-navbar .header-menu .main-menu a:hover,
+.base-navbar .header-menu .main-menu a.active {
+  color: #e47277;
+}
+.base-navbar .header-menu .control-menu {
+  border-left: 1px solid rgb(146, 136, 136);
+  padding-left: 32px;
+  padding-right: 12px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+}
+.banner-header {
+  background-size: cover;
+  background-position: center;
+}
+.base-carousel-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.base-carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 100%;
+  border: 1px solid #fff;
+  transition: 0.2s;
+  color: #e47277;
+  background: #fffafa87;
+  font-size: 19px;
+  cursor: pointer;
+  z-index: 100;
+}
+.base-carousel-control:hover {
+  color: #fff;
+  background-color: #e47277;
+  border-color: #e47277;
+}
+.base-carousel-control:active {
+  transform: translateY(-50%) scale(0.84);
+}
+.base-carousel-control.control-prev {
+  left: 24px;
+}
+.base-carousel-control.control-next {
+  right: 24px;
+}
+.base-carousel {
+  position: relative;
+  transition-timing-function: ease;
+}
+.base-carousel-item {
+  display: inline-block;
+  padding: 24px 46px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: #7a7a7a;
+}
+.base-carousel-item img {
+  width: 420px;
+  margin: auto;
+  display: block;
+}
+.base-carousel-item .base-carousel-item-title {
+  margin-bottom: 35px;
+  line-height: 54px;
+  font-size: 50px;
+  color: #e47277;
+}
+.body-content {
+  min-height: 320px;
+  margin-top: -136px;
+  background-color: #ffffff;
+  position: relative;
+  border-radius: 5px 5px 0 0;
+}
+.body-intro {
+  position: relative;
+  background-image: url(/img/icon-box-shadow.png);
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  padding: 15px 15px 45px;
+}
+.body-intro .body-intro-content {
+  border: 1px dashed #eeeeee;
+  min-height: 180px;
+}
+
+.section-wrapper {
+  text-align: center;
+  margin-top: 20px;
+}
+.section-wrapper .title {
+  font-size: 20px;
+  margin-top: 0;
+  padding: 0 15px;
+  margin-bottom: 0px;
+  text-transform: uppercase;
+}
+.section-wrapper .title-divider {
+  width: fit-content;
+  margin:14px auto 20px;
+  color: #5e3c3e;
+  font-size: 15px;
+  position: relative;
+}
+.section-wrapper .title-divider::before,
+.section-wrapper .title-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 1px;
+  background-color: #dddddd;
+}
+.section-wrapper .title-divider::after{
+  left: calc(100% + 8px);
+}
+.section-wrapper .title-divider::before{
+  right: calc(100% + 8px);
+}
+.ps__rail-y {
+  width: 6px !important;
+}
+.ps__thumb-y {
+  right: 0;
+  border-radius: 0;
+  transition: 0.1s;
+  width: 6px !important;
+}

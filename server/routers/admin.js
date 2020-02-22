@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   BlogTagController,
+  BlogController,
   EmployeeController,
   ProductController
 } = require("./../controllers");
@@ -29,7 +30,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/employees/findAll", [
-  adminAuth.verifyToken.bind(role.all),
+  adminAuth.verifyToken.bind(role.admin),
   EmployeeController.findAll
 ]);
 
@@ -55,6 +56,38 @@ router.post("/products/update", [
   ProductController.update.bind(ProductController)
 ]);
 
-router.get("/blogs/findByTag", [BlogTagController.findByTags]);
+router.post("/products/delete", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  ProductController.delete.bind(ProductController)
+]);
+
+router.get("/blogTags/findAll", [BlogTagController.findAll]);
+
+router.post("/blogTags/delete", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogTagController.delete
+]);
+router.post("/blogTags/create", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogTagController.create.bind(BlogTagController)
+]);
+router.post("/blogTags/update", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogTagController.update.bind(BlogTagController)
+]);
+
+router.get("/blog/findAll", [BlogController.findAll]);
+router.post("/blog/create", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogController.create.bind(BlogController)
+]);
+router.post("/blog/update", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogController.update.bind(BlogController)
+]);
+router.post("/blog/delete", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  BlogController.delete.bind(BlogController)
+]);
 
 module.exports = router;

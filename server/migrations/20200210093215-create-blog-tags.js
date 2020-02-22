@@ -11,6 +11,9 @@ module.exports = {
       title: {
         type: Sequelize.STRING
       },
+      alias: {
+        type: Sequelize.STRING
+      },
       employee_update_id: {
         type: Sequelize.INTEGER,
         references: {

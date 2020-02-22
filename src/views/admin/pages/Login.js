@@ -22,12 +22,14 @@ import * as adminAction from "../../../actions/admin";
 import { bindActionCreators } from "redux";
 import { withSnackbar } from "notistack";
 import { withRouter } from "react-router-dom";
+import cookie from './../../../utils/cookie';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
 
     console.log(this.props);
+    console.log(this.context);
 
     const { admin, adminActions } = this.props;
 
@@ -89,6 +91,10 @@ class Login extends React.Component {
       enqueueSnackbar(message, { variant });
     };
 
+    const updateCookie = (key, value) => {
+      cookie.setCookie(key, value);
+    }
+
     const btnLoginClickHandle = event => {
       this.setState({
         doLogin: true
@@ -119,8 +125,8 @@ class Login extends React.Component {
           } else {
             showToast('Redirecting to admin page...', type);
           
-            this.adminActions.updateAdmin(data.admin);
-            this.adminActions.updateAdminToken(data.token);
+            updateCookie('_admin', data.admin);
+            updateCookie('_atk', data.token);
 
             this.props.history.push('/admin/login');
           }

@@ -9,23 +9,23 @@ import {
   Typography,
   Button,
   CircularProgress,
-  CardMedia,
   FormControl,
   MenuItem,
   Select
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { AdminContext } from "./../context/AdminProvider";
 import { withRouter } from "react-router-dom";
+import QueueAnim from "rc-queue-anim";
+import BaseWrapperImage from "../../../common/component/BaseWrapperImage";
 
 const useStyles = theme => ({
   root: {
     flexGrow: 1
   },
   paperContainer: {
-    padding: "20px 8px",
+    padding: "16px 8px",
     "& .paper": {
       color: theme.palette.text.main,
       padding: "12px 20px 20px 20px",
@@ -74,6 +74,7 @@ class Cake extends React.Component {
   }
 
   state = {
+    axios: null,
     id: -1,
     type: "save",
     isSubmitting: false,
@@ -112,7 +113,7 @@ class Cake extends React.Component {
         {
           label: "busy",
           text: "Busy",
-          color: "#FB9514"
+          color: "#ff8e00"
         },
         {
           label: "unavailable",
@@ -219,7 +220,7 @@ class Cake extends React.Component {
     this.progressDialog = this.context.progressDialog;
 
     console.log("product");
-    let { products, loadingComponent } = this.context;
+    let { products, loadingComponent, axios } = this.context;
 
     if (products && !products.data) {
       products.fetchProduct();
@@ -227,13 +228,17 @@ class Cake extends React.Component {
       console.log("fetch product");
     }
 
+    this.setState({
+      axios
+    })
+
     this.updateCakeFromStore();
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { adminContext } = this.props;
     if (adminContext.products !== prevProps.adminContext.products) {
-      console.log("%cDid Update", "color: red; font-size: 30px")
+      console.log("%cDid Update", "color: red; font-size: 30px");
       this.updateCakeFromStore();
     }
   }
@@ -274,24 +279,13 @@ class Cake extends React.Component {
 
       let url = file ? URL.createObjectURL(file) : this.state.thumbnail.default;
 
-      this.setState(
-        {
-          thumbnail: {
-            ...this.state.thumbnail,
-            file,
-            url
-          }
-        },
-        () => {
-          this.setState({ ...this.state });
-          setTimeout(() => {
-            let _img = document.getElementById("js-image-preview");
-            document.querySelector(
-              "#thumbnail-upload ~ .image-preview"
-            ).style.height = _img ? `${_img.offsetHeight}px` : "331px";
-          }, 100);
+      this.setState({
+        thumbnail: {
+          ...this.state.thumbnail,
+          file,
+          url
         }
-      );
+      });
     };
 
     const updateGallery = ({ type, url, files }) => {
@@ -300,6 +294,7 @@ class Cake extends React.Component {
       switch (type) {
         case "remove": {
           _gallery = this.state.gallery.filter(it => it.url !== url);
+
           break;
         }
         case "add": {
@@ -320,9 +315,15 @@ class Cake extends React.Component {
         default:
       }
 
-      this.setState({
-        gallery: _gallery
-      });
+      this.setState(
+        {
+          gallery: _gallery
+        },
+        () => {
+          console.log("%c Update gallery: ", "color: green");
+          console.log(this.state.gallery, "color: green");
+        }
+      );
     };
 
     const updateMultiFile = e => {
@@ -381,11 +382,14 @@ class Cake extends React.Component {
 
     const uploadFile = async formData => {
       return new Promise(res => {
-        this.axios
-          .post("uploadFile", formData, {
+        this.state.axios
+          .connect({
+            url: "uploadFile",
+            method: "POST",
             headers: {
               "Content-Type": "multipart/form-data"
-            }
+            },
+            data: formData
           })
           .then(rs => {
             const { data } = rs.data;
@@ -494,8 +498,12 @@ class Cake extends React.Component {
 
       formData = new FormData();
 
-      this.axios
-        .post(`admin/products/${this.state.type === 'save' ? 'create' : 'update'}`, {
+      this.state.axios
+      .connect({
+        url:  `admin/products/${this.state.type === "save" ? "create" : "update"}`,
+        method: "POST",
+     
+        data:  {
           id: this.state.id,
           title: this.state.title.value,
           price: this.state.price.value,
@@ -504,14 +512,17 @@ class Cake extends React.Component {
           status: this.state.status.value,
           thumbnail: this.state.thumbnail.url,
           gallery: this.state.gallery
-        })
+        }
+      })
         .then(rs => {
           let { data, type, message } = rs.data;
 
           console.log(data, type, message);
-          if(type === 'success'){
+          if (type === "success") {
             this.context.products.update(data);
-            this.props.history.push(`/admin/cake`)
+            setTimeout(() => {
+              this.props.history.push(`/admin/cake`);
+            }, 150);
           }
           showToast(message, type);
           this.setState({
@@ -532,7 +543,6 @@ class Cake extends React.Component {
       <Box className={classes.root}>
         <Grid container>
           <Grid item sm={8} xs={12} className={classes.paperContainer}>
-          
             <Card className={"paper"}>
               <Typography className={"title"}>Cakes</Typography>
               <form className="fullWidth">
@@ -679,68 +689,55 @@ class Cake extends React.Component {
                     id="thumbnail-upload"
                     onChange={handleThumbnailInput}
                   ></input>
-                  <div className="image-preview" style={{ height: "auto" }}>
-                    {this.state.thumbnail.url && (
-                      <CardMedia
-                        id="js-image-preview"
-                        component="img"
-                        image={this.state.thumbnail.url}
-                        className={`${
-                          this.state.thumbnail.url ? "open" : "close"
-                        }`}
-                      ></CardMedia>
-                    )}
-                  </div>
+                  <BaseWrapperImage
+                    mt={2}
+                    image={this.state.thumbnail.url}
+                    width="100%"
+                  />
                 </div>
               </div>
             </Card>
             <Box component={Card} mt={2} className={"paper"}>
               <div className="simple-form">
                 <label>Gallery: </label>
-                <TransitionGroup className="preview-upload-multi">
-                  <CSSTransition
-                    timeout={300}
-                    key={`upload-file-#`}
-                    classNames="transition-zoom"
+
+                <QueueAnim
+                  className="preview-upload-multi"
+                  type={["right", "left"]}
+                  ease={["easeOutQuart", "easeInOutQuart"]}
+                >
+                  <div
+                    className="preview-single input-wrapper"
+                    key={`#gallery`}
                   >
-                    <div className="preview-single input-wrapper">
-                      <input
-                        id="js-input-multi-file"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={updateMultiFile}
-                      ></input>
-                    </div>
-                  </CSSTransition>
+                    <input
+                      id="js-input-multi-file"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={updateMultiFile}
+                    ></input>
+                  </div>
                   {this.state.gallery.map((it, index) => (
-                    <CSSTransition
-                      classNames="transition-zoom"
-                      timeout={300}
-                      key={`#${btoa(it.id)}`}
-                      appear
-                      unmountOnExit
+                    <div
+                      key={`#gallery-${index}`}
+                      className="preview-single"
+                      style={{ borderColor: statusColor[it.status] }}
                     >
+                      <div>#{index}</div>
                       <div
-                        className="preview-single"
-                        style={{ borderColor: statusColor[it.status] }}
+                        className="preview-single-image"
+                        style={{ backgroundImage: `url(${it.url})` }}
+                      ></div>
+                      <div
+                        className="preview-remove-image"
+                        onClick={() => updateGallery({ type: "remove", ...it })}
                       >
-                        <div
-                          className="preview-single-image"
-                          style={{ backgroundImage: `url(${it.url})` }}
-                        ></div>
-                        <div
-                          className="preview-remove-image"
-                          onClick={() =>
-                            updateGallery({ type: "remove", ...it })
-                          }
-                        >
-                          <i className="fas fa-times"></i>
-                        </div>
+                        <i className="fas fa-times"></i>
                       </div>
-                    </CSSTransition>
+                    </div>
                   ))}
-                </TransitionGroup>
+                </QueueAnim>
               </div>
             </Box>
           </Grid>

@@ -9,14 +9,14 @@ class Auth {
     const token = req.headers["x-access-token"];
 
     if (!token) {
-      res.send(helper.getStatus("error", `Token isn't provided!`));
+      res.send(helper.getStatus("TokenInvaild", `Token isn't provided!`));
     } else {
       let decoded;
 
       try {
         decoded = jwt.verify(token, process.env.SECRET_KEY);
       } catch (error) {
-        return res.send(helper.getStatus("error", `Token isn't invalid!`));
+        return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
       }
 
       let {type, id, email } = decoded;
@@ -34,12 +34,12 @@ class Auth {
               next();
             } else {
               return res.send(
-                helper.getStatus("error", `Token isn't invalid!`)
+                helper.getStatus("TokenInvaild", `Token isn't invalid!`)
               );
             }
           })
           .catch(err => {
-            return res.send(helper.getStatus("error", `Token isn't invalid!`));
+            return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
           });
       } else {
         Employee.findOne({
@@ -54,12 +54,12 @@ class Auth {
               next();
             } else {
               return res.send(
-                helper.getStatus("error", `Token isn't invalid!`)
+                helper.getStatus("TokenInvaild", `Token isn't invalid!`)
               );
             }
           })
           .catch(err => {
-            return res.send(helper.getStatus("error", `Token isn't invalid!`));
+            return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
           });
       }
     }

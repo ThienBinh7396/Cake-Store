@@ -12,20 +12,20 @@ class AdminAuth {
     const token = req.headers["x-access-token"];
 
     if (!token) {
-      res.send(helper.getStatus("error", `Token isn't provided!`));
+      res.send(helper.getStatus("TokenInvaild", `Token isn't provided!`));
     } else {
       let decoded;
 
       try {
         decoded = jwt.verify(token, process.env.SECRET_KEY);
       } catch (err) {
-        return res.send(helper.getStatus("error", `Token isn't invalid!`));
+        return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
       }
 
       let { type, email, id } = decoded;
 
       if (type !== "admin") {
-        return res.send(helper.getStatus("error", `Token isn't invalid!`));
+        return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
       }
 
       await Employee.findOne({
@@ -37,20 +37,20 @@ class AdminAuth {
         .then(rs => {
           if (rs) {
             let admin = rs.toJSON();
-
+            
             if (this.role.indexOf(admin.role) < 0) {
-              return res.send(helper.getStatus("error", "Permission denied!"));
+              return res.send(helper.getStatus("TokenInvaild", "Permission denied!"));
             } else {
-              req.auth = admin;
-
+              req.auth = {...admin, type: 'admin'};
+              
               next();
             }
           } else {
-            return res.send(helper.getStatus("error", `Token isn't invalid!`));
+            return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
           }
         })
         .catch(err => {
-          return res.send(helper.getStatus("error", `Token isn't invalid!`));
+          return res.send(helper.getStatus("TokenInvaild", `Token isn't invalid!`));
         });
 
     }
@@ -61,7 +61,7 @@ class AdminAuth {
       {
         id: admin.id,
         type: "admin",
-        email: admin.email
+        email: admin.email,
       },
       process.env.SECRET_KEY,
       { expiresIn: "7d" }
