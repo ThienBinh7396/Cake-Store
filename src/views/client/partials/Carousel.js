@@ -18,13 +18,14 @@ class BaseCarousel extends Component {
   }
 
   state = {
+    isSliding: false,
     windowWidth: 0,
     itemToShow: 1,
     itemToSlide: 1,
     autoplay: this.props.autoplay || true,
     playSpeed: this.props.playSpeed || 5000,
     transition: 0,
-    defaultTransition: this.props.transition || 300,
+    defaultTransition: this.props.transition || 360,
     breakPoint: "xl", // default: xl
     breakPoints: null, // Example: {md:{itemToShow: 2, itemToSlide: 2}, sm:{itemToShow: 1}}
     default: {
@@ -45,12 +46,13 @@ class BaseCarousel extends Component {
 
     this.setState(
       {
-        autoplay: this.props.autoplay !== undefined ? this.props.autoplay : true,
+        autoplay:
+          this.props.autoplay !== undefined ? this.props.autoplay : true,
         defaultCarousels: this.props.children.length,
         carousels: this.props.children.length * 3,
         itemToShow: this.props.itemToShow || 1,
         itemToSlide: this.props.itemToSlide || 1,
-        defaultTransition: this.props.transition || 300,
+        defaultTransition: this.props.transition || 360,
         default: {
           // default for xl size ( > 1920px)
           itemToShow: this.props.itemToShow || 1,
@@ -157,7 +159,6 @@ class BaseCarousel extends Component {
         ? this.state.currentIndex - this.state.defaultCarousels
         : this.state.currentIndex;
 
-
     this.setState({
       currentIndex: _index
     });
@@ -166,6 +167,7 @@ class BaseCarousel extends Component {
   stepTo(index, resetItemToSlide) {
     this.setState(
       {
+        isSliding: true,
         transition: this.state.defaultTransition,
         currentIndex: index,
         itemToSlide: resetItemToSlide ? 1 : this.state.itemToSlide
@@ -173,7 +175,11 @@ class BaseCarousel extends Component {
       () => {
         setTimeout(() => {
           this.setState(
-            { transition: 0, itemToSlide: this.state.default.itemToSlide },
+            {
+              isSliding: false,
+              transition: 0,
+              itemToSlide: this.state.default.itemToSlide
+            },
             () => {
               this.resetIndex();
             }
@@ -255,14 +261,18 @@ class BaseCarousel extends Component {
           <div
             className="base-carousel-control control-prev"
             onClick={() => {
+              if(this.state.isSliding) return;
+              
               this.stepTo(this.state.currentIndex - 1, true);
             }}
-          >
+            >
             <i className="fas fa-angle-left"></i>
           </div>
           <div
             className="base-carousel-control control-next"
             onClick={() => {
+              if(this.state.isSliding) return;
+              
               this.stepTo(this.state.currentIndex + 1, true);
             }}
           >

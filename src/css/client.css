@@ -139,7 +139,7 @@ html,
 }
 .base-carousel {
   position: relative;
-  transition-timing-function: ease;
+  transition-timing-function: linear;
 }
 .base-carousel-item {
   display: inline-block;

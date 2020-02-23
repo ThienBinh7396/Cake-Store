@@ -10,3 +10,7 @@ npm start
 
 # Start serve
 npm run serve
+
+# Live Demo
+
+- https://cakes-store.herokuapp.com/home
