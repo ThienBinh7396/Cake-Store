@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { PropTypes } from "prop-types";
-import Carousel from "./Carousel";
+import Carousel from "../../../common/component/BaseCarousel";
 import { ClientContext } from "./../context/ClientProvider";
 import { Grid, Box } from "@material-ui/core";
 

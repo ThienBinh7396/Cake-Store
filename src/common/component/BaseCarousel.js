@@ -1,8 +1,8 @@
 import React, { Component, createRef } from "react";
 import { Box } from "@material-ui/core";
-import { ClientContext } from "./../context/ClientProvider";
+import { ClientContext } from "../../views/client/context/ClientProvider";
 
-import { widthToBreackpoint } from "./../../../utils/helper";
+import { widthToBreackpoint } from "../../utils/helper";
 
 const mapBreakPoint = ["xs", "sm", "md", "lg", "xl"];
 
