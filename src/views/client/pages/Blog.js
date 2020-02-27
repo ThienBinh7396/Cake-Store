@@ -4,7 +4,7 @@ import ProductCard from "../partials/ProductCard";
  class Blog extends React.Component {
    render(){
      return (
-      <ProductCard id={617} type="list" />
+      <ProductCard id={66} type="list" />
     )
   }
 }

@@ -5,8 +5,9 @@ import { Radio, makeStyles } from '@material-ui/core';
 function BaseRadioButton(props) {
   const useStyles = makeStyles(theme => ({
     root: {
-      "&.Mui-checked": {
-        color: props.bcolor
+      "&.Mui-checked, &.Mui-checked ~ .MuiTypography-root": {
+        color: props.bcolor,
+        transition: '.3s ease'
       }
     }
   }))

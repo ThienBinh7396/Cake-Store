@@ -1,26 +1,8 @@
 import React, { Component } from "react";
 import { Container, Grid } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
+import { CLIENT_NAV } from './../../../constant/index';
 
-const navBar = [
-  {
-    text: "Home",
-    path: "/home",
-    icon: "fas fa-home"
-  },
-  {
-    text: "Cake",
-    path: "/cake"
-  },
-  {
-    text: "Blog",
-    path: "/blog"
-  },
-  {
-    text: "Contact",
-    path: "/contact"
-  }
-];
 
 export default class Footer extends Component {
   render() {
@@ -54,7 +36,7 @@ export default class Footer extends Component {
             <Grid item md={3} sm={6} xs={6}>
               <h3>Navigation</h3>
               <ul className="footer-navigation">
-                {navBar.map((it, index) => (
+                {CLIENT_NAV.map((it, index) => (
                   <li key={`#nav-${index}-${it.text}`}>
                     <NavLink to={it.path}>{it.text}</NavLink>
                     <span></span>
@@ -79,10 +61,7 @@ export default class Footer extends Component {
                 </li>
               </ul>
               <div className="footer-copyright">
-                Cake stores{" "}
-                <span aria-label="heart" role="img">
-                  ❤️
-                </span>{" "}
+                Cake stores <i className="fas fa-heart ld ld-heartbeat" style={{color: 'red'}}></i>{" "}
                 {new Date().getFullYear()}
               </div>
             </Grid>

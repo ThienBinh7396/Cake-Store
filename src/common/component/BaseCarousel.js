@@ -114,7 +114,7 @@ class BaseCarousel extends Component {
     }
   }
   componentWillUnmount() {
-    this._ismounted = true;
+    this._ismounted = false;
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -122,7 +122,6 @@ class BaseCarousel extends Component {
 
   updateBreakPoint() {
     let _breakPoint = widthToBreackpoint(this.state.windowWidth);
-    console.log("Update Breakpoint................");
     this.setState(
       {
         breakPoint: _breakPoint
@@ -209,8 +208,9 @@ class BaseCarousel extends Component {
       currentIndex: _index
     });
   }
-
+  
   stepTo(index, resetItemToSlide) {
+    if(!this._ismounted) return;
     this.setState(
       {
         isSliding: true,
@@ -220,6 +220,8 @@ class BaseCarousel extends Component {
       },
       () => {
         setTimeout(() => {
+          if(!this._ismounted) return;
+
           this.setState(
             {
               isSliding: false,
@@ -244,7 +246,6 @@ class BaseCarousel extends Component {
   }
 
   updateChildren() {
-    console.log("Update childen. .....");
     this.setState(
       {
         defaultCarousels: this.props.children ? this.props.children : 1,
@@ -385,7 +386,6 @@ class BaseCarousel extends Component {
                     key={`#-pagination-${this.now}-${pindex}`}
                     p={pindex}
                     onClick={e => {
-                      console.log(this.state.currentIndex);
                       this.stepTo(
                         pindex * this.state.itemToShow +
                           this.state.defaultCarousels.length,

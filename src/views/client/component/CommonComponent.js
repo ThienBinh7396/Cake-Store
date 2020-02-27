@@ -120,7 +120,7 @@ class CommonComponent extends Component {
     const { classes } = this.props;
     const { dialogReloadPage } = this.context;
     return (
-      <div className={classes.root} onScroll={this.handleScrollTop.bind(this)}>
+      <div className={classes.root} id="main-content" onScroll={this.handleScrollTop.bind(this)}>
         <div
           style={{
             minHeight: "100vh"

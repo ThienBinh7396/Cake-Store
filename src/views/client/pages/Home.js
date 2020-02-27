@@ -4,7 +4,6 @@ import {
   Container,
   Box,
   Grid,
-  makeStyles,
   ButtonBase
 } from "@material-ui/core";
 import SectionWrapper from "../partials/SectionWrapper";
@@ -20,6 +19,7 @@ export default function Home(props) {
   const [feedback, setFeedback] = useState(null);
   const [blog, setBlog] = useState(null);
 
+
   const clientContext = useContext(ClientContext);
 
   useEffect(() => {
@@ -33,6 +33,14 @@ export default function Home(props) {
   useEffect(() => {
     setBlog(clientContext.blog);
   }, [clientContext.blog]);
+
+
+  useEffect(() => {
+    console.log("Home did mount")
+    return () => {
+      console.log("Home un mount")
+    };
+  }, [])
 
   const productCarouselBreakpoint = {
     md: {
@@ -146,6 +154,7 @@ export default function Home(props) {
           playspeed="7000"
           autoplay={false}
           className="base-carousel-feedback"
+          
         >
           {!feedback || feedback.loading || !feedback.data
             ? [1, 2].map(it => (
@@ -192,7 +201,7 @@ export default function Home(props) {
   );
 
   const WrapperSubSection = props => (
-    <Box pr={4}>
+    <Box px={2}>
       <div className="wrapper-sub-section-title">
         {props.title || "Sub Section Title"}
       </div>
@@ -373,7 +382,7 @@ export default function Home(props) {
 
   return (
     <div>
-      <BannerHeader carousel></BannerHeader>
+      <BannerHeader type="carousel"></BannerHeader>
       <Container maxWidth="lg">
         <div className="body-content">
           {BodyIntro}

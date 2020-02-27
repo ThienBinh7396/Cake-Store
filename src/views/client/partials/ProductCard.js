@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRef } from "react";
 import { Rating } from "@material-ui/lab";
 import { ButtonBase, Box } from "@material-ui/core";
+import LazyImage from "./../../../common/component/LazyImage";
 
 function ProductCard(props) {
   const client = useContext(ClientContext);
@@ -28,10 +29,16 @@ function ProductCard(props) {
           {type === "grid" ? (
             <div
               className="card-product-image"
-              style={{
-                backgroundImage: `url(${product.thumbnail})`
-              }}
+              // style={{
+              //   backgroundImage: `url(${product.thumbnail})`
+              // }}
             >
+              <LazyImage
+                placeHolder={"/img/placeholder.png"}
+                src={product.thumbnail}
+                effect={"opacity"}
+                alt={product.thumbnail}
+              />
               {product.discount && (
                 <div className="card-product-discount">
                   <span>{product.discount}%</span>
@@ -62,10 +69,16 @@ function ProductCard(props) {
           ) : (
             <div
               className="card-product-image"
-              style={{
-                backgroundImage: `url(${product.thumbnail})`
-              }}
+              // style={{
+              //   backgroundImage: `url(${product.thumbnail})`
+              // }}
             >
+              <LazyImage
+                placeHolder={"/img/image-placeholder.webp"}
+                src={product.thumbnail}
+                effect={"opacity"}
+                alt={product.thumbnail}
+              />
               {product.discount && (
                 <div className="card-product-discount">
                   <span>{product.discount}%</span>
@@ -102,7 +115,7 @@ function ProductCard(props) {
             )}
             {type === "list" && (
               <Box display="flex" flexDirection="row">
-                <ButtonBase className="btn-card-wrapper">
+                <ButtonBase className="btn-card-wrapper btn-add-to-cart-large">
                   <div className="btn-card">
                     Add to cart
                     <i className="fas fa-angle-right"></i>
@@ -116,7 +129,9 @@ function ProductCard(props) {
                   <button className="button-icon">
                     <i className="far fa-heart"></i>
                   </button>
-              
+                  <button className="button-icon btn-add-to-cart-small">
+                    <i className="pe-7s-cart"></i>
+                  </button>
                 </div>
               </Box>
             )}

@@ -1,29 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Box, Container, Grid } from "@material-ui/core";
 import BaseIcon from "../../../common/component/BaseIcon";
 import { Link, NavLink } from "react-router-dom";
 import BaseBadge from "./../../../common/component/BaseBadge";
-import { ClientContext } from "./../context/ClientProvider";
+import { CLIENT_NAV } from './../../../constant/index';
 
-const navBar = [
-  {
-    text: "Home",
-    path: "/home",
-    icon: "fas fa-home"
-  },
-  {
-    text: "Cake",
-    path: "/cake"
-  },
-  {
-    text: "Blog",
-    path: "/blog"
-  },
-  {
-    text: "Contact",
-    path: "/contact"
-  }
-];
 
 function NavBar(props) {
   const { scrolltop } = props;
@@ -62,7 +43,7 @@ function NavBar(props) {
           </Box>
           <Box className="header-menu">
             <Box className="main-menu">
-              {navBar.map(it => (
+              {CLIENT_NAV.map(it => (
                 <NavLink to={it.path} key={`#nav-${it.text}`}>
                   {it.text}
                 </NavLink>

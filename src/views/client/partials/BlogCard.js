@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { ClientContext } from "../context/ClientProvider";
 import { formatDate } from "../../../utils/helper";
 import { ButtonBase } from "@material-ui/core";
+import LazyImage from './../../../common/component/LazyImage';
 
 export default function BlogCard(props) {
   const clientContext = useContext(ClientContext);
@@ -32,8 +33,14 @@ export default function BlogCard(props) {
     <div className={`blog-card ${props.type || "normal"}`}>
       <div
         className="blog-card-image"
-        style={{ backgroundImage: `url(${blog.thumbnail})` }}
-      ></div>
+      >
+         <LazyImage
+                placeHolder={"/img/placeholder.png"}
+                src={blog.thumbnail}
+                effect={"opacity"}
+                alt={blog.thumbnail}
+              />
+      </div>
       <div className="blog-card-content">
         <div className="blog-card-infor">
           by{" "}
