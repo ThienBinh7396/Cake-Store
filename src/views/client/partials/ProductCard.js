@@ -25,7 +25,9 @@ function ProductCard(props) {
   return (
     <div>
       {product && (
-        <div className={`card-product ${type}`}>
+        <div
+          className={`card-product ${type} ${props.small ? "small-size" : ""}`}
+        >
           {type === "grid" ? (
             <div
               className="card-product-image"
@@ -55,16 +57,18 @@ function ProductCard(props) {
                   <i className="pe-7s-cart"></i>
                 </button>
               </div>
-              <div className="card-product-rate">
-                <Rating
-                  precision={0.5}
-                  value={product.rate}
-                  size="small"
-                  name="rating-product"
-                  icon={<i className="far fa-star"></i>}
-                  style={{ color: "#fa6e75" }}
-                />
-              </div>
+              {!props.norate && (
+                <div className="card-product-rate">
+                  <Rating
+                    precision={0.5}
+                    value={product.rate}
+                    size="small"
+                    name="rating-product"
+                    icon={<i className="far fa-star"></i>}
+                    style={{ color: "#fa6e75" }}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div
@@ -88,7 +92,7 @@ function ProductCard(props) {
           )}
           <div className="card-product-content">
             <div className="card-product-title">{product.title}</div>
-            {type === "list" && (
+            {type === "list" && !props.norate && (
               <div className="card-product-rate">
                 <Rating
                   precision={0.5}
@@ -100,6 +104,11 @@ function ProductCard(props) {
                 />
               </div>
             )}
+            {type === "list" && !props.small && (
+              <div className="card-product-short-des">
+                {product.short_description}
+              </div>
+            )}
             <div className="card-product-price">
               {product.discount && (
                 <span className="origin">${product.price}</span>
@@ -108,11 +117,6 @@ function ProductCard(props) {
                 ${((product.price * (100 - product.discount)) / 100).toFixed(2)}
               </span>
             </div>
-            {type === "list" && (
-              <div className="card-product-short-des">
-                {product.short_description}
-              </div>
-            )}
             {type === "list" && (
               <Box display="flex" flexDirection="row">
                 <ButtonBase className="btn-card-wrapper btn-add-to-cart-large">
@@ -126,12 +130,16 @@ function ProductCard(props) {
                   <button className="button-icon">
                     <i className="pe-7s-search"></i>
                   </button>
-                  <button className="button-icon">
-                    <i className="far fa-heart"></i>
-                  </button>
-                  <button className="button-icon btn-add-to-cart-small">
-                    <i className="pe-7s-cart"></i>
-                  </button>
+                  {!props.small && (
+                    <>
+                      <button className="button-icon">
+                        <i className="far fa-heart"></i>
+                      </button>
+                      <button className="button-icon btn-add-to-cart-small">
+                        <i className="pe-7s-cart"></i>
+                      </button>
+                    </>
+                  )}
                 </div>
               </Box>
             )}

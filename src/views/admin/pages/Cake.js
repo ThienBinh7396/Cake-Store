@@ -374,27 +374,6 @@ class Cake extends React.Component {
       enqueueSnackbar(message, { variant: type });
     };
 
-    const uploadFile = async formData => {
-      return new Promise(res => {
-        this.state.axios
-          .connect({
-            url: "uploadFile",
-            method: "POST",
-            headers: {
-              "Content-Type": "multipart/form-data"
-            },
-            data: formData
-          })
-          .then(rs => {
-            const { data } = rs.data;
-
-            res(data);
-          })
-          .catch(err => {
-            res(null);
-          });
-      });
-    };
 
     const handleSaveBtn = async () => {
       this.setState({
@@ -423,7 +402,7 @@ class Cake extends React.Component {
       });
 
       if (uploadImage.length !== 0) {
-        let uploadResult = await uploadFile(formData);
+        let uploadResult = await this.state.axios.uploadFile(formData);
         if (!uploadResult) {
           showToast("Upload gallery failed!", "warning");
           this.setState({
@@ -465,7 +444,7 @@ class Cake extends React.Component {
 
       if (this.state.thumbnail.file !== null) {
         formData.append("thumbnail", this.state.thumbnail.file);
-        let uploadResult = await uploadFile(formData);
+        let uploadResult = await this.state.axios.uploadFile(formData);
 
         if (
           !uploadResult ||

@@ -16,7 +16,7 @@ const matchBreakPoint = Object.entries({
 
 export const widthToBreackpoint = width => {
   let index = matchBreakPoint.findIndex(it => it.value > width);
-  return index ? matchBreakPoint[index - 1].key : 'xl';
+  return index >= 0 ? matchBreakPoint[index - 1].key : 'xl';
 };
 
 

@@ -7,10 +7,12 @@ import {
   RadioGroup,
   FormControlLabel
 } from "@material-ui/core";
-import LazyImage from "../../../common/component/LazyImage";
 import BaseRadioButton from "./../../../common/component/BaseRadioButton";
+import { ClientContext } from "./../context/ClientProvider";
+import WrapperSubProductSection from "../partials/WrapperSubProductSection";
 
 class Store extends React.Component {
+  static contextType = ClientContext;
   state = {
     filter: {
       price: {
@@ -116,10 +118,12 @@ class Store extends React.Component {
                 </div>
               </div>
             </div>
+            <div className="widget">
+              <div className="title">Top Seller</div>
+              <WrapperSubProductSection title="" field="topSell" small />
+            </div>
           </Grid>
-          <Grid item md={7} lg={8}>
-         
-          </Grid>
+          <Grid item md={7} lg={8}></Grid>
         </Grid>
       </div>
     );

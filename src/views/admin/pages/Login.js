@@ -180,6 +180,7 @@ class Login extends React.Component {
                   className="fullWidth"
                   value={this.state.email.value}
                   onChange={handleChange("email").bind(this)}
+                  onKeyDown={e => e.keyCode === 13 && btnLoginClickHandle(e)}
                   error={!this.state.email.validate()}
                   helperText={this.state.email.errorText()}
                 />
@@ -192,6 +193,7 @@ class Login extends React.Component {
                   className="fullWidth"
                   value={this.state.password.value}
                   onChange={handleChange("password")}
+                  onKeyDown={e => e.keyCode === 13 && btnLoginClickHandle(e)}
                   error={!this.state.password.validate()}
                   helperText={this.state.password.errorText()}
                 />

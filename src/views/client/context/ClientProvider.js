@@ -8,7 +8,7 @@ export const ClientContext = createContext();
 const axiosInstance = Axios.create({
   baseURL: BASE_URL,
   headers: {
-    "x-access-token": cookie.getCookie("_tk")
+    "x-access-token": cookie.getCookie("_atk")
   }
 });
 
@@ -116,6 +116,27 @@ class ClientProvider extends React.Component {
             });
         });
       },
+      uploadFile: async formData => {
+        return new Promise(res => {
+          this.state.axios
+            .connect({
+              url: "https://cakes-store.herokuapp.com/api/uploadFile",
+              method: "POST",
+              headers: {
+                "Content-Type": "multipart/form-data"
+              },
+              data: formData
+            })
+            .then(rs => {
+              const { data } = rs.data;
+  
+              res(data);
+            })
+            .catch(err => {
+              res(null);
+            });
+        });
+      },  
       storageToken: token => {
         cookie.setCookie("_tk", token);
 

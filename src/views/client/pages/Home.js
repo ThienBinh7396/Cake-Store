@@ -13,6 +13,7 @@ import BaseCarousel from "../../../common/component/BaseCarousel";
 import ProductCard from "./../partials/ProductCard";
 import FeedbackCard from "../partials/FeedbackCard";
 import BlogCard from "../partials/BlogCard";
+import WrapperSubProductSection from './../partials/WrapperSubProductSection';
 
 export default function Home(props) {
   const [products, setProducts] = useState(null);
@@ -200,61 +201,6 @@ export default function Home(props) {
     </section>
   );
 
-  const WrapperSubSection = props => (
-    <Box px={2}>
-      <div className="wrapper-sub-section-title">
-        {props.title || "Sub Section Title"}
-      </div>
-
-      {props.data.loading || !props.data.data
-        ? Array(3)
-            .fill(null)
-            .map((it, index) => (
-              <Box
-                display="flex"
-                mt={2}
-                flexDirection="row"
-                key={`#${props.title}-${index}`}
-              >
-                <Skeleton
-                  variant="rect"
-                  animation="wave"
-                  width="30%"
-                  height="180px"
-                />
-                <Box width="70%" pl={2}>
-                  <Skeleton animation="wave" width="180px" />
-                  <Skeleton animation="wave" width="120px" />
-                  <Skeleton animation="wave" />
-                  <Box mt={4}>
-                    <Skeleton
-                      animation="wave"
-                      variant="rect"
-                      width="220px"
-                      height="24px"
-                    />
-                  </Box>
-                  <Box mt={1}>
-                    <Skeleton
-                      animation="wave"
-                      variant="rect"
-                      width="180px"
-                      height="34px"
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            ))
-        : props.data.data.map(it => (
-            <ProductCard
-              type="list"
-              id={it.id}
-              key={`#wrapper-section-${props.title}-${it.id}`}
-            />
-          ))}
-    </Box>
-  );
-
   const BlogSection = (
     <SectionWrapper
       title={"Blog & News"}
@@ -401,10 +347,10 @@ export default function Home(props) {
               xs={12}
               style={{ marginTop: "24px", paddingBottom: "42px" }}
             >
-              <WrapperSubSection
+              <WrapperSubProductSection
                 title="Top Seller"
                 key="#wrapper-sub-1"
-                data={products.topSell}
+                field="topSell"
               />
             </Grid>
             <Grid
@@ -414,10 +360,9 @@ export default function Home(props) {
               xs={12}
               style={{ marginTop: "24px", paddingBottom: "42px" }}
             >
-              <WrapperSubSection
+              <WrapperSubProductSection
                 title="Top Discount"
-                key="#wrapper-sub-2"
-                data={products.topDiscounts}
+                field="topDiscounts"
               />
             </Grid>
           </Grid>

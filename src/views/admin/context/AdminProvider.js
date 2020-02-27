@@ -49,6 +49,19 @@ class AdminProvider extends Component {
         });
       }
     },
+    admin: {
+      data: null,
+      fetchData: () => {
+        this.setState({
+          admin: {
+            ...this.state.admin,
+            data: cookie.getCookie('_admin')
+          }
+        }, () => {
+          console.log(this.state.admin)
+        })
+      }
+    },
     axios: {
       data: axiosInstance,
       updateData: () => {
@@ -66,6 +79,27 @@ class AdminProvider extends Component {
           }
         });
       },
+      uploadFile: async formData => {
+        return new Promise(res => {
+          this.state.axios
+            .connect({
+              url: "https://cakes-store.herokuapp.com/api/uploadFile",
+              method: "POST",
+              headers: {
+                "Content-Type": "multipart/form-data"
+              },
+              data: formData
+            })
+            .then(rs => {
+              const { data } = rs.data;
+  
+              res(data);
+            })
+            .catch(err => {
+              res(null);
+            });
+        });
+      },  
       connect: async config => {
         return new Promise((res, rej) => {
           this.state.axios

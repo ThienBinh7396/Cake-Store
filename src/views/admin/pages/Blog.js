@@ -327,30 +327,6 @@ export class Blog extends Component {
     });
   };
 
-  async uploadFile(file) {
-    return new Promise(res => {
-      let formData = new FormData();
-      formData.append("file", file);
-
-      this.state.axios
-        .connect({
-          method: "POST",
-          url: "uploadFile",
-          data: formData,
-          header: {
-            "Content-Type": "multipart/form-data"
-          }
-        })
-        .then(rs => {
-          let { data, type } = rs.data;
-          res(type === "success" ? data : null);
-        })
-        .catch(err => {
-          res(null);
-        });
-    });
-  }
-
   handleControlBtn = async () => {
     if (!this.state.title.validate() || !this.state.blogTag.validate()) {
       this.showToast("Type required field!", "warning");
@@ -366,9 +342,10 @@ export class Blog extends Component {
     let thumbnailUrl = this.state.thumbnail.url;
 
     if (this.state.thumbnail.file != null) {
-      let resultUploadThumbnail = await this.uploadFile(
-        this.state.thumbnail.file
-      );
+      let formData = new FormData();
+      formData.append("file", this.state.thumbnail.file);
+
+      let resultUploadThumbnail = await this.state.axios.uploadFile(formData);
 
       if (
         !resultUploadThumbnail ||
@@ -569,7 +546,6 @@ export class Blog extends Component {
                             return option.title;
                           }}
                           renderOption={(option, { selected }) => {
-
                             return (
                               <Box
                                 style={{ position: "relative", padding: "0px" }}
@@ -579,7 +555,11 @@ export class Blog extends Component {
                                   <React.Fragment>
                                     <Checkbox
                                       style={{ marginRight: 8, padding: "6px" }}
-                                      checked={ this.state.blogTag.value.findIndex(it => option.id === it.id) >= 0}
+                                      checked={
+                                        this.state.blogTag.value.findIndex(
+                                          it => option.id === it.id
+                                        ) >= 0
+                                      }
                                     />
                                     {option.title}
                                   </React.Fragment>
@@ -772,6 +752,6 @@ const withAdminContext = Element => {
   });
 };
 
-
-
-export default withAdminContext(withStyles(useStyles)(withSnackbar(withRouter(Blog))));
+export default withAdminContext(
+  withStyles(useStyles)(withSnackbar(withRouter(Blog)))
+);

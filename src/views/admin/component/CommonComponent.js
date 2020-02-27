@@ -22,6 +22,7 @@ import BaseIcon from "../../../common/component/BaseIcon";
 import PerfectScrollbar from "@opuscapita/react-perfect-scrollbar";
 import LoadingComponent from "../../../common/component/LoadingComponent";
 import BaseDialog from "../../../common/component/BaseDialog";
+import cookie from "../../../utils/cookie";
 
 const drawerWidth = 72;
 const drawerOpenWidth = 280;
@@ -293,13 +294,23 @@ class CommonComponent extends React.Component {
   };
 
   logout = () => {
-    this.adminActions.updateAdminToken(null);
+    cookie.setCookie('_atk', null);
+    cookie.setCookie('_admin', null);
     this.props.history.push("/admin/login");
   };
 
   componentDidMount() {
     const { adminActions } = this.props;
     this.adminActions = adminActions;
+    const {admin} = this.context;
+
+    console.log(admin);
+
+    if(admin.data === null){
+      admin.fetchData();
+    }
+
+
 
     this.updateBreadcrumbs();
     this.handleResizeWindow();
@@ -348,7 +359,9 @@ class CommonComponent extends React.Component {
 
   render() {
     const { progressDialog, loadingComponent, dialogReloadPage } = this.context;
-    const { classes, admin } = this.props;
+    const { classes } = this.props;
+
+    const admin = this.context.admin.data;
 
     return (
       <div className={classes.root}>
