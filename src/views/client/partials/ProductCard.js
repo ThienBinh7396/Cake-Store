@@ -5,16 +5,18 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { Rating } from "@material-ui/lab";
+import { ButtonBase, Box } from "@material-ui/core";
 
 function ProductCard(props) {
   const client = useContext(ClientContext);
   const [product, setProduct] = useState(null);
   const lastestProps = useRef(props);
 
+  const [type] = useState(props.type || "grid");
+
   useEffect(() => {
     if (client.products.data) {
-      let { id } = lastestProps.current.id;
-
+      let { id } = lastestProps.current;
       setProduct(client.products.data.find(it => it.id === id));
     }
   }, [client.products]);
@@ -22,19 +24,103 @@ function ProductCard(props) {
   return (
     <div>
       {product && (
-        <div className="card-product">
-          <div
-            className="card-product-image"
-            style={{
-              backgroundImage: `url(${product.thumbnail})`
-            }}
-          ></div>
-          <div className="card-product-rate">
-            <Rating precision={0.5} />
+        <div className={`card-product ${type}`}>
+          {type === "grid" ? (
+            <div
+              className="card-product-image"
+              style={{
+                backgroundImage: `url(${product.thumbnail})`
+              }}
+            >
+              {product.discount && (
+                <div className="card-product-discount">
+                  <span>{product.discount}%</span>
+                </div>
+              )}
+              <div className="card-product-action">
+                <button className="button-icon">
+                  <i className="pe-7s-search"></i>
+                </button>
+                <button className="button-icon">
+                  <i className="far fa-heart"></i>
+                </button>
+                <button className="button-icon">
+                  <i className="pe-7s-cart"></i>
+                </button>
+              </div>
+              <div className="card-product-rate">
+                <Rating
+                  precision={0.5}
+                  value={product.rate}
+                  size="small"
+                  name="rating-product"
+                  icon={<i className="far fa-star"></i>}
+                  style={{ color: "#fa6e75" }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div
+              className="card-product-image"
+              style={{
+                backgroundImage: `url(${product.thumbnail})`
+              }}
+            >
+              {product.discount && (
+                <div className="card-product-discount">
+                  <span>{product.discount}%</span>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="card-product-content">
+            <div className="card-product-title">{product.title}</div>
+            {type === "list" && (
+              <div className="card-product-rate">
+                <Rating
+                  precision={0.5}
+                  value={product.rate}
+                  size="small"
+                  name="rating-product"
+                  icon={<i className="far fa-star"></i>}
+                  style={{ color: "#fa6e75" }}
+                />
+              </div>
+            )}
+            <div className="card-product-price">
+              {product.discount && (
+                <span className="origin">${product.price}</span>
+              )}
+              <span className="real">
+                ${((product.price * (100 - product.discount)) / 100).toFixed(2)}
+              </span>
+            </div>
+            {type === "list" && (
+              <div className="card-product-short-des">
+                {product.short_description}
+              </div>
+            )}
+            {type === "list" && (
+              <Box display="flex" flexDirection="row">
+                <ButtonBase className="btn-card-wrapper">
+                  <div className="btn-card">
+                    Add to cart
+                    <i className="fas fa-angle-right"></i>
+                  </div>
+                </ButtonBase>
+
+                <div className="card-product-action">
+                  <button className="button-icon">
+                    <i className="pe-7s-search"></i>
+                  </button>
+                  <button className="button-icon">
+                    <i className="far fa-heart"></i>
+                  </button>
+              
+                </div>
+              </Box>
+            )}
           </div>
-          <div className="card-product-title">{product.title}</div>
-          <div className="card-product-price">${product.price}</div>
-          <div className="card-product-action">Add to card</div>
         </div>
       )}
     </div>

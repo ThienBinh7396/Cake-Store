@@ -4,24 +4,109 @@ const { Product, Gallery } = model;
 
 const helper = require("../helper/helper");
 
-class CakeCategoriesController {
-  findAll(req, res) {
+const data = require("./../MOCK_DATA.json");
 
-    return Product.findAll({
-      include: [
-        {
-          model: Gallery
-        }
-      ],
+const sequelize = require("sequelize");
+
+// Product.bulkCreate(data)
+// .then(rs => {
+//   console.log(rs);
+// })
+// .catch(err => {
+//   console.log(err);
+// })
+
+
+class CakeCategoriesController {
+  async count() {
+    return new Promise(res => {
+      Product.findAll({
+        attributes: [[sequelize.fn("count", sequelize.col("*")), "count"]]
+      })
+        .then(rs => {
+          res(rs[0].toJSON().count);
+        })
+        .catch(err => {
+          res(null);
+        });
+    });
+  }
+
+  async find({ count, limit, offset, order }) {
+    return new Promise((res, rej) => {
+      Product.findAll({
+        include: [
+          {
+            model: Gallery
+          }
+        ],
+        limit,
+        offset,
+        order: order || [["createdAt", "DESC"]]
+      })
+        .then(async rs => {
+          res({
+            data: rs,
+            count: count ? await this.count() : 0 
+          });
+        })
+        .catch(err => {
+          rej(err);
+        });
+    });
+  }
+
+  newProducts(req, res) {
+    this.find({
+      limit: 8,
+      offset: 0,
+    })
+      .then(rs => {
+        res.send(helper.getStatus("success", "Successful", rs));
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Fetch data failed!"));
+      });
+  }
+
+  topSell(req, res){
+    this.find({
+      limit: 5,
+      offset: 0,
       order: [
-        ['createdAt', 'DESC']
+        ["sold", "DESC"]
       ]
     })
+    .then(rs => {
+      res.send(helper.getStatus("success", "Successful", rs));
+    })
+    .catch(err => {
+      res.send(helper.getStatus("error", "Fetch data failed!"));
+    });
+  }
+  topDiscounts(req, res){
+    this.find({
+      limit: 5,
+      offset: 0,
+      order: [
+        ["discount", "DESC"]
+      ]
+    })
+    .then(rs => {
+      res.send(helper.getStatus("success", "Successful", rs));
+    })
+    .catch(err => {
+      res.send(helper.getStatus("error", "Fetch data failed!"));
+    });
+  }
+
+  findAll(req, res) {
+    
+    this.find({limit: 12, offset: 0})
       .then(rs => {
         res.send(helper.getStatus("success", "successfully", rs));
       })
       .catch(err => {
-        console.log(err);
         res.send(helper.getStatus("error", "Something went wrong!"));
       });
   }
@@ -55,7 +140,7 @@ class CakeCategoriesController {
         }
       })
         .then(rs => {
-          if(_gallery.length === 0) return res(true);
+          if (_gallery.length === 0) return res(true);
           Gallery.bulkCreate(
             _gallery.map(it => {
               return {
@@ -201,44 +286,56 @@ class CakeCategoriesController {
       .catch(err => {
         res.send(helper.getStatus("error", "Update product failed!"));
       });
-    }
-    
-    delete(req, res) {
-      let providerAttributes = helper.checkPostProviderAttributes(req, res, [
-        "id"
+  }
+
+  delete(req, res) {
+    let providerAttributes = helper.checkPostProviderAttributes(req, res, [
+      "id"
     ]);
 
     if (!providerAttributes) return;
-    
+
     return Product.findOne({
       where: {
         id: providerAttributes.id
       }
     })
-    .then(async rs => {
-      if(!rs){
-        res.send(helper.getStatus("error", `Can't find product with identity ${providerAttributes.id}!`));
-      }else{
-        await this.updateGallery(providerAttributes.id, []);
+      .then(async rs => {
+        if (!rs) {
+          res.send(
+            helper.getStatus(
+              "error",
+              `Can't find product with identity ${providerAttributes.id}!`
+            )
+          );
+        } else {
+          await this.updateGallery(providerAttributes.id, []);
 
-        Product.destroy({
-          where: {
-            id: providerAttributes.id
-          }
-        })
-        .then(rs => {
-          res.send(helper.getStatus("success", "Delete product successful!"));
-        })
-        .catch(err => {
-          res.send(helper.getStatus("error", err.errors ? err.errors.map(it => it.message) : "Delete product failed!"));
-        })
-      }
-
-    })
-    .catch(err => {
-      res.send(helper.getStatus("error", "Delete product failed!"));
-
-    })
+          Product.destroy({
+            where: {
+              id: providerAttributes.id
+            }
+          })
+            .then(rs => {
+              res.send(
+                helper.getStatus("success", "Delete product successful!")
+              );
+            })
+            .catch(err => {
+              res.send(
+                helper.getStatus(
+                  "error",
+                  err.errors
+                    ? err.errors.map(it => it.message)
+                    : "Delete product failed!"
+                )
+              );
+            });
+        }
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Delete product failed!"));
+      });
   }
 }
 

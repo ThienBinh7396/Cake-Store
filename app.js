@@ -16,7 +16,7 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "build")));
 
 const allowCrossDomain = (req, res, next) => {
   res.header(
@@ -24,7 +24,7 @@ const allowCrossDomain = (req, res, next) => {
     "Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin, x-access-token"
   );
 
-  const allowOrigins = ["http://localhost:3000"];
+  const allowOrigins = ["https://cakes-store.herokuapp.com/", "http://localhost:3000"];
 
   const origin = req.headers.origin;
 
@@ -50,7 +50,7 @@ app.use("/api", commonRouter);
 
 // this * route is to serve project on different page routes except root `/`
 app.get(/.*/, function(req, res) {
-  res.sendFile(path.join(__dirname, "/public/index.html"));
+  res.sendFile(path.join(__dirname, "/build/index.html"));
 });
 
 const port = process.env.PORT || 5000;

@@ -1,17 +1,20 @@
 import React, { Component } from "react";
 import NavBar from "./../partials/NavBar";
-import PerfectScrollbar from "@opuscapita/react-perfect-scrollbar";
 import { withStyles, Box } from "@material-ui/core";
 import { ClientContext } from "./../context/ClientProvider";
 import { withSnackbar } from "notistack";
 import BaseDialog from "../../../common/component/BaseDialog";
 
+import Footer from "../partials/Footer"
+
 const useStyles = theme => ({
   root: {
     height: "100vh",
+    overflowY: "auto",
     paddingTop: "120px",
     fontFamily: "'Roboto Slab', serif",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    scrollBehavior: "smooth"
   }
 });
 
@@ -19,16 +22,46 @@ class CommonComponent extends Component {
   static contextType = ClientContext;
 
   state = {
-    toast: null
+    toast: null,
+    scrollTop: 0
   };
 
   handleReize() {
-    const { width } = this.context;
-    width.updateData(window.innerWidth);
+    if (this.timerResize) {
+      clearTimeout(this.timerResize);
+    }
+
+    this.timerResize = setTimeout(
+      function() {
+        const { width } = this.context;
+        width.updateData(window.innerWidth);
+      }.bind(this),
+      200
+    );
+  }
+  handleScrollTop(e) {
+    if (this.timerScroll) {
+      clearTimeout(this.timerScroll);
+    }
+
+    const event = {
+      scrollTop: e.target.scrollTop
+    };
+
+    this.timerScroll = setTimeout(
+      function() {
+        this.setState({
+          scrollTop: event.scrollTop
+        });
+      }.bind(this),
+      100
+    );
   }
 
   componentDidMount() {
-    
+    this.timerScroll = null;
+    this.timerResize = null;
+
     this.showToast = () => {
       if (
         this.state.toast &&
@@ -41,13 +74,27 @@ class CommonComponent extends Component {
       }
     };
 
-    const { products } = this.context;
+    const { products, feedback, blog } = this.context;
 
-    if (products.data === null) {
-      products.fetchData();
+    if (products.newProducts.data === null) {
+      products.newProducts.fetchData();
+    }
+    if (products.topSell.data === null) {
+      products.topSell.fetchData();
+    }
+    if (products.topDiscounts.data === null) {
+      products.topDiscounts.fetchData();
+    }
+
+    if (feedback.data === null) {
+      feedback.fetchData();
+    }
+    if (blog.lastestBlogs.data === null) {
+      blog.lastestBlogs.fetchData();
     }
 
     this.handleReize();
+
     window.addEventListener("resize", this.handleReize.bind(this));
   }
 
@@ -71,12 +118,9 @@ class CommonComponent extends Component {
 
   render() {
     const { classes } = this.props;
-    const { scrollTop, dialogReloadPage } = this.context;
+    const { dialogReloadPage } = this.context;
     return (
-      <PerfectScrollbar
-        className={classes.root}
-        onScrollY={container => scrollTop.updateData(container.scrollTop)}
-      >
+      <div className={classes.root} onScroll={this.handleScrollTop.bind(this)}>
         <div
           style={{
             minHeight: "100vh"
@@ -94,12 +138,14 @@ class CommonComponent extends Component {
               dialogReloadPage.update(false);
             }}
           >
-            Please try refreshing the page or closing and re-opening your browser window.
+            Please try refreshing the page or closing and re-opening your
+            browser window.
           </BaseDialog>
-          <NavBar />
+          <NavBar scrolltop={this.state.scrollTop} />
           <Box pt={1}>{this.props.children}</Box>
+          <Footer />
         </div>
-      </PerfectScrollbar>
+      </div>
     );
   }
 }

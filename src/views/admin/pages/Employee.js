@@ -1,8 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import * as adminAction from "./../../../actions/admin";
-import * as Helper from "../../../common/helper";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import * as Helper from  "../../../utils/helper";
 import { useSnackbar } from "notistack";
 import {
   TableContainer,
@@ -78,7 +75,6 @@ const _columns = [
 ];
 
 function Employee(props) {
-  const { axios } = props.admin;
 
   const { enqueueSnackbar } = useSnackbar();
   const useStyles = makeStyles(theme => ({
@@ -124,6 +120,8 @@ function Employee(props) {
 
   const admin = useContext(AdminContext);
   const _admin = useRef(admin);
+
+  const axios = admin.axios.data;
 
   useEffect(() => {
     console.log("admin", _admin);
@@ -297,18 +295,5 @@ function Employee(props) {
   );
 }
 
-const mapStateToProps = state => {
-  return {
-    admin: state.admin
-  };
-};
 
-const mapDispathToProps = dispatch => {
-  return {
-    adminActions: bindActionCreators(adminAction, dispatch)
-  };
-};
-export default connect(
-  mapStateToProps,
-  mapDispathToProps
-)(withRouter(Employee));
+export default withRouter(Employee);

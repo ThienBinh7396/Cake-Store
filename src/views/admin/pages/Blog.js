@@ -24,7 +24,6 @@ import { AdminContext } from "./../context/AdminProvider";
 import BaseDialog from "./../../../common/component/BaseDialog";
 import Tags from "./Tags";
 import { withSnackbar } from "notistack";
-import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import BaseWrapperImage from "../../../common/component/BaseWrapperImage";
 import BaseRadioButton from "./../../../common/component/BaseRadioButton";
@@ -263,8 +262,6 @@ export class Blog extends Component {
     console.log("%c Blog...", "color:blue;font-size:20px");
 
     document.title = "Admin - Blog Pages";
-
-    this.axios = this.props.admin.axios;
 
     const {
       blogs,
@@ -775,11 +772,6 @@ const withAdminContext = Element => {
   });
 };
 
-const mapStateToProps = state => ({
-  admin: state.admin
-});
 
-export default connect(
-  mapStateToProps,
-  {}
-)(withAdminContext(withStyles(useStyles)(withSnackbar(withRouter(Blog)))));
+
+export default withAdminContext(withStyles(useStyles)(withSnackbar(withRouter(Blog))));

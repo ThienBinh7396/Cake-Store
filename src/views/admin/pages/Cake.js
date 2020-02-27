@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { withSnackbar } from "notistack";
 import {
   Grid,
@@ -67,11 +66,6 @@ const useStyles = theme => ({
 
 class Cake extends React.Component {
   static contextType = AdminContext;
-
-  constructor(props) {
-    super(props);
-    this.axios = props.admin.axios;
-  }
 
   state = {
     axios: null,
@@ -747,12 +741,6 @@ class Cake extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    admin: state.admin
-  };
-};
-
 const withAdminContext = Element => {
   return React.forwardRef((props, ref) => {
     return (
@@ -763,7 +751,4 @@ const withAdminContext = Element => {
   });
 };
 
-export default connect(
-  mapStateToProps,
-  {}
-)(withStyles(useStyles)(withSnackbar(withAdminContext(withRouter(Cake)))));
+export default withStyles(useStyles)(withSnackbar(withAdminContext(withRouter(Cake))));

@@ -21,11 +21,10 @@ import {
 import { AdminContext } from "../context/AdminProvider";
 import BaseIcon from "../../../common/component/BaseIcon";
 
-import * as Helper from "../../../common/helper";
+import * as Helper from  "../../../utils/helper";
 import BaseButton from "../../../common/component/BaseButton";
 import QueueAnim from "rc-queue-anim";
 import BaseDialog from "../../../common/component/BaseDialog";
-import { connect } from "react-redux";
 import { withSnackbar } from "notistack";
 
 const useStyles = theme => ({
@@ -81,7 +80,6 @@ class Tags extends React.Component {
 
   constructor(props) {
     super(props);
-    this.axios = props.admin.axios;
 
     this.enqueueSnackbar = props.enqueueSnackbar;
 
@@ -546,13 +544,6 @@ const withAdminContext = Element => {
     );
   });
 };
-const mapStateToProps = state => {
-  return {
-    admin: state.admin
-  };
-};
 
-export default connect(
-  mapStateToProps,
-  {}
-)(withStyles(useStyles)(withAdminContext(withSnackbar(Tags))));
+
+export default withStyles(useStyles)(withAdminContext(withSnackbar(Tags)));

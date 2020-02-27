@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Container, Grid } from "@material-ui/core";
 import BaseIcon from "../../../common/component/BaseIcon";
 import { Link, NavLink } from "react-router-dom";
 import BaseBadge from "./../../../common/component/BaseBadge";
+import { ClientContext } from "./../context/ClientProvider";
 
 const navBar = [
   {
@@ -25,9 +26,14 @@ const navBar = [
 ];
 
 function NavBar(props) {
+  const { scrolltop } = props;
+
   return (
     <section className="nav">
-      <div key="#subNavHeader" className="sub-nav">
+      <div
+        key="#subNavHeader"
+        className={`sub-nav ${scrolltop && scrolltop > 80 ? "hidden" : ""}`}
+      >
         <Container maxWidth="lg">
           <Grid container>
             <Grid item sm={6} xs={12}>

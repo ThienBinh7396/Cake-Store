@@ -20,9 +20,9 @@ import {
   StyledTableHelperRow,
   StyledTablePagination
 } from "../../../common/component/StyledTable";
-import * as Helper from "../../../common/helper";
+import * as Helper from "../../../utils/helper";
 import BaseDialog from "../../../common/component/BaseDialog";
-import { connect } from "react-redux";
+
 import { withSnackbar } from "notistack";
 
 const useStyles = theme => ({
@@ -354,11 +354,6 @@ class Blogs extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  admin: state.admin
-});
 
-export default connect(
-  mapStateToProps,
-  {}
-)(withRouter(withStyles(useStyles)(withSnackbar(Blogs))));
+
+export default withRouter(withStyles(useStyles)(withSnackbar(Blogs)));

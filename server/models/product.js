@@ -5,9 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     thumbnail: DataTypes.STRING,
     price: DataTypes.FLOAT,
     description: DataTypes.TEXT,
+    short_description: DataTypes.TEXT,
     status: DataTypes.STRING,
+    sold: DataTypes.INTEGER,
     discount: DataTypes.FLOAT,
-    rate: DataTypes.JSONB,
+    rate: DataTypes.FLOAT,
     employee_update_id: DataTypes.INTEGER
   }, {});
   Product.associate = function(models) {

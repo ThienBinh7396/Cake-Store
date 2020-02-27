@@ -3,8 +3,6 @@ import "./App.css";
 
 import MainLayout from "./views/MainLayout";
 import { createMuiTheme, ThemeProvider,  IconButton } from "@material-ui/core";
-import { Provider } from "react-redux";
-import configureStore from "./redux/configureStore";
 import { SnackbarProvider } from "notistack";
 import BaseIcon from "./common/component/BaseIcon";
 const theme = createMuiTheme({
@@ -33,7 +31,6 @@ const theme = createMuiTheme({
   }
 });
 
-const store = configureStore();
 
 const notistackRef = React.createRef();
 const onClickDismiss = key => () => { 
@@ -42,7 +39,6 @@ const onClickDismiss = key => () => {
 
 function App() {
   return (
-    <Provider store={store}>
       <ThemeProvider theme={theme}>
         <SnackbarProvider
           maxSnack={3}
@@ -55,7 +51,6 @@ function App() {
           <MainLayout />
         </SnackbarProvider>
       </ThemeProvider>
-    </Provider>
   );
 }
 

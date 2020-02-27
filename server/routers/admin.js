@@ -43,7 +43,7 @@ router.post("/employees/register", [EmployeeController.register]);
 
 router.get("/products/findAll", [
   adminAuth.verifyToken.bind(role.productManagement),
-  ProductController.findAll
+  ProductController.findAll.bind(ProductController)
 ]);
 
 router.post("/products/create", [
@@ -76,7 +76,7 @@ router.post("/blogTags/update", [
   BlogTagController.update.bind(BlogTagController)
 ]);
 
-router.get("/blog/findAll", [BlogController.findAll]);
+router.get("/blog/findAll", [BlogController.findAll.bind(BlogController)]);
 router.post("/blog/create", [
   adminAuth.verifyToken.bind(role.productManagement),
   BlogController.create.bind(BlogController)

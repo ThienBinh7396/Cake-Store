@@ -20,9 +20,6 @@ import {
 } from "@material-ui/core";
 import BaseIcon from "../../../common/component/BaseIcon";
 import PerfectScrollbar from "@opuscapita/react-perfect-scrollbar";
-import * as adminAction from "../../../actions/admin";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
 import LoadingComponent from "../../../common/component/LoadingComponent";
 import BaseDialog from "../../../common/component/BaseDialog";
 
@@ -252,6 +249,7 @@ const nav = [
     icon: "pe-7s-diamond"
   }
 ];
+
 
 class CommonComponent extends React.Component {
   static contextType = AdminContext;
@@ -509,18 +507,6 @@ class CommonComponent extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    admin: state.admin.instance
-  };
-};
-const mapDispatchToProps = dispatch => {
-  return {
-    adminActions: bindActionCreators(adminAction, dispatch)
-  };
-};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(useStyles)(withRouter(CommonComponent)));
+
+export default withStyles(useStyles)(withRouter(CommonComponent));

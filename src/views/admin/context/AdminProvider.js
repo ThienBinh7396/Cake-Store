@@ -1,15 +1,12 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-
-import * as adminAction from "../../../actions/admin";
 import cookie from "../../../utils/cookie";
 import Axios from "axios";
+import { BASE_URL } from './../../../constant/index';
 
 export const AdminContext = React.createContext();
 
 const axiosInstance = Axios.create({
-  baseURL: "http://localhost:5000/api/",
+  baseURL: BASE_URL,
   headers: {
     "x-access-token": cookie.getCookie("_atk")
   }
@@ -56,7 +53,7 @@ class AdminProvider extends Component {
       data: axiosInstance,
       updateData: () => {
         const _axios = Axios.create({
-          baseURL: "http://localhost:5000/api/",
+          baseURL: BASE_URL,
           headers: {
             "x-access-token": cookie.getCookie("_atk")
           }
@@ -200,7 +197,7 @@ class AdminProvider extends Component {
               .then(rs => {
                 let { data } = rs.data;
 
-                data = data.map(it => {
+                data = data.data.map(it => {
                   return {
                     ...it,
                     gallery: it.Galleries
@@ -357,12 +354,7 @@ class AdminProvider extends Component {
 
   componentDidMount() {
     console.log("Admin provider");
-    const { admin, adminActions } = this.props;
-    console.log(this.props);
 
-    adminActions.updateAdmin(cookie.getCookie("_admin"));
-    adminActions.updateAdminToken(cookie.getCookie("_atk"));
-    this.axios = admin.axios;
 
     this.state.axios.updateData();
   }
@@ -376,12 +368,5 @@ class AdminProvider extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  admin: state.admin
-});
 
-const mapDispatchToProps = dispatch => ({
-  adminActions: bindActionCreators(adminAction, dispatch)
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminProvider);
+export default AdminProvider;

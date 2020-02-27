@@ -4,15 +4,46 @@ const model = require("../models");
 const { Blog, BlogTags, MapBlogTag } = model;
 
 class BlogController {
-  findAll(req, res) {
-    Blog.findAll({
-      include: [
-        {
-          model: BlogTags,
-          required: false
-        }
-      ]
+  async find(config) {
+    return new Promise((res, rej) => {
+      const { limit, offset, order } = config || {};
+      let _config = {
+        include: [
+          {
+            model: BlogTags,
+            required: false
+          }
+        ],
+        offset: offset || 0,
+        order: order || [["createdAt", "DESC"]]
+      }
+      if(limit){
+        _config.limit = limit;
+      }
+
+      Blog.findAll(_config)
+        .then(rs => {
+          res(rs);
+        })
+        .catch(err => {
+          rej(err);
+        });
+    });
+  }
+  lastestBlog(req, res) {
+    this.find({limit: 3, offset: 0})
+    .then(rs => {
+      res.send(helper.getStatus('success', 'Successful', rs));
     })
+    .catch(err => {
+      res.send(helper.getStatus('err', 'Fetch lastest blog failed'));
+    })
+
+  }
+
+
+  findAll(req, res) {
+    this.find()
       .then(rs => {
         res.send(helper.getStatus("success", "Successful", rs));
       })
@@ -30,7 +61,7 @@ class BlogController {
         }
       })
         .then(rs => {
-          if(tags.length === 0) return res(true);
+          if (tags.length === 0) return res(true);
 
           MapBlogTag.bulkCreate(
             tags.map(it => {
@@ -130,99 +161,127 @@ class BlogController {
       "tags"
     ]);
 
-    if(!providerAttributes) return;
+    if (!providerAttributes) return;
 
     return Blog.findOne({
       where: {
         id: providerAttributes.id
       }
     })
-    .then(async blog =>{
-      if(!blog){
-        res.send(helper.getStatus('error', `Can't find blog with identity ${providerAttributes.id}`));
-      }else{
-        if(req.auth.type !== 'admin' && req.auth.id !== blog.toJSON().upload_id){
-          return res.send(helper.getStatus('error', `You don't have permission to modify this blog!`));
-        }
-
-        let result = await this.helperMapBlogWithTags(
-          providerAttributes.id,
-          providerAttributes.tags
-        ); 
-
-        if (result) {
-          
-          blog.update({
-            title: providerAttributes.title || blog.title,
-            content: providerAttributes.content || blog.content,
-            thumbnail: providerAttributes.thumbnail || blog.thumbnail,
-            status: providerAttributes.status
-          })
-          .then(async rs => {
-            res.send(
+      .then(async blog => {
+        if (!blog) {
+          res.send(
+            helper.getStatus(
+              "error",
+              `Can't find blog with identity ${providerAttributes.id}`
+            )
+          );
+        } else {
+          if (
+            req.auth.type !== "admin" &&
+            req.auth.id !== blog.toJSON().upload_id
+          ) {
+            return res.send(
               helper.getStatus(
-                "success",
-                "Update blog successfully",
-                await this.helperFindOne(rs.id)
+                "error",
+                `You don't have permission to modify this blog!`
               )
             );
+          }
 
-          })
-          .catch(err => {
+          let result = await this.helperMapBlogWithTags(
+            providerAttributes.id,
+            providerAttributes.tags
+          );
+
+          if (result) {
+            blog
+              .update({
+                title: providerAttributes.title || blog.title,
+                content: providerAttributes.content || blog.content,
+                thumbnail: providerAttributes.thumbnail || blog.thumbnail,
+                status: providerAttributes.status
+              })
+              .then(async rs => {
+                res.send(
+                  helper.getStatus(
+                    "success",
+                    "Update blog successfully",
+                    await this.helperFindOne(rs.id)
+                  )
+                );
+              })
+              .catch(err => {
+                res.send(helper.getStatus("error", "Update blog failed!"));
+              });
+          } else {
             res.send(helper.getStatus("error", "Update blog failed!"));
-          })          
-        } else {
-          res.send(helper.getStatus("error", "Update blog failed!"));
+          }
         }
-
-      }
-
-    })
-    .catch(err => {
-      res.send(helper.getStatus("error", "Update blog failed!"));
-    })
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Update blog failed!"));
+      });
   }
 
-  delete(req, res){
-    let providerAttributes = helper.checkPostProviderAttributes(req, res, ['id']);
+  delete(req, res) {
+    let providerAttributes = helper.checkPostProviderAttributes(req, res, [
+      "id"
+    ]);
 
-    if(!providerAttributes) return;
+    if (!providerAttributes) return;
 
     Blog.findOne({
       where: {
         id: providerAttributes.id
       }
     })
-    .then( async blog => {
-      if(blog){
-        if(req.auth.type !== 'admin' && req.auth.id !== blog.toJSON().upload_id){
-          return res.send(helper.getStatus('error', `You don't have permission to modify this blog!`));
-        }
-        
-
-        await this.helperMapBlogWithTags(providerAttributes.id);
-
-        Blog.destroy({
-          where: {
-            id: providerAttributes.id
+      .then(async blog => {
+        if (blog) {
+          if (
+            req.auth.type !== "admin" &&
+            req.auth.id !== blog.toJSON().upload_id
+          ) {
+            return res.send(
+              helper.getStatus(
+                "error",
+                `You don't have permission to modify this blog!`
+              )
+            );
           }
-        })
-        .then(rs => {
-          res.send(helper.getStatus("success", "Delete blog successful!"));
-        })
-        .catch(err => {
-          res.send(helper.getStatus("error", err.errors ? err.errors.map(it => it.message) : "Delete blog failed!"));
-        })
 
+          await this.helperMapBlogWithTags(providerAttributes.id);
 
-      }else{
-        res.send(helper.getStatus('error', `Can't find blog with identity ${providerAttributes.id}`))
-      }
-
-    })
-    .catch(err => {
-      res.send(helper.getStatus('error', 'Delete blog failed!'));
-    })
+          Blog.destroy({
+            where: {
+              id: providerAttributes.id
+            }
+          })
+            .then(rs => {
+              res.send(helper.getStatus("success", "Delete blog successful!"));
+            })
+            .catch(err => {
+              res.send(
+                helper.getStatus(
+                  "error",
+                  err.errors
+                    ? err.errors.map(it => it.message)
+                    : "Delete blog failed!"
+                )
+              );
+            });
+        } else {
+          res.send(
+            helper.getStatus(
+              "error",
+              `Can't find blog with identity ${providerAttributes.id}`
+            )
+          );
+        }
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Delete blog failed!"));
+      });
   }
 }
 module.exports = new BlogController();

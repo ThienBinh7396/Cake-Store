@@ -15,7 +15,6 @@ import {
   MenuItem
 } from "@material-ui/core";
 
-import { connect } from "react-redux";
 import { AdminContext } from "../context/AdminProvider";
 import BaseIcon from "../../../common/component/BaseIcon";
 
@@ -435,8 +434,6 @@ function Cakes(props) {
   );
 }
 
-const mapStateToProps = state => ({
-  admin: state.admin
-});
 
-export default connect(mapStateToProps, {})(withRouter(withSnackbar(Cakes)));
+
+export default withRouter(withSnackbar(Cakes));

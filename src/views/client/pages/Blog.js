@@ -1,8 +1,12 @@
 import React from "react";
+import ProductCard from "../partials/ProductCard";
 
-export default function Blog() {
-  return [
-    <div key="x" style={{position: "sticky", top: 0}}>qweqwe</div>,
-    <div key="y" style={{ height: "1000px" }}>Home Pages.........</div>
-  ];
+ class Blog extends React.Component {
+   render(){
+     return (
+      <ProductCard id={617} type="list" />
+    )
+  }
 }
+
+export default Blog;

@@ -16,26 +16,20 @@ import {
 } from "@material-ui/core";
 
 import "./../../../css/login.css";
-import { connect } from "react-redux";
-import * as axiosAction from "../../../actions/axios";
-import * as adminAction from "../../../actions/admin";
-import { bindActionCreators } from "redux";
+
 import { withSnackbar } from "notistack";
 import { withRouter } from "react-router-dom";
 import cookie from './../../../utils/cookie';
+import Axios from "axios";
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
 
-    console.log(this.props);
-    console.log(this.context);
-
-    const { admin, adminActions } = this.props;
-
-
-    this.axios = admin.axios;
-    this.adminActions = adminActions;
+    this.axios = Axios.create({
+      baseURL: "http://localhost:5000/api/",
+    
+    });
   }
 
   state = {
@@ -111,7 +105,8 @@ class Login extends React.Component {
       this.axios
         .post("admin/employees/login", {
           email: this.state.email.value,
-          password: this.state.password.value
+          password: this.state.password.value,
+         
         })
         .then(rs => {
           this.setState({
@@ -217,20 +212,5 @@ class Login extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    admin: state.admin
-  };
-};
 
-const mapDispatchToProps = dispatch => {
-  return {
-    axiosActions: bindActionCreators(axiosAction, dispatch),
-    adminActions: bindActionCreators(adminAction, dispatch)
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withSnackbar(withRouter(Login)));
+export default withSnackbar(withRouter(Login));

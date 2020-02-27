@@ -9,7 +9,7 @@ const cookie = {
     let exp = `expires=${d.toUTCString()}`;
     
     if(value){
-      document.cookie = `${key}=${btoa(JSON.stringify(value))};${exp};path=/`;
+      document.cookie = `${key}=${escape(JSON.stringify(value))};${exp};path=/`;
     }else{
       document.cookie = `${key}=; Expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
     }
@@ -23,7 +23,7 @@ const cookie = {
       cookie = cookie.split(';')
         .filter(it => regex.test(it));
 
-      return cookie.length !== 0 ? JSON.parse(atob(cookie[0].match(regex)[1])) : null; 
+      return cookie.length !== 0 ? JSON.parse(unescape(cookie[0].match(regex)[1])) : null; 
   }
 }
 

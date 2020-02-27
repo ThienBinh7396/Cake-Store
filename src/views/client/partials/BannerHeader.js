@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { PropTypes } from "prop-types";
 import Carousel from "../../../common/component/BaseCarousel";
-import { ClientContext } from "./../context/ClientProvider";
-import { Grid, Box } from "@material-ui/core";
+import { Grid, Box, ButtonBase } from "@material-ui/core";
 
 const carousels = [
   {
@@ -38,11 +37,9 @@ const carousels = [
 ];
 
 class BannerHeader extends Component {
-  static contextType = ClientContext;
-
   constructor(props) {
     super(props);
-    this.now = btoa(new Date());
+    this.now = btoa(`${new Date().getTime()}`);
   }
 
   state = {
@@ -53,33 +50,44 @@ class BannerHeader extends Component {
     return (
       <div
         className="banner-header"
-        style={{ backgroundImage: `url(${this.state.background})`, paddingBottom: "24px" }}
+        style={{
+          backgroundImage: `url(${this.state.background})`,
+          padding: "32px 0 24px"
+        }}
       >
         {this.props.carousel && (
-          <Carousel>
+          <Carousel stoponhover>
             {carousels.map((it, index) => (
-              <Grid container alignItems="center" key={index} style={{paddingLeft: '24px', paddingRight: '24px' }}>
-                <Grid item  style={{ width: this.context.width.data > 960 ? "46%" : "100%"}}>
+              <Grid
+                container
+                alignItems="center"
+                key={index}
+                style={{ padding: "0 24px 142px" }}
+              >
+                <Grid item className="image">
                   <img
                     src={it.image}
                     alt={it.title}
                     style={{ maxWidth: "100%", minHeight: "290px" }}
                   />
                 </Grid>
-                <Grid item style={{ width:  this.context.width.data > 960 ? "54%" : "100%", paddingLeft: '12px'}}>
+                <Grid item className="content">
                   <Box
-                    style={{ maxWidth: '520px', margin:  this.context.width.data > 960 ? null: 'auto' , marginTop: '24px' }}
-                    align={this.context.width.data > 960 ? "left" : "center"}
+                    style={{
+                      maxWidth: "520px",
+                      marginTop: "24px"
+                    }}
                   >
                     <div className="base-carousel-item-title awesome-font">
                       {it.title}
                     </div>
-                    <div
-                      className="base-carousel-item-description"
-                      
-                    >
+                    <div className="base-carousel-item-description">
                       {it.description}
                     </div>
+                    <ButtonBase className="base-carousel-item-btn">
+                      <i className="pe-7s-angle-right-circle"></i>
+                      <span>More Information</span>
+                    </ButtonBase>
                   </Box>
                 </Grid>
               </Grid>
