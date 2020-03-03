@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import cookie from "../../../utils/cookie";
 import Axios from "axios";
-import { BASE_URL } from './../../../constant/index';
+import { BASE_URL } from "./../../../constant/index";
 
 export const AdminContext = React.createContext();
 
@@ -52,14 +52,17 @@ class AdminProvider extends Component {
     admin: {
       data: null,
       fetchData: () => {
-        this.setState({
-          admin: {
-            ...this.state.admin,
-            data: cookie.getCookie('_admin')
+        this.setState(
+          {
+            admin: {
+              ...this.state.admin,
+              data: cookie.getCookie("_admin")
+            }
+          },
+          () => {
+            console.log(this.state.admin);
           }
-        }, () => {
-          console.log(this.state.admin)
-        })
+        );
       }
     },
     axios: {
@@ -83,7 +86,7 @@ class AdminProvider extends Component {
         return new Promise(res => {
           this.state.axios
             .connect({
-              url: "https://cakes-store.herokuapp.com/api/uploadFile",
+              url: "/uploadFile",
               method: "POST",
               headers: {
                 "Content-Type": "multipart/form-data"
@@ -92,14 +95,14 @@ class AdminProvider extends Component {
             })
             .then(rs => {
               const { data } = rs.data;
-  
+
               res(data);
             })
             .catch(err => {
               res(null);
             });
         });
-      },  
+      },
       connect: async config => {
         return new Promise((res, rej) => {
           this.state.axios
@@ -177,7 +180,44 @@ class AdminProvider extends Component {
     },
     products: {
       data: null,
+      max: null,
       loading: false,
+      addingProductId: [],
+      addOne: id => {
+        if (
+          !this.state.products.data ||
+          this.state.products.addingProductId.findIndex(it => it === id) < 0
+        ) {
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                addingProductId: [...this.state.products.addingProductId, id]
+              }
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  url: "admin/products/findOne",
+                  method: "GET",
+                  params: {
+                    id
+                  }
+                })
+                .then(rs => {
+                  const { type, data } = rs.data;
+
+                  if (type === "success") {
+                    data.gallery = data.Galleries;
+                    this.state.products.handleChange({
+                      data: [...(this.state.products.data || []), data]
+                    });
+                  }
+                });
+            }
+          );
+        }
+      },
       update: _product => {
         let _data = this.state.products.data;
 
@@ -231,7 +271,7 @@ class AdminProvider extends Component {
               .then(rs => {
                 let { data } = rs.data;
 
-                data = data.data.map(it => {
+                let _data = data.data.map(it => {
                   return {
                     ...it,
                     gallery: it.Galleries
@@ -241,7 +281,8 @@ class AdminProvider extends Component {
                 this.state.products.handleChange({
                   ...this.state.products,
                   loading: false,
-                  data
+                  data: _data,
+                  max: Number(data.count)
                 });
 
                 this.state.loadingComponent.updateState(false);
@@ -269,7 +310,9 @@ class AdminProvider extends Component {
             break;
           case "update":
             categories = this.state.categories.data
-              ? this.state.categories.data.map(it => (it.id === category.id ? category : it))
+              ? this.state.categories.data.map(it =>
+                  it.id === category.id ? category : it
+                )
               : null;
             break;
           case "delete":
@@ -451,7 +494,6 @@ class AdminProvider extends Component {
   componentDidMount() {
     console.log("Admin provider");
 
-
     this.state.axios.updateData();
   }
 
@@ -463,6 +505,5 @@ class AdminProvider extends Component {
     );
   }
 }
-
 
 export default AdminProvider;

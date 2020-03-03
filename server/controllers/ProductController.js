@@ -274,7 +274,7 @@ class CakeCategoriesController {
   }
 
   findAll(req, res) {
-    this.find({ limit: 12, offset: 0 })
+    this.find({ limit: 12, offset: 0, count: true })
       .then(rs => {
         res.send(helper.getStatus("success", "successfully", rs));
       })
@@ -363,8 +363,8 @@ class CakeCategoriesController {
         if (!rs) {
           res.send(helper.getStatus("error", "Create product failed!"));
         } else {
-          let product = rs.toJSON();
-          console.log(rs.toJSON());
+          let product = rs.dataValues;
+          console.log(product);
 
           let mapResult = await this.helperMapProductWithCategory(
             product.id,

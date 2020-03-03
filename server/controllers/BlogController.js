@@ -1,24 +1,31 @@
 const helper = require("../helper/helper");
 const model = require("../models");
 
-const { Blog, BlogTags, MapBlogTag } = model;
+const { Blog, BlogTags, MapBlogTag, Customer } = model;
 
 class BlogController {
   async find(config) {
     return new Promise((res, rej) => {
-      const { limit, offset, order } = config || {};
+      const { limit, offset, order, where } = config || {};
       let _config = {
         include: [
           {
             model: BlogTags,
             required: false
+          },
+          {
+            model: Customer,
+            required: false
           }
         ],
         offset: offset || 0,
         order: order || [["createdAt", "DESC"]]
-      }
-      if(limit){
+      };
+      if (limit) {
         _config.limit = limit;
+      }
+      if (where) {
+        _config.where = where;
       }
 
       Blog.findAll(_config)
@@ -31,16 +38,21 @@ class BlogController {
     });
   }
   lastestBlog(req, res) {
-    this.find({limit: 3, offset: 0})
-    .then(rs => {
-      res.send(helper.getStatus('success', 'Successful', rs));
+    this.find({
+      limit: 3,
+      offset: 0,
+      where: {
+        status: 1
+      }
     })
-    .catch(err => {
-      res.send(helper.getStatus('err', 'Fetch lastest blog failed'));
-    })
-
+      .then(rs => {
+        res.send(helper.getStatus("success", "Successful", rs));
+      })
+      .catch(err => {
+        console.log(err);
+        res.send(helper.getStatus("err", "Fetch lastest blog failed"));
+      });
   }
-
 
   findAll(req, res) {
     this.find()

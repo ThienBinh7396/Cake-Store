@@ -22,7 +22,9 @@ import { AdminContext } from "./../context/AdminProvider";
 import { withRouter } from "react-router-dom";
 import QueueAnim from "rc-queue-anim";
 import BaseWrapperImage from "../../../common/component/BaseWrapperImage";
-import Autocomplete, { createFilterOptions } from "@material-ui/lab/Autocomplete";
+import Autocomplete, {
+  createFilterOptions
+} from "@material-ui/lab/Autocomplete";
 import BaseDialog from "../../../common/component/BaseDialog";
 import Categories from "./Categories";
 
@@ -143,18 +145,32 @@ class Cake extends React.Component {
 
   updateCakeFromStore() {
     console.log(this.props);
-    let id = Number(this.props.match.params.id);
+    let id = this.props.match.params.id;
 
     let products = this.context.products.data;
 
-    console.log("%c Products update", "color: red; font-size: 30px");
+    console.log("%c Products update", "color: red;font-size: 30px");
 
-    let _product = products ? products.find(it => it.id === id) : null;
+    let _product =
+      products && id ? products.find(it => it.id === Number(id)) : null;
     console.log(_product);
     console.log(products);
     console.log(id);
 
-    if (_product) {
+    if (id && !_product) {
+      this.context.products.addOne(Number(id));
+      return;
+    }
+
+    if (id && _product) {
+      setTimeout(() => {
+        if (this.editor) {
+          try {
+            this.editor.setData(_product.description);
+          } catch (error) {}
+        }
+      }, 100);
+
       this.setState({
         id: _product.id,
         type: "update",
@@ -239,40 +255,58 @@ class Cake extends React.Component {
     this.progressDialog = this.context.progressDialog;
 
     console.log("product");
-    let { products, loadingComponent, axios, categories } = this.context;
+    let { loadingComponent, axios, categories } = this.context;
 
-    if (products && !products.data) {
-      products.fetchProduct();
-      loadingComponent.updateState(true);
-      console.log("fetch product");
-    }
-    
-    this.setState({
-      axios,
-      categories
-    }, () => {
-      if(categories.data === null){
-        categories.fetchData();
-        loadingComponent.updateState(true);
+    this.setState(
+      {
+        axios,
+        categories
+      },
+      () => {
+        if (categories.data === null) {
+          categories.fetchData();
+          loadingComponent.updateState(true);
+        }
       }
-    });
+    );
 
     this.updateCakeFromStore();
   }
+
+  compareArray = (arr1, arr2, field) => {
+    if (!arr1 || !arr2) return false;
+    if (arr1.length === 0 && arr2.length === 0) return true;
+    if (arr1.length !== arr2.length) return false;
+
+    return arr1.every((value, index) => {
+      return field
+        ? value[field] === arr2[index][field]
+        : value === arr2[index];
+    });
+  };
 
   componentDidUpdate(prevProps, prevState) {
     const { categories } = this.context;
     const { adminContext } = prevProps;
 
     if (categories !== adminContext.categories) {
-      console.log("update Categories")
+      console.log("update Categories");
       this.setState({
         categories
       });
     }
+    console.log("SHOW CONTEXT");
+    console.log(prevProps);
+    console.log(this.context);
 
-
-    if (adminContext.products !== prevProps.adminContext.products) {
+    if (
+      this.context.products.data !== null &&
+      !this.compareArray(
+        adminContext.products.data || [],
+        this.context.products.data,
+        "id"
+      )
+    ) {
       console.log("%cDid Update", "color: red; font-size: 30px");
       this.updateCakeFromStore();
     }
@@ -420,7 +454,11 @@ class Cake extends React.Component {
         isSubmitting: true
       });
 
-      if (!this.state.title.validate() || !this.state.price.validate() || !this.state.category.validate()) {
+      if (
+        !this.state.title.validate() ||
+        !this.state.price.validate() ||
+        !this.state.category.validate()
+      ) {
         this.setState({
           isSubmitting: false
         });
@@ -529,7 +567,7 @@ class Cake extends React.Component {
             gallery: this.state.gallery,
             categories: this.state.category.value.map(it => {
               return { id: it.id, title: it.title, alias: it.alias };
-            }) 
+            })
           }
         })
         .then(rs => {
@@ -814,7 +852,9 @@ class Cake extends React.Component {
                           }
                         ></Autocomplete>
                       }
-                      <Box className="helper-text">Choose at least category!</Box>
+                      <Box className="helper-text">
+                        Choose at least category!
+                      </Box>
                     </Box>
                   </Grid>
                 </Grid>
@@ -828,6 +868,7 @@ class Cake extends React.Component {
                         data={this.state.description.value}
                         config={config}
                         onInit={editor => {
+                          this.editor = editor;
                           console.log("Editor is ready to use!", editor);
                         }}
                         onChange={(event, editor) => {

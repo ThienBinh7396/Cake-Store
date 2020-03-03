@@ -248,14 +248,21 @@ class ProductDetails extends Component {
                   ))}
                 </span>
               </div>
-              <div className="amount">
-                <AwesomeInput
-                  value={this.state.amount}
-                  onChange={this.handleChangeAmount}
-                  type="number"
-                  min="1"
-                />
-              </div>
+              <Box display="flex" alignItems="center" mt={4}>
+                <div className="amount">
+                  <AwesomeInput
+                    value={this.state.amount}
+                    onChange={this.handleChangeAmount}
+                    type="number"
+                    min="1"
+                  />
+                </div>
+                <div className="card-product-action">
+                  <button className="button-icon">
+                    <i className="far fa-heart"></i>
+                  </button>
+                </div>
+              </Box>
 
               <div className="add">
                 {" "}

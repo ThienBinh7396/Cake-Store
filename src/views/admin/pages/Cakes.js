@@ -29,7 +29,7 @@ import { withSnackbar } from "notistack";
 
 function TablePagination({
   _columns,
-  _products,
+  max,
   page,
   setPage,
   pageLength,
@@ -57,8 +57,8 @@ function TablePagination({
               }}
               displayEmpty
             >
-              {_products.data && (
-                <MenuItem value={_products.data.length}>All</MenuItem>
+              {max && (
+                <MenuItem value={max}>All</MenuItem>
               )}
               {pageLengths.map((it, index) => (
                 <MenuItem key={`#pageLength-${index}`} value={it}>
@@ -69,17 +69,16 @@ function TablePagination({
           </Box>
           <Box className="table-pagination-content">
             {page * pageLength + 1}-
-            {_products.data && (page + 1) * pageLength > _products.data.length
-              ? _products.data.length
+            {max && (page + 1) * pageLength >max
+              ? max
               : (page + 1) * pageLength}{" "}
-            of {_products.data ? _products.data.length : 0}
+            of {max}
           </Box>
           <Box className={"table-pagination-control"}>
             <IconButton
               disabled={
                 !(
-                  _products.data &&
-                  _products.data.length > pageLength &&
+                  max > pageLength &&
                   page !== 0
                 )
               }
@@ -92,9 +91,9 @@ function TablePagination({
             <IconButton
               disabled={
                 !(
-                  _products.data &&
-                  Math.ceil(_products.data.length / pageLength) >= 2 &&
-                  page < Math.ceil(_products.data.length / pageLength) - 1
+                  max &&
+                  Math.ceil(max / pageLength) >= 2 &&
+                  page < Math.ceil(max / pageLength) - 1
                 )
               }
               onClick={() => {
@@ -194,7 +193,7 @@ function Cakes(props) {
     console.log("admin", _admin);
 
     let { products, loadingComponent } = _admin.current;
-    if (!products.data) {
+    if (!products.data || !products.max) {
       products.fetchProduct();
       loadingComponent.updateState(true);
     }
@@ -420,7 +419,7 @@ function Cakes(props) {
             <TablePagination
               {...{
                 _columns,
-                _products,
+                max: _products && _products.max ? _products.max : 0,
                 page,
                 setPage,
                 pageLength,

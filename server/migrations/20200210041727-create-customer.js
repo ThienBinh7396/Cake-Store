@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       thumbnail: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         defaultValue: '/img/avatar.png'
       },
       anonymous: {

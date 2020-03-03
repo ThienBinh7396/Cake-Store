@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const Feedback = sequelize.define('Feedback', {
     email: DataTypes.STRING,
     name: DataTypes.STRING,
-    thumbnail: DataTypes.STRING,
+    thumbnail: DataTypes.TEXT,
     content: DataTypes.TEXT,
     rate: DataTypes.FLOAT
   }, {});

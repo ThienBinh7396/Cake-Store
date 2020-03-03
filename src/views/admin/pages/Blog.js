@@ -194,12 +194,13 @@ export class Blog extends Component {
         this.showToast("Url is invalid. Try again!", "error");
         this.props.history.push("/admin/blog");
       } else {
-        if (this.editor) {
-          try {
-            this.editor.setData(_blog.content);
-          } catch (error) {}
-        }
-
+        setTimeout(() => {
+          if (this.editor) {
+            try {
+              this.editor.setData(_blog.content);
+            } catch (error) {}
+          }
+        }, 200);
         this.setState(
           {
             id: _blog.id,

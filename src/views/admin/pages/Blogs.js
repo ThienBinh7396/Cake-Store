@@ -9,7 +9,7 @@ import {
   withStyles,
   TableBody,
   ButtonBase,
-  CardMedia,
+  CardMedia
 } from "@material-ui/core";
 import BaseIcon from "../../../common/component/BaseIcon";
 import { withRouter } from "react-router-dom";
@@ -74,6 +74,23 @@ class Blogs extends React.Component {
       { title: "Upload", field: "upload_id" },
       { title: "Time", field: "createdAt" },
       { title: "Actions", field: "action" }
+    ],
+    statusWithColor: [
+      {
+        value: 1,
+        text: "Available",
+        color: "#48ce4e"
+      },
+      {
+        value: 0,
+        text: "Awaiting approval",
+        color: "#ff8e00"
+      },
+      {
+        value: -1,
+        text: "Unavailable",
+        color: "#ff0101"
+      }
     ]
   };
 
@@ -189,6 +206,36 @@ class Blogs extends React.Component {
                     style={{ width: "80px" }}
                     image={it[_column.field]}
                   />
+                </StyledTableCell>
+              );
+            case "status":
+              return (
+                <StyledTableCell key={`#cell-${index}-${_column.field}`}>
+                  <Box
+                    className="base-chip small-size"
+                    style={{
+                      backgroundColor: this.state.statusWithColor.find(
+                        _status => _status.value === it.status
+                      ).color
+                    }}
+                  >
+                    {
+                      this.state.statusWithColor.find(
+                        _status => _status.value === it.status
+                      ).text
+                    }
+                  </Box>
+                </StyledTableCell>
+              );
+            case "upload_id":
+              return (
+                <StyledTableCell key={`#cell-${index}-${_column.field}`}>
+                  <Box className="base-chip small-size"
+                   style={{
+                    backgroundColor: it.upload_id === -1 ? '#777' : '#3f6ad8'
+                  }}>
+                    {it.upload_id === -1 ? "Admin" : it.Customer.name}
+                  </Box>
                 </StyledTableCell>
               );
             case "createdAt":
@@ -353,7 +400,5 @@ class Blogs extends React.Component {
     );
   }
 }
-
-
 
 export default withRouter(withStyles(useStyles)(withSnackbar(Blogs)));

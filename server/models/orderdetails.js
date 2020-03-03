@@ -1,13 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const TransactionDetails = sequelize.define('TransactionDetails', {
+  const OrderDetails = sequelize.define('OrderDetails', {
     product_id: DataTypes.INTEGER,
-    transaction_id: DataTypes.INTEGER,
+    order_id: DataTypes.INTEGER,
     real_price: DataTypes.FLOAT,
     amount: DataTypes.INTEGER
   }, {});
-  TransactionDetails.associate = function(models) {
+  OrderDetails.associate = function(models) {
     // associations can be defined here
   };
-  return TransactionDetails;
+  return OrderDetails;
 };

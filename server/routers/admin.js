@@ -47,6 +47,11 @@ router.get("/products/findAll", [
   ProductController.findAll.bind(ProductController)
 ]);
 
+router.get("/products/findOne", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  ProductController.findOne.bind(ProductController)
+]);
+
 router.post("/products/create", [
   adminAuth.verifyToken.bind(role.productManagement),
   ProductController.create.bind(ProductController)

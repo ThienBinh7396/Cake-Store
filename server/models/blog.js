@@ -6,13 +6,18 @@ module.exports = (sequelize, DataTypes) => {
       upload_id: DataTypes.INTEGER,
       title: DataTypes.STRING,
       content: DataTypes.TEXT,
-      thumbnail: DataTypes.STRING,
+      thumbnail: DataTypes.TEXT,
       status: DataTypes.INTEGER,
       views: DataTypes.JSONB
     },
     {}
   );
   Blog.associate = function(models) {
+    Blog.belongsTo(models.Customer, {
+      foreignKey: 'upload_id',
+      targetKey: 'id'
+    })
+
     Blog.belongsToMany(models.BlogTags, {
       through: "MapBlogTags",
       foreignKey: "blog_id",

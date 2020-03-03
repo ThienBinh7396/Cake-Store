@@ -269,7 +269,7 @@ export default function Home(props) {
                   style={{ backgroundColor: "#2f2d2d1c", borderRadius: "8px" }}
                 />
               </Box>
-            ) : blog.lastestBlogs.data.length === 2 ? null : (
+            ) : (blog.lastestBlogs.data.length === 2 || blog.lastestBlogs.data.length === 1) ? null : (
               <Box p={2}>
                 <BlogCard id={blog.lastestBlogs.data[2].id} />
               </Box>

@@ -1411,9 +1411,19 @@ html,
 }
 
 .product-details-content .amount {
-  margin-top: 32px;
   margin-bottom: 0;
-  width: 180px;
+  width: 210px;
+}
+.product-details-content .amount ~ .card-product-action{
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+  opacity: 1;
+}
+
+.product-details-content .button-icon{
+  opacity: 1;
 }
 
 .product-details-content .status {
@@ -1425,19 +1435,22 @@ html,
   margin-left: 6px;
   text-transform: capitalize;
 }
-.product-details-content .category span{
+.product-details-content .category a{
+  color: #000;
   display: inline-block;
+  text-decoration: none;
 }
-.product-details-content .category span:hover {
+.product-details-content .category a:hover {
   color: #fd5d5a;
   transition: 0.3s;
   cursor: pointer;
 }
-.product-details-content .category span:active{
+.product-details-content .category a:active{
   transform: scale(.8);
+  transition: .1s;
 }
 .product-details-content .add button {
-  width: 240px;
+  width: 280px;
   margin-top: 32px;
 }
 .product-details-content .add .btn-card {
