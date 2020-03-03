@@ -1,12 +1,14 @@
 const model = require("../models");
 
-const { Product, Gallery } = model;
+const { Product, Gallery, Category, MapProductWithCategory } = model;
 
 const helper = require("../helper/helper");
 
 const data = require("./../MOCK_DATA.json");
 
 const sequelize = require("sequelize");
+
+const { Op } = sequelize;
 
 // Product.bulkCreate(data)
 // .then(rs => {
@@ -16,13 +18,18 @@ const sequelize = require("sequelize");
 //   console.log(err);
 // })
 
-
 class CakeCategoriesController {
-  async count() {
+  async count(where) {
     return new Promise(res => {
-      Product.findAll({
+      let config = {
         attributes: [[sequelize.fn("count", sequelize.col("*")), "count"]]
-      })
+      };
+
+      if (where) {
+        config.where = where;
+      }
+
+      Product.findAll(config)
         .then(rs => {
           res(rs[0].toJSON().count);
         })
@@ -32,10 +39,59 @@ class CakeCategoriesController {
     });
   }
 
-  async find({ count, limit, offset, order }) {
+  findOne(req, res) {
+    let providerAttributes = helper.checkGetProviderAttributes(req, res, [
+      "id"
+    ]);
+
+    if (!providerAttributes) return;
+
+    Product.findOne({
+      where: {
+        id: providerAttributes.id
+      },
+      include: [
+        {
+          model: Category,
+          required: false
+        },
+        {
+          model: Gallery
+        }
+      ]
+    })
+      .then(rs => {
+        if (!rs) {
+          res.send(
+            helper.getStatus(
+              "error",
+              `Can't find product with identity ${providerAttributes.id}`
+            )
+          );
+        } else {
+          res.send(helper.getStatus("success", "Successful", rs));
+        }
+      })
+      .catch(err => {
+        res.send(
+          helper.getStatus(
+            "error",
+            err.errors
+              ? err.errors.map(it => it.message)
+              : "Filter product failed!"
+          )
+        );
+      });
+  }
+
+  async find({ count, limit, offset, order, where }) {
     return new Promise((res, rej) => {
-      Product.findAll({
+      let config = {
         include: [
+          {
+            model: Category,
+            required: false
+          },
           {
             model: Gallery
           }
@@ -43,11 +99,16 @@ class CakeCategoriesController {
         limit,
         offset,
         order: order || [["createdAt", "DESC"]]
-      })
+      };
+      if (where) {
+        config.where = where;
+      }
+
+      Product.findAll(config)
         .then(async rs => {
           res({
             data: rs,
-            count: count ? await this.count() : 0 
+            count: count ? await this.count(where) : 0
           });
         })
         .catch(err => {
@@ -56,10 +117,95 @@ class CakeCategoriesController {
     });
   }
 
+  async filterWithCategory(field, value) {
+    return new Promise(res => {
+      console.log("Value", value)
+      console.log("Field", field)
+      let _where = {}
+      _where[field] = value
+      MapProductWithCategory.findAll({
+        include: [{
+          model: Category,
+          where: _where
+        }]
+      })
+        .then(categories => {
+          res(categories.map(it => it.toJSON().product_id));
+        })
+        .catch(err => {
+          console.log(err);
+          res([]);
+        });
+    });
+  }
+
+  async filter(req, res) {
+    let providerAttributes = helper.checkGetProviderAttributes(req, res, [
+      "page",
+      "pageLength",
+      "range",
+      "status",
+      "query",
+      "sort",
+      "category"
+    ]);
+
+    if (!providerAttributes) return;
+
+    let _where = {
+      price: {
+        [Op.between]: JSON.parse(providerAttributes.range)
+      },
+      title: {
+        [Op.like]: `%${providerAttributes.query}%`
+      }
+    };
+
+    if (providerAttributes.category !== "all") {
+      let mapProductIdWithCategory = await this.filterWithCategory(
+        'alias', providerAttributes.category
+      );
+      _where.id = {
+        [Op.in]: mapProductIdWithCategory
+      };
+    }
+
+    if (providerAttributes.status) {
+      _where.status = providerAttributes.status;
+    }
+
+    let _order = [JSON.parse(providerAttributes.sort)];
+
+    let filterConfig = {
+      count: true,
+      offset: providerAttributes.page * providerAttributes.pageLength,
+      limit: providerAttributes.pageLength,
+      order: _order,
+      where: _where
+    };
+
+    this.find(filterConfig)
+      .then(rs => {
+        res.send(helper.getStatus("success", "Successful!", rs));
+      })
+      .catch(err => {
+        console.log(err);
+
+        res.send(
+          helper.getStatus(
+            "error",
+            err.errors
+              ? err.errors.map(it => it.message)
+              : "Filter product failed!"
+          )
+        );
+      });
+  }
+
   newProducts(req, res) {
     this.find({
       limit: 8,
-      offset: 0,
+      offset: 0
     })
       .then(rs => {
         res.send(helper.getStatus("success", "Successful", rs));
@@ -69,40 +215,66 @@ class CakeCategoriesController {
       });
   }
 
-  topSell(req, res){
+  topSell(req, res) {
     this.find({
       limit: 5,
       offset: 0,
-      order: [
-        ["sold", "DESC"]
-      ]
+      order: [["sold", "DESC"]]
     })
-    .then(rs => {
-      res.send(helper.getStatus("success", "Successful", rs));
-    })
-    .catch(err => {
-      res.send(helper.getStatus("error", "Fetch data failed!"));
-    });
+      .then(rs => {
+        res.send(helper.getStatus("success", "Successful", rs));
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Fetch data failed!"));
+      });
   }
-  topDiscounts(req, res){
+  topDiscounts(req, res) {
     this.find({
       limit: 5,
       offset: 0,
-      order: [
-        ["discount", "DESC"]
-      ]
+      order: [["discount", "DESC"]]
     })
-    .then(rs => {
-      res.send(helper.getStatus("success", "Successful", rs));
-    })
-    .catch(err => {
-      res.send(helper.getStatus("error", "Fetch data failed!"));
+      .then(rs => {
+        res.send(helper.getStatus("success", "Successful", rs));
+      })
+      .catch(err => {
+        res.send(helper.getStatus("error", "Fetch data failed!"));
+      });
+  }
+
+  async helperMapProductWithCategory(productId, categories) {
+    return new Promise(res => {
+      MapProductWithCategory.destroy({
+        where: {
+          product_id: productId
+        }
+      })
+        .then(rs => {
+          if (categories.length === 0) return res(true);
+
+          MapProductWithCategory.bulkCreate(
+            categories.map(it => {
+              return {
+                product_id: productId,
+                category_id: it.id
+              };
+            })
+          )
+            .then(rs => {
+              res(true);
+            })
+            .catch(err => {
+              res(false);
+            });
+        })
+        .catch(err => {
+          res(false);
+        });
     });
   }
 
   findAll(req, res) {
-    
-    this.find({limit: 12, offset: 0})
+    this.find({ limit: 12, offset: 0 })
       .then(rs => {
         res.send(helper.getStatus("success", "successfully", rs));
       })
@@ -118,6 +290,7 @@ class CakeCategoriesController {
           id: product_id
         },
         include: [
+          { model: Category },
           {
             model: Gallery
           }
@@ -170,7 +343,8 @@ class CakeCategoriesController {
       "description",
       "status",
       "thumbnail",
-      "gallery"
+      "gallery",
+      "categories"
     ]);
 
     if (!providerAttributes) return;
@@ -192,12 +366,17 @@ class CakeCategoriesController {
           let product = rs.toJSON();
           console.log(rs.toJSON());
 
+          let mapResult = await this.helperMapProductWithCategory(
+            product.id,
+            providerAttributes.categories
+          );
+
           let result = await this.updateGallery(
             product.id,
             providerAttributes.gallery
           );
 
-          if (result) {
+          if (result && mapResult) {
             res.send(
               helper.getStatus(
                 "success",
@@ -245,7 +424,8 @@ class CakeCategoriesController {
             description,
             status,
             thumbnail,
-            gallery
+            gallery,
+            categories
           } = req.body;
 
           _product
@@ -270,6 +450,19 @@ class CakeCategoriesController {
                   );
                 }
               }
+              if (categories) {
+                let mapCategories = await this.helperMapProductWithCategory(
+                  product.id,
+                  categories
+                );
+
+                if (!mapCategories) {
+                  return res.send(
+                    helper.getStatus("error", "Update product failed!")
+                  );
+                }
+              }
+
               return res.send(
                 helper.getStatus(
                   "success",
@@ -310,6 +503,8 @@ class CakeCategoriesController {
           );
         } else {
           await this.updateGallery(providerAttributes.id, []);
+
+          await this.helperMapProductWithCategory(providerAttributes.id, []);
 
           Product.destroy({
             where: {

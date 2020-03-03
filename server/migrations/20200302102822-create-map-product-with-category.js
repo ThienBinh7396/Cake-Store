@@ -1,29 +1,26 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Employees', {
+    return queryInterface.createTable('MapProductWithCategories', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      email: {
-        type: Sequelize.STRING
-      },
-      password: {
-        type: Sequelize.STRING
-      },
-      role: {
+      category_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Roles',
+          model: 'Categories',
           key: 'id'
-        } 
+        }
       },
-      active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
+      product_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Products',
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,
@@ -36,6 +33,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Employees');
+    return queryInterface.dropTable('MapProductWithCategories');
   }
 };

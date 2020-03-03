@@ -26,7 +26,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.STRING,
-        defaultValue: "avaiable"
+        defaultValue: "available"
       },
       discount: {
         type: Sequelize.FLOAT

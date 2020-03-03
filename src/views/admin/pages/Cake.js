@@ -10,7 +10,11 @@ import {
   CircularProgress,
   FormControl,
   MenuItem,
-  Select
+  Select,
+  Checkbox,
+  ButtonBase,
+  TextField,
+  Chip
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -18,6 +22,9 @@ import { AdminContext } from "./../context/AdminProvider";
 import { withRouter } from "react-router-dom";
 import QueueAnim from "rc-queue-anim";
 import BaseWrapperImage from "../../../common/component/BaseWrapperImage";
+import Autocomplete, { createFilterOptions } from "@material-ui/lab/Autocomplete";
+import BaseDialog from "../../../common/component/BaseDialog";
+import Categories from "./Categories";
 
 const useStyles = theme => ({
   root: {
@@ -63,6 +70,7 @@ const useStyles = theme => ({
     }
   }
 });
+const filter = createFilterOptions();
 
 class Cake extends React.Component {
   static contextType = AdminContext;
@@ -71,6 +79,7 @@ class Cake extends React.Component {
     axios: null,
     id: -1,
     type: "save",
+    openDialog: false,
     isSubmitting: false,
     title: {
       value: "",
@@ -115,6 +124,14 @@ class Cake extends React.Component {
           color: "#ff0101"
         }
       ]
+    },
+    categories: null,
+    tempCategory: "",
+    category: {
+      value: [],
+      validate: () => {
+        return this.state.category.value.length !== 0;
+      }
     },
     thumbnail: {
       default: "/img/birthday-cake.jpg",
@@ -165,6 +182,10 @@ class Cake extends React.Component {
           ...this.state.thumbnail,
           url: _product.thumbnail
         },
+        category: {
+          ...this.state.category,
+          value: _product.Categories
+        },
         gallery: [
           ..._product.gallery.map(it => {
             return {
@@ -199,6 +220,10 @@ class Cake extends React.Component {
           ...this.state.status,
           value: "available"
         },
+        category: {
+          ...this.state.category,
+          value: []
+        },
         thumbnail: {
           ...this.state.thumbnail,
           url: "/img/birthday-cake.jpg"
@@ -214,23 +239,39 @@ class Cake extends React.Component {
     this.progressDialog = this.context.progressDialog;
 
     console.log("product");
-    let { products, loadingComponent, axios } = this.context;
+    let { products, loadingComponent, axios, categories } = this.context;
 
     if (products && !products.data) {
       products.fetchProduct();
       loadingComponent.updateState(true);
       console.log("fetch product");
     }
-
+    
     this.setState({
-      axios
-    })
+      axios,
+      categories
+    }, () => {
+      if(categories.data === null){
+        categories.fetchData();
+        loadingComponent.updateState(true);
+      }
+    });
 
     this.updateCakeFromStore();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { adminContext } = this.props;
+    const { categories } = this.context;
+    const { adminContext } = prevProps;
+
+    if (categories !== adminContext.categories) {
+      console.log("update Categories")
+      this.setState({
+        categories
+      });
+    }
+
+
     if (adminContext.products !== prevProps.adminContext.products) {
       console.log("%cDid Update", "color: red; font-size: 30px");
       this.updateCakeFromStore();
@@ -374,13 +415,12 @@ class Cake extends React.Component {
       enqueueSnackbar(message, { variant: type });
     };
 
-
     const handleSaveBtn = async () => {
       this.setState({
         isSubmitting: true
       });
 
-      if (!this.state.title.validate() || !this.state.price.validate()) {
+      if (!this.state.title.validate() || !this.state.price.validate() || !this.state.category.validate()) {
         this.setState({
           isSubmitting: false
         });
@@ -472,21 +512,26 @@ class Cake extends React.Component {
       formData = new FormData();
 
       this.state.axios
-      .connect({
-        url:  `admin/products/${this.state.type === "save" ? "create" : "update"}`,
-        method: "POST",
-     
-        data:  {
-          id: this.state.id,
-          title: this.state.title.value,
-          price: this.state.price.value,
-          discount: this.state.discount.value,
-          description: this.state.description.value,
-          status: this.state.status.value,
-          thumbnail: this.state.thumbnail.url,
-          gallery: this.state.gallery
-        }
-      })
+        .connect({
+          url: `admin/products/${
+            this.state.type === "save" ? "create" : "update"
+          }`,
+          method: "POST",
+
+          data: {
+            id: this.state.id,
+            title: this.state.title.value,
+            price: this.state.price.value,
+            discount: this.state.discount.value,
+            description: this.state.description.value,
+            status: this.state.status.value,
+            thumbnail: this.state.thumbnail.url,
+            gallery: this.state.gallery,
+            categories: this.state.category.value.map(it => {
+              return { id: it.id, title: it.title, alias: it.alias };
+            }) 
+          }
+        })
         .then(rs => {
           let { data, type, message } = rs.data;
 
@@ -514,6 +559,19 @@ class Cake extends React.Component {
 
     return (
       <Box className={classes.root}>
+        <BaseDialog
+          maxWidth="xs"
+          fullWidth={true}
+          title="Add New Category"
+          open={this.state.openDialog}
+          onClose={() => {
+            this.setState({ openDialog: false });
+          }}
+          type="component"
+        >
+          <Categories embed tempTitle={this.state.tempCategory} />
+        </BaseDialog>
+
         <Grid container>
           <Grid item sm={8} xs={12} className={classes.paperContainer}>
             <Card className={"paper"}>
@@ -605,6 +663,162 @@ class Cake extends React.Component {
                     </div>
                   </Grid>
                 </Grid>
+                <Grid container>
+                  <Grid item xs={12} className="linear-transition">
+                    <Box className="simple-form" mb={1.75}>
+                      <label>Categories:</label>
+                      {
+                        <Autocomplete
+                          id="demo-mutiple-chip"
+                          multiple
+                          className={
+                            !this.state.category.validate() ? "error" : null
+                          }
+                          options={
+                            this.state.categories && this.state.categories.data
+                              ? this.state.categories.data
+                              : []
+                          }
+                          value={
+                            this.state.category && this.state.category.value
+                              ? this.state.category.value
+                              : []
+                          }
+                          onChange={(event, newValue) => {
+                            console.log("Value: .......", event);
+                            console.log("Value: .......", newValue);
+
+                            this.setState({
+                              category: {
+                                ...this.state.category,
+                                value: newValue
+                                  .filter(it => !it.noRow)
+                                  .reduce((arr, it) => {
+                                    return arr.findIndex(
+                                      _arr => _arr.id === it.id
+                                    ) >= 0
+                                      ? [...arr]
+                                      : [...arr, it];
+                                  }, [])
+                              }
+                            });
+                          }}
+                          filterOptions={(options, params) => {
+                            const filtered = filter(options, params);
+
+                            if (params.inputValue !== "") {
+                              filtered.push({
+                                inputValue: params.inputValue,
+                                noRow: true,
+                                title: `Add category "${params.inputValue}"`
+                              });
+                            }
+
+                            return filtered;
+                          }}
+                          getOptionLabel={option => {
+                            if (typeof option === "string") {
+                              return option;
+                            }
+                            if (option.inputValue) {
+                              return option.inputValue;
+                            }
+                            return option.title;
+                          }}
+                          renderOption={(option, { selected }) => {
+                            return (
+                              <Box
+                                style={{ position: "relative", padding: "0px" }}
+                                className="full-size"
+                              >
+                                {!option.noRow && (
+                                  <React.Fragment>
+                                    <Checkbox
+                                      style={{ marginRight: 8, padding: "6px" }}
+                                      checked={
+                                        this.state.category.value.findIndex(
+                                          it => option.id === it.id
+                                        ) >= 0
+                                      }
+                                    />
+                                    {option.title}
+                                  </React.Fragment>
+                                )}
+                                {option.noRow && (
+                                  <ButtonBase
+                                    className="full-size"
+                                    style={{
+                                      margin: "0px",
+                                      color: "#3f6ad8",
+                                      fontSize: "16px",
+                                      padding: "6px 12px"
+                                    }}
+                                    onClick={() => {
+                                      this.setState({
+                                        openDialog: true
+                                      });
+                                    }}
+                                  >
+                                    {option.title}
+                                  </ButtonBase>
+                                )}
+                              </Box>
+                            );
+                          }}
+                          loading={true}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              value={this.state.tempCategory}
+                              onChange={e => {
+                                this.setState({
+                                  tempCategory: e.target.value
+                                });
+                              }}
+                              variant="outlined"
+                              placeholder="Choose at least category!"
+                              fullWidth
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <React.Fragment>
+                                    {this.state.categories &&
+                                      this.state.categories.loading && (
+                                        <CircularProgress
+                                          size={16}
+                                          style={{
+                                            position: "absolute",
+                                            right: "36px"
+                                          }}
+                                        />
+                                      )}
+                                    {params.InputProps.endAdornment}
+                                  </React.Fragment>
+                                )
+                              }}
+                              className="base-autocomplete"
+                            />
+                          )}
+                          renderTags={(selected, getTagProps) =>
+                            selected.map(
+                              (value, index) =>
+                                !value.noRow && (
+                                  <Chip
+                                    label={
+                                      <Box fontSize={14}>#{value.title}</Box>
+                                    }
+                                    {...getTagProps({ index })}
+                                  />
+                                )
+                            )
+                          }
+                        ></Autocomplete>
+                      }
+                      <Box className="helper-text">Choose at least category!</Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+
                 <div className="simple-form">
                   <label>Description:</label>
                   <div className="simple-form-input">
@@ -730,4 +944,6 @@ const withAdminContext = Element => {
   });
 };
 
-export default withStyles(useStyles)(withSnackbar(withAdminContext(withRouter(Cake))));
+export default withStyles(useStyles)(
+  withSnackbar(withAdminContext(withRouter(Cake)))
+);

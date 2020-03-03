@@ -5,7 +5,8 @@ const {
   BlogTagController,
   BlogController,
   EmployeeController,
-  ProductController
+  ProductController,
+  CategoryController
 } = require("./../controllers");
 
 const adminAuth = require("../middlewares/admin");
@@ -59,6 +60,21 @@ router.post("/products/update", [
 router.post("/products/delete", [
   adminAuth.verifyToken.bind(role.productManagement),
   ProductController.delete.bind(ProductController)
+]);
+
+router.get("/category/findAll", [CategoryController.findAll]);
+
+router.post("/category/delete", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  CategoryController.delete
+]);
+router.post("/category/create", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  CategoryController.create.bind(CategoryController)
+]);
+router.post("/category/update", [
+  adminAuth.verifyToken.bind(role.productManagement),
+  CategoryController.update.bind(CategoryController)
 ]);
 
 router.get("/blogTags/findAll", [BlogTagController.findAll]);

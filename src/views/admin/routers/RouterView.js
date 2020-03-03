@@ -10,6 +10,7 @@ import Cakes from "../pages/Cakes";
 import Blog from "../pages/Blog";
 import Tags from './../pages/Tags';
 import Blogs from "../pages/Blogs";
+import Categories from "../pages/Categories";
 
 
 
@@ -39,6 +40,9 @@ function SwitchPages() {
       </Route>
       <Route exact path={`${url}/cake/add`}>
         <Cake />
+      </Route>
+      <Route exact path={`${url}/category`}>
+        <Categories />
       </Route>
       <Route exact path={`${url}/cake`}>
         <Cakes />

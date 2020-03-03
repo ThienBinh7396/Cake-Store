@@ -3,8 +3,7 @@ import { Box, Container, Grid } from "@material-ui/core";
 import BaseIcon from "../../../common/component/BaseIcon";
 import { Link, NavLink } from "react-router-dom";
 import BaseBadge from "./../../../common/component/BaseBadge";
-import { CLIENT_NAV } from './../../../constant/index';
-
+import { CLIENT_NAV } from "./../../../constant/index";
 
 function NavBar(props) {
   const { scrolltop } = props;
@@ -41,15 +40,20 @@ function NavBar(props) {
               Cake<span>Stores</span>
             </Link>
           </Box>
-          <Box className="header-menu">
-            <Box className="main-menu">
-              {CLIENT_NAV.map(it => (
-                <NavLink to={it.path} key={`#nav-${it.text}`}>
-                  {it.text}
-                </NavLink>
-              ))}
-            </Box>
-            <Box className="control-menu">
+          <div className="header-menu">
+            <div className="main-menu">
+              <div className="main-menu-content">
+                {CLIENT_NAV.map(it => (
+                  <NavLink to={it.path} key={`#nav-${it.text}`}>
+                    {it.text}
+                  </NavLink>
+                ))}
+              </div>
+              <div className="main-menu-content">
+                <BaseIcon size={20} icon="fas fa-bars"></BaseIcon>
+              </div>
+            </div>
+            <div className="control-menu">
               <BaseIcon icon="fas fa-search" size={17} margin="0 24px 0 0" />
               <BaseBadge
                 badgeContent={4}
@@ -60,8 +64,8 @@ function NavBar(props) {
               >
                 <img src="/img/icon-cart.png" alt="c" />
               </BaseBadge>
-            </Box>
-          </Box>
+            </div>
+          </div>
         </Container>
       </div>
     </section>

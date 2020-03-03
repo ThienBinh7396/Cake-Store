@@ -3,10 +3,11 @@ import { PropTypes } from "prop-types";
 import { ClientContext } from "./../context/ClientProvider";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useRef } from "react";
+import {useRef} from "react";
 import { Rating } from "@material-ui/lab";
 import { ButtonBase, Box } from "@material-ui/core";
 import LazyImage from "./../../../common/component/LazyImage";
+import { withRouter } from 'react-router-dom';
 
 function ProductCard(props) {
   const client = useContext(ClientContext);
@@ -21,6 +22,10 @@ function ProductCard(props) {
       setProduct(client.products.data.find(it => it.id === id));
     }
   }, [client.products]);
+
+  const navigationToProductDetails = () => {
+    props.history.push(`/product/${product.id}`)
+  }
 
   return (
     <div>
@@ -41,13 +46,13 @@ function ProductCard(props) {
                 effect={"opacity"}
                 alt={product.thumbnail}
               />
-              {product.discount && (
+              {product.discount !== 0 && (
                 <div className="card-product-discount">
                   <span>{product.discount}%</span>
                 </div>
               )}
               <div className="card-product-action">
-                <button className="button-icon">
+                <button className="button-icon" onClick={ navigationToProductDetails}>
                   <i className="pe-7s-search"></i>
                 </button>
                 <button className="button-icon">
@@ -83,7 +88,7 @@ function ProductCard(props) {
                 effect={"opacity"}
                 alt={product.thumbnail}
               />
-              {product.discount && (
+              {product.discount !== 0 && (
                 <div className="card-product-discount">
                   <span>{product.discount}%</span>
                 </div>
@@ -110,7 +115,7 @@ function ProductCard(props) {
               </div>
             )}
             <div className="card-product-price">
-              {product.discount && (
+              {product.discount !== 0 && (
                 <span className="origin">${product.price}</span>
               )}
               <span className="real">
@@ -154,4 +159,4 @@ ProductCard.propTypes = {
   id: PropTypes.number.isRequired
 };
 
-export default ProductCard;
+export default withRouter(ProductCard);

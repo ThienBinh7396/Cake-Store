@@ -37,8 +37,10 @@ class Helper {
 
     let check = true;
 
+    console.log(query)
+
     params.forEach(it => {
-      if (query[it] == null) {
+      if (query[it] === null) {
         res.send(this.getStatus("error", `${it} param isn't provided`));
         check = false;
       }

@@ -1,7 +1,8 @@
-import React, { createContext } from "react";
-import cookie from "./../../../utils/cookie";
 import Axios from "axios";
+import React, { createContext } from "react";
+
 import { BASE_URL } from "../../../constant";
+import cookie from "./../../../utils/cookie";
 
 export const ClientContext = createContext();
 
@@ -35,6 +36,7 @@ class ClientProvider extends React.Component {
         this.setState(
           {
             toast: {
+              ...this.state.toast,
               data: {
                 show: true,
                 type,
@@ -46,6 +48,7 @@ class ClientProvider extends React.Component {
             setTimeout(() => {
               this.setState({
                 toast: {
+                  ...this.state.toast,
                   data: {
                     ...this.state.toast.data,
                     show: false
@@ -129,14 +132,14 @@ class ClientProvider extends React.Component {
             })
             .then(rs => {
               const { data } = rs.data;
-  
+
               res(data);
             })
             .catch(err => {
               res(null);
             });
         });
-      },  
+      },
       storageToken: token => {
         cookie.setCookie("_tk", token);
 
@@ -168,9 +171,85 @@ class ClientProvider extends React.Component {
         });
       }
     },
+    categories: {
+      data: null,
+      loading: false,
+      updateData: _categories => {
+        this.setState({
+          categories: {
+            ...this.state.categories,
+            ..._categories
+          }
+        });
+      },
+      fetchData: () => {
+        this.setState(
+          {
+            categories: {
+              ...this.state.categories,
+              loading: true
+            }
+          },
+          () => {
+            console.log("loading: " + this.state.categories.loading);
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "client/category/findAll"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+                if (type === "success") {
+                  this.state.categories.updateData({ loading: false, data });
+                }
+                this.state.loadingComponent.updateState(false);
+              })
+              .catch(err => {
+                this.state.categories.updateData({ loading: false });
+                console.log("Fetch categories faild...");
+              });
+          }
+        );
+      }
+    },
     products: {
       data: null,
       loading: false,
+      addingProductId: [],
+      addOne: id => {
+        if (
+          !this.state.products.data ||
+          this.state.products.addingProductId.findIndex(it => it === id) < 0
+        ) {
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                addingProductId: [...this.state.products.addingProductId, id]
+              }
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  url: "client/product/findOne",
+                  method: "GET",
+                  params: {
+                    id
+                  }
+                })
+                .then(rs => {
+                  const { type, data } = rs.data;
+
+                  if (type === "success") {
+                    this.state.products.updateData({
+                      data: [...(this.state.products.data || []), data]
+                    });
+                  }
+                });
+            }
+          );
+        }
+      },
       newProducts: {
         data: null,
         loading: false,
@@ -298,11 +377,121 @@ class ClientProvider extends React.Component {
       filter: {
         data: null,
         loading: false,
+        firstLoading: false,
         page: 0,
-        max: 0
+        pageLength: 12,
+        range: [0, 1000],
+        status: null,
+        category: "all",
+        query: "",
+        max: 0,
+        sort: ["createdAt", "DESC"],
+        updateFilter: ({ page, range, status, query, sort, category }) => {
+         
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                filter: {
+                  ...this.state.products.filter,
+                  page:
+                    page !== undefined && page !== null ? page : 0,
+                  range:
+                    range !== undefined  && range !== null
+                      ? range
+                      : this.state.products.filter.range,
+                  status:
+                    status !== undefined && status !== null
+                      ? status
+                      : this.state.products.filter.status,
+                  category:
+                    category !== undefined && category !== null
+                      ? category
+                      : this.state.products.filter.category,
+                  query:
+                    query !== undefined && query !== null
+                      ? query
+                      : this.state.products.filter.query,
+                  sort:
+                    sort !== undefined && sort !== null ? sort : this.state.products.filter.sort
+                }
+              }
+            },
+            () => {
+              console.log("UPDATE...............", this.state.products.filter);
+              if (!this.state.products.filter.loading) {
+                console.log("UPDATE FILETE", this.state.products.filter);
+                this.state.products.filter.fetchData();
+              }
+            }
+          );
+        },
+        fetchData: () => {
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                filter: {
+                  ...this.state.products.filter,
+                  loading: true
+                }
+              }
+            },
+            () => {
+              console.log("this.state.products.filter");
+              console.log(this.state.products.filter);
+              this.state.axios
+                .connect({
+                  type: "GET",
+                  url: "client/product/filter",
+                  params: {
+                    page: this.state.products.filter.page,
+                    pageLength: this.state.products.filter.pageLength,
+                    range: JSON.stringify(this.state.products.filter.range),
+                    status: this.state.products.filter.status,
+                    query: this.state.products.filter.query,
+                    sort: JSON.stringify(this.state.products.filter.sort),
+                    category: this.state.products.filter.category
+                  }
+                })
+                .then(rs => {
+                  let { data, type, message } = rs.data;
+
+                  if (type === "success") {
+                    this.state.products.updateData({
+                      data: [...(this.state.products.data || []), ...data.data]
+                    });
+
+                    this.setState(
+                      {
+                        products: {
+                          ...this.state.products,
+                          filter: {
+                            ...this.state.products.filter,
+                            loading: false,
+                            firstLoading: true,
+                            data: data.data,
+                            max: Number(data.count)
+                          }
+                        }
+                      },
+                      () => {
+                        console.log(this.state.products.filter);
+                      }
+                    );
+                  } else {
+                    this.state.toast.show(message, type);
+                  }
+                });
+            }
+          );
+        }
       },
       updateData: _products => {
         if (_products.hasOwnProperty("data")) {
+          console.log("%c UPDATE DATA AAA");
+          console.log(_products);
+
           _products.data = _products.data.reduce((arr, current) => {
             return arr.findIndex(it => it.id === current.id) < 0
               ? [...arr, current]

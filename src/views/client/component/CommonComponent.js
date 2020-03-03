@@ -11,7 +11,7 @@ const useStyles = theme => ({
   root: {
     height: "100vh",
     overflowY: "auto",
-    paddingTop: "120px",
+    paddingTop: "110px",
     fontFamily: "'Roboto Slab', serif",
     backgroundColor: "#fff",
     scrollBehavior: "smooth"

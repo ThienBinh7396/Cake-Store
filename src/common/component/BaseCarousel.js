@@ -12,6 +12,13 @@ class BaseCarousel extends Component {
   constructor(props) {
     super(props);
     this.carouselRef = createRef();
+
+    this.refPaginationImage = null;
+    this.dragPaginationImage = {
+      timeOut: null,
+      start: false,
+      x: 0
+    };
   }
 
   state = {
@@ -19,6 +26,7 @@ class BaseCarousel extends Component {
     stopOnHover: false,
     isSliding: false,
     pagination: false,
+    paginationWithImage: null,
     windowWidth: window.innerWidth,
     itemToShow: 1,
     itemToSlide: 1,
@@ -41,7 +49,7 @@ class BaseCarousel extends Component {
   };
 
   componentDidMount() {
-    this.itemWidth = this.carouselRef.current.parentElement.offsetWidth;
+    this.itemWidth = this.carouselRef.current.offsetWidth;
 
     this.now = btoa(`${Date.now() + Math.random()}`);
 
@@ -53,6 +61,7 @@ class BaseCarousel extends Component {
       {
         stopOnHover: this.props.stoponhover || true,
         pagination: this.props.pagination || false,
+        paginationWithImage: this.props.paginationWithImage || null,
         noControl: this.props.nocontrol || false,
         playSpeed: this.props.playspeed || 6000,
         autoplay:
@@ -107,7 +116,7 @@ class BaseCarousel extends Component {
           windowWidth: width.data
         },
         () => {
-          this.itemWidth = this.carouselRef.current.parentElement.offsetWidth;
+          this.itemWidth = this.carouselRef.current.offsetWidth;
           this.updateBreakPoint();
         }
       );
@@ -208,9 +217,9 @@ class BaseCarousel extends Component {
       currentIndex: _index
     });
   }
-  
+
   stepTo(index, resetItemToSlide) {
-    if(!this._ismounted) return;
+    if (!this._ismounted) return;
     this.setState(
       {
         isSliding: true,
@@ -220,7 +229,7 @@ class BaseCarousel extends Component {
       },
       () => {
         setTimeout(() => {
-          if(!this._ismounted) return;
+          if (!this._ismounted) return;
 
           this.setState(
             {
@@ -300,6 +309,163 @@ class BaseCarousel extends Component {
     );
   }
 
+  getTransformPaginationImage() {
+    let _transform =
+      -(
+        parseInt(
+          (this.state.currentIndex % this.state.defaultCarousels.length) /
+            this.state.itemToShow
+        ) - 1
+      ) * 112;
+    if (_transform > 0) _transform = 0;
+
+    return `translateX(${_transform}px)`;
+  }
+
+  startDragPaginationImage(e) {
+    console.log("Mouse down");
+
+    this.dragPaginationImage = {
+      x: e.clientX
+    };
+
+    if (this.dragPaginationImage.timeOut) {
+      clearTimeout(this.dragPaginationImage.timeOut);
+    }
+    this.dragPaginationImage.timeOut = setTimeout(() => {
+      this.dragPaginationImage.start = true;
+    }, 300);
+  }
+  draggingPaginationImage(e) {
+    if (this.dragPaginationImage.start) {
+      let matrix = new window.WebKitCSSMatrix(
+        getComputedStyle(this.refPaginationImage).webkitTransform
+      );
+
+      this.refPaginationImage.style.transition = "0s";
+      this.refPaginationImage.style.transform = `translateX(${matrix.m41 +
+        (e.clientX - this.dragPaginationImage.x)}px)`;
+
+      this.dragPaginationImage = {
+        start: true,
+        x: e.clientX
+      };
+    }
+  }
+  stopDragPaginationImage(e) {
+    console.log("Mouse up");
+    this.refPaginationImage.style.transition = "all 0.6s ease 0s";
+    clearTimeout(this.dragPaginationImage.timeOut);
+
+    if (this.dragPaginationImage.start) {
+      let matrix = new window.WebKitCSSMatrix(
+        getComputedStyle(this.refPaginationImage).webkitTransform
+      );
+
+      let _index = parseInt((this.itemWidth / 2 - matrix.m41 - 112 / 2) / 112);
+
+      if (_index < 0) _index = 0;
+      if (_index >= this.state.defaultCarousels.length)
+        _index = this.state.defaultCarousels.length - 1;
+
+      this.dragPaginationImage = {
+        start: false,
+        x: e.clientX
+      };
+
+      setTimeout(() => {
+        this.stepTo(_index);
+      }, 50);
+    }
+  }
+
+  getPaginationDOM = () => {
+    return (
+      <>
+        {this.state.paginationWithImage === null ? (
+          <div className="base-carousel-pagination">
+            {Array(
+              Math.ceil(
+                this.state.defaultCarousels.length / this.state.itemToShow
+              )
+            )
+              .fill(null)
+              .map((it, pindex) => (
+                <div key={`#-pagination-${this.now}-${pindex}`}>
+                  <div
+                    x={`${(this.state.currentIndex %
+                      this.state.defaultCarousels.length) /
+                      this.state.itemToShow}`}
+                    className={`base-carousel-pagination-item ${
+                      parseInt(
+                        (this.state.currentIndex %
+                          this.state.defaultCarousels.length) /
+                          this.state.itemToShow
+                      ) === pindex
+                        ? "active"
+                        : ""
+                    }`}
+                    p={pindex}
+                    onClick={e => {
+                      this.stepTo(
+                        pindex * this.state.itemToShow +
+                          this.state.defaultCarousels.length,
+                        this.state.itemToShow
+                      );
+                    }}
+                  ></div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="base-carousel-pagination-image-wrapper">
+            <div
+              className="base-carousel-pagination-image"
+              ref={ref => (this.refPaginationImage = ref)}
+              style={{
+                transform: this.getTransformPaginationImage()
+              }}
+            >
+              {Array(
+                Math.ceil(
+                  this.state.defaultCarousels.length / this.state.itemToShow
+                )
+              )
+                .fill(null)
+                .map((it, pindex) => (
+                  <div
+                    key={`#-pagination-${this.now}-${pindex}`}
+                    className={`base-carousel-pagination-image-item ${
+                      parseInt(
+                        (this.state.currentIndex %
+                          this.state.defaultCarousels.length) /
+                          this.state.itemToShow
+                      ) === pindex
+                        ? "active"
+                        : ""
+                    }`}
+                    style={{
+                      backgroundImage: `url(${this.state.paginationWithImage[pindex].url})`
+                    }}
+                    onMouseDown={e => {
+                      console.log("event..........");
+                      if (this.dragPaginationImage.start) return;
+
+                      this.stepTo(
+                        pindex * this.state.itemToShow +
+                          this.state.defaultCarousels.length,
+                        this.state.itemToShow
+                      );
+                    }}
+                  ></div>
+                ))}
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
   render() {
     return (
       <div
@@ -361,41 +527,7 @@ class BaseCarousel extends Component {
               {this.state.childrenDom}
             </div>
           }
-          {this.state.pagination && (
-            <div className="base-carousel-pagination">
-              {Array(
-                Math.ceil(
-                  this.state.defaultCarousels.length / this.state.itemToShow
-                )
-              )
-                .fill(null)
-                .map((it, pindex) => (
-                  <div
-                    x={`${(this.state.currentIndex %
-                      this.state.defaultCarousels.length) /
-                      this.state.itemToShow}`}
-                    className={`base-carousel-pagination-item ${
-                      parseInt(
-                        (this.state.currentIndex %
-                          this.state.defaultCarousels.length) /
-                          this.state.itemToShow
-                      ) === pindex
-                        ? "active"
-                        : ""
-                    }`}
-                    key={`#-pagination-${this.now}-${pindex}`}
-                    p={pindex}
-                    onClick={e => {
-                      this.stepTo(
-                        pindex * this.state.itemToShow +
-                          this.state.defaultCarousels.length,
-                        this.state.itemToShow
-                      );
-                    }}
-                  ></div>
-                ))}
-            </div>
-          )}
+          {this.state.pagination && this.getPaginationDOM()}
         </Box>
       </div>
     );

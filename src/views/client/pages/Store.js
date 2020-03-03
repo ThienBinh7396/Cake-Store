@@ -1,55 +1,452 @@
 import React from "react";
+
 import BannerHeader from "../partials/BannerHeader";
+
 import {
   Grid,
   Slider,
   FormControl,
   RadioGroup,
-  FormControlLabel
+  FormControlLabel,
+  Box,
+  ButtonBase
 } from "@material-ui/core";
 import BaseRadioButton from "./../../../common/component/BaseRadioButton";
 import { ClientContext } from "./../context/ClientProvider";
 import WrapperSubProductSection from "../partials/WrapperSubProductSection";
+import Pagination from "@material-ui/lab/Pagination";
+import { Skeleton } from "@material-ui/lab";
+import ProductCard from "../partials/ProductCard";
+import BaseSpinner from "./../../../common/component/BaseSpinner";
+import { withRouter } from "react-router-dom";
 
 class Store extends React.Component {
   static contextType = ClientContext;
   state = {
-    filter: {
-      price: {
-        value: [0, 100],
-        range: [0, 1000]
-      }
-    }
+    filter: null,
+    categories: null,
+    price: {
+      value: [0, 100],
+      range: [0, 1000]
+    },
+    queryString: null
   };
 
   componentDidMount() {
-    console.log("Store did mount");
+    const { products, categories } = this.context;
+
+    if (categories) {
+      this.setState(
+        {
+          categories
+        },
+        () => {
+          if (this.state.categories.data === null) {
+            this.state.categories.fetchData();
+          }
+        }
+      );
+    }
+
+    if (products && products.filter) {
+      this.setState(
+        {
+          filter: products.filter
+        },
+        () => {
+          this.setState(
+            {
+              queryString: new URLSearchParams(this.props.location.search)
+            },
+            () => {
+              let category = this.state.queryString.get("category");
+
+              console.log("%c category: " + category, "color:purple");
+
+              this.state.filter.updateFilter({ category });
+            }
+          );
+        }
+      );
+    }
   }
 
-  componentWillUnmount() {
-    console.log("Store unmount");
+  componentDidUpdate(propPrev) {
+    const { products, categories } = this.context;
+
+    const { filter } = this.state;
+
+    if (
+      categories.data !== null &&
+      this.state.categories &&
+      (this.state.categories.data === null ||
+        !this.compareArray(categories.data, this.state.categories.data, "id"))
+    ) {
+      this.setState({
+        categories: {
+          ...this.state.categories,
+          data: categories.data
+        }
+      });
+    }
+
+    if (
+      filter !== null &&
+      filter.data === null &&
+      products.filter.data !== null
+    ) {
+      console.log("%c Product update ", "color:red;font-size:30px");
+      this.setState(
+        {
+          filter: {
+            ...this.state.filter,
+            ...products.filter
+          }
+        },
+        () => {
+          console.log("%c Product update ", "color:red;font-size:30px");
+          console.log(this.state);
+        }
+      );
+    }
+
+    if (filter !== null && products.filter !== null) {
+      Object.keys(filter).forEach(it => {
+        if (typeof filter[it] !== "function") {
+          if (Array.isArray(filter[it])) {
+            let check =
+              it === "data"
+                ? this.compareArray(filter[it], products.filter[it], "id")
+                : this.compareArray(filter[it], products.filter[it]);
+            if (!check) {
+              this.updateFilterFromContext(it);
+            }
+          } else {
+            if (filter[it] !== products.filter[it]) {
+              this.updateFilterFromContext(it);
+            }
+          }
+        }
+      });
+    }
   }
+
+  updateFilterFromContext(field) {
+    const { filter } = this.context.products;
+
+    if (filter && this.state.filter) {
+      let obj = {};
+
+      obj[field] = filter[field];
+
+      this.setState({
+        filter: {
+          ...this.state.filter,
+          ...obj
+        }
+      });
+    }
+  }
+
+  compareArray = (arr1, arr2, field) => {
+    if (arr1.length === 0 && arr2.length === 0) return true;
+    if (arr1.length !== arr2.length) return false;
+
+    return arr1.every((value, index) => {
+      return field
+        ? value[field] === arr2[index][field]
+        : value === arr2[index];
+    });
+  };
 
   handleChangeFilterPrice = (event, _newValue) => {
     this.setState({
-      filter: {
-        price: {
-          ...this.state.filter.price,
-          value: _newValue
-        }
+      price: {
+        ...this.state.price,
+        value: _newValue
       }
     });
   };
 
+  startFilterPrice = () => {
+    this.state.filter.updateFilter({
+      range: this.state.price.value.map(it => parseInt(this.getRealPrice(it)))
+    });
+  };
+
   getRealPrice = value => {
-    let range =
-      this.state.filter.price.range[1] - this.state.filter.price.range[0];
-    return `$${(value * range) / 100} `;
+    let range = this.state.price.range[1] - this.state.price.range[0];
+    return (value * range) / 100;
   };
 
   valueLabelFormat(value) {
-    return this.getRealPrice(value);
+    return `${this.getRealPrice(value)}`;
   }
+
+  handleQueryChange = e => {
+    if (this.state.filter) {
+      this.state.filter.updateFilter({ query: e.target.value });
+    }
+  };
+
+  handleChangeStatus = e => {
+    this.state.filter.updateFilter({
+      status: e.target.value
+    });
+  };
+
+  handleChangeCategory = e => {
+    console.log("Category............");
+    console.log(e.target.value);
+    this.state.filter.updateFilter({
+      category: e.target.value
+    });
+  };
+
+  getLeftSidebar = () => (
+    <>
+      <div className="widget widget-search">
+        <div className="title">Search</div>
+        <div className="content">
+          <form className="search">
+            <input
+              type="text"
+              placeholder="Type something..."
+              value={this.state.filter ? this.state.filter.query : ""}
+              onChange={this.handleQueryChange}
+            />
+            <i className="search-icon pe-7s-search"></i>
+          </form>
+        </div>
+      </div>
+      <div className="widget widget-category">
+        <div className="title">Categories</div>
+        <div className="content">
+          <FormControl component="fieldset">
+            <RadioGroup
+              aria-label="status"
+              name="status"
+              value={this.state.filter ? this.state.filter.category : ""}
+              onChange={this.handleChangeCategory}
+            >
+              <FormControlLabel
+                label={`All categories(${
+                  this.state.categories && this.state.categories.data
+                    ? this.state.categories.data.length
+                    : 0
+                })`}
+                value={"all"}
+                control={<BaseRadioButton bcolor={"#f6675c"} />}
+              ></FormControlLabel>
+              {this.state.categories &&
+                this.state.categories.data &&
+                this.state.categories.data.map(it => (
+                  <FormControlLabel
+                    key={`#category-${it.id}`}
+                    label={it.title}
+                    value={it.alias}
+                    control={<BaseRadioButton bcolor={"#f6675c"} />}
+                  ></FormControlLabel>
+                ))}
+            </RadioGroup>
+          </FormControl>
+        </div>
+      </div>
+      <div className="widget widget-search">
+        <div className="title">Status</div>
+        <div className="content">
+          <FormControl component="fieldset">
+            <RadioGroup
+              aria-label="status"
+              name="status"
+              value={this.state.filter ? this.state.filter.status : ""}
+              onChange={this.handleChangeStatus}
+            >
+              <FormControlLabel
+                label="Available"
+                value="available"
+                control={<BaseRadioButton bcolor={"#f6675c"} />}
+              ></FormControlLabel>
+              <FormControlLabel
+                label="Busy"
+                value="busy"
+                control={<BaseRadioButton bcolor={"#f6675c"} />}
+              ></FormControlLabel>
+              <FormControlLabel
+                label="Unavailable"
+                value="unavailable"
+                control={<BaseRadioButton bcolor={"#f6675c"} />}
+              ></FormControlLabel>
+            </RadioGroup>
+          </FormControl>
+        </div>
+      </div>
+      <div className="widget widget-filter">
+        <div className="title">Filter</div>
+        <div className="content" pl={6}>
+          <div className="filter-wrapper">
+            <Slider
+              orientation="horizontal"
+              step={2}
+              value={this.state.price.value}
+              color={"secondary"}
+              aria-labelledby="vertical-slider"
+              valueLabelDisplay="auto"
+              valueLabelFormat={this.valueLabelFormat.bind(this)}
+              getAriaValueText={this.valueLabelFormat.bind(this)}
+              onChange={this.handleChangeFilterPrice.bind(this)}
+            />
+            <label>
+              Price: ${this.getRealPrice(this.state.price.value[0])}- $
+              {this.getRealPrice(this.state.price.value[1])}
+            </label>
+            <br />
+            <br />
+            <ButtonBase
+              className="btn-card-wrapper "
+              onClick={this.startFilterPrice}
+            >
+              <div
+                className="btn-card"
+                style={{ lineHeight: "20px", fontSize: "11px" }}
+              >
+                Filter
+                <i className="fas fa-filter"></i>
+              </div>
+            </ButtonBase>
+          </div>
+        </div>
+      </div>
+      <div className="widget store-page-top-sell">
+        <div className="title">Top Seller</div>
+        <WrapperSubProductSection title="" field="topSell" small />
+      </div>
+    </>
+  );
+  getStatusBar = () => (
+    <>
+      <div className="filter-status-bar">
+        <div className="display-style">
+          <i className="fas fa-th-large active"></i>
+        </div>
+        <div>
+          Showing{" "}
+          {this.state.filter
+            ? this.state.filter.page * this.state.filter.pageLength + 1
+            : 0}{" "}
+          -{" "}
+          {this.state.filter
+            ? (this.state.filter.page + 1) * this.state.filter.pageLength >
+              this.state.filter.max
+              ? this.state.filter.max
+              : (this.state.filter.page + 1) * this.state.filter.pageLength
+            : 0}{" "}
+          of {this.state.filter ? this.state.filter.max : 0} results
+        </div>
+      </div>
+    </>
+  );
+
+  getRightSidebar = () => (
+    <>
+      {
+        <div
+          className="loading-filter-product"
+          style={{
+            height:
+              this.state.filter && this.state.filter.loading ? "30px" : "0px"
+          }}
+        >
+          <BaseSpinner />
+        </div>
+      }
+      <Box py={2} pt={0} px={2}>
+        {this.getStatusBar()}
+      </Box>
+      <Grid container>
+        {!this.state.filter ||
+        !this.state.filter.firstLoading ||
+        this.state.filter.data === null ? (
+          [1, 2, 3, 4, 5, 6, 7, 8, 9].map((it, index) => (
+            <Grid
+              item
+              lg={4}
+              md={6}
+              sm={12}
+              xs={12}
+              key={`#skeleton-section-product-${index}`}
+            >
+              <Box py={2} px={2} width={"100%"}>
+                <Skeleton variant="rect" animation="wave" height={282} />
+                <Skeleton
+                  animation="wave"
+                  width="60%"
+                  style={{ marginTop: "8px" }}
+                />
+                <Skeleton variant="rect" animation="wave" height={18} />
+              </Box>
+            </Grid>
+          ))
+        ) : (
+          <>
+            {
+              <div
+                className={`no-results-filter ${
+                  this.state.filter.data.length === 0 ? "show" : ""
+                }`}
+              >
+                <img src="/img/not-found.jpg" alt="not-found" />
+                <div>Sorry, no result found!</div>
+              </div>
+            }
+            {this.state.filter.data.map((it, index) => (
+              <Grid
+                item
+                lg={4}
+                md={6}
+                sm={12}
+                xs={12}
+                key={`#right-sidebar-product-${it.id}`}
+              >
+                <Box py={2} px={1} width={"100%"}>
+                  <ProductCard id={it.id} />
+                </Box>
+              </Grid>
+            ))}
+          </>
+        )}
+      </Grid>
+      <Box
+        display="flex"
+        mt={5}
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+      >
+        {this.state.filter !== null && (
+          <Pagination
+            className="product-page-pagination"
+            count={
+              Math.ceil(this.state.filter.max / this.state.filter.pageLength) <=
+              0
+                ? 1
+                : Math.ceil(
+                    this.state.filter.max / this.state.filter.pageLength
+                  )
+            }
+            page={this.state.filter.page + 1}
+            onChange={this.changePagination}
+          />
+        )}
+      </Box>
+    </>
+  );
+
+  changePagination = (event, value) => {
+    console.log(value);
+
+    this.state.filter.updateFilter({ page: value - 1 });
+  };
 
   render() {
     return (
@@ -62,72 +459,16 @@ class Store extends React.Component {
         />
 
         <Grid container>
-          <Grid item md={5} lg={4} className="widget-wrapper">
-            <div className="widget widget-search">
-              <div className="title">Search</div>
-              <div className="content">
-                <form className="search">
-                  <input type="text" placeholder="Type something..." />
-                  <i className="search-icon pe-7s-search"></i>
-                </form>
-              </div>
-            </div>
-            <div className="widget widget-search">
-              <div className="title">Status</div>
-              <div className="content">
-                <FormControl component="fieldset">
-                  <RadioGroup aria-label="status" name="status">
-                    <FormControlLabel
-                      label="Available"
-                      value="available"
-                      control={<BaseRadioButton bcolor={"#f6675c"} />}
-                    ></FormControlLabel>
-                    <FormControlLabel
-                      label="Busy"
-                      value="busy"
-                      control={<BaseRadioButton bcolor={"#f6675c"} />}
-                    ></FormControlLabel>
-                    <FormControlLabel
-                      label="Unavailable"
-                      value="unavailable"
-                      control={<BaseRadioButton bcolor={"#f6675c"} />}
-                    ></FormControlLabel>
-                  </RadioGroup>
-                </FormControl>
-              </div>
-            </div>
-            <div className="widget widget-filter">
-              <div className="title">Filter</div>
-              <div className="content" pl={6}>
-                <div className="filter-wrapper">
-                  <Slider
-                    orientation="horizontal"
-                    step={1}
-                    value={this.state.filter.price.value}
-                    color={"secondary"}
-                    aria-labelledby="vertical-slider"
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={this.valueLabelFormat.bind(this)}
-                    getAriaValueText={this.valueLabelFormat.bind(this)}
-                    onChange={this.handleChangeFilterPrice.bind(this)}
-                  />
-                  <label>
-                    Price: {this.getRealPrice(this.state.filter.price.value[0])}
-                    -{this.getRealPrice(this.state.filter.price.value[1])}
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div className="widget">
-              <div className="title">Top Seller</div>
-              <WrapperSubProductSection title="" field="topSell" small />
-            </div>
+          <Grid item xs={12} sm={4} md={5} lg={4} className="widget-wrapper">
+            {this.getLeftSidebar()}
           </Grid>
-          <Grid item md={7} lg={8}></Grid>
+          <Grid item xs={12} sm={8} md={7} lg={8}>
+            {this.getRightSidebar()}
+          </Grid>
         </Grid>
       </div>
     );
   }
 }
 
-export default Store;
+export default withRouter(Store);

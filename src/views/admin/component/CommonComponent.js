@@ -232,6 +232,12 @@ const nav = [
     icon: "pe-7s-users"
   },
   {
+    path: "/admin/category",
+    title: "Category",
+    route: "category",
+    icon: "pe-7s-albums"
+  },
+  {
     path: "/admin/cake",
     title: "Cakes",
     route: "cake",

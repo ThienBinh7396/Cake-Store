@@ -311,3 +311,193 @@ html {
     opacity: 1;
   }
 }
+
+
+@keyframes scale {
+  0% {
+          -webkit-transform: scale(1);
+          transform: scale(1);
+          opacity: 1
+  }
+
+  45% {
+          -webkit-transform: scale(.1);
+          transform: scale(.1);
+          opacity: .7
+  }
+
+  80% {
+          -webkit-transform: scale(1);
+          transform: scale(1);
+          opacity: 1
+  }
+}
+
+@-webkit-keyframes scale {
+  0% {
+          -webkit-transform: scale(1);
+          transform: scale(1);
+          opacity: 1
+  }
+
+  45% {
+          -webkit-transform: scale(.1);
+          transform: scale(.1);
+          opacity: .7
+  }
+
+  80% {
+          -webkit-transform: scale(1);
+          transform: scale(1);
+          opacity: 1
+  }
+}
+
+.ball-pulse>div:nth-child(0) {
+  -webkit-animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.36s infinite;
+  animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.36s infinite
+}
+
+.ball-pulse>div:first-child {
+  -webkit-animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.24s infinite;
+  animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.24s infinite
+}
+
+.ball-pulse>div:nth-child(2) {
+  -webkit-animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.12s infinite;
+  animation: scale .75s cubic-bezier(.2,.68,.18,1.08) -.12s infinite
+}
+
+.ball-pulse>div:nth-child(3) {
+  -webkit-animation: scale .75s cubic-bezier(.2,.68,.18,1.08) 0s infinite;
+  animation: scale .75s cubic-bezier(.2,.68,.18,1.08) 0s infinite
+}
+
+.ball-pulse>div {
+  background-color: #545cd8;
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
+  margin: 2px;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  display: inline-block
+}
+@-webkit-keyframes ball-pulse-sync {
+  33% {
+          -webkit-transform: translateY(10px);
+          transform: translateY(10px)
+  }
+
+  66% {
+          -webkit-transform: translateY(-10px);
+          transform: translateY(-10px)
+  }
+
+  to {
+          -webkit-transform: translateY(0);
+          transform: translateY(0)
+  }
+}
+
+@keyframes ball-pulse-sync {
+  33% {
+          -webkit-transform: translateY(10px);
+          transform: translateY(10px)
+  }
+
+  66% {
+          -webkit-transform: translateY(-10px);
+          transform: translateY(-10px)
+  }
+
+  to {
+          -webkit-transform: translateY(0);
+          transform: translateY(0)
+  }
+}
+
+.ball-pulse-sync>div:nth-child(0) {
+  -webkit-animation: ball-pulse-sync .6s ease-in-out -.21s infinite;
+  animation: ball-pulse-sync .6s ease-in-out -.21s infinite
+}
+
+.ball-pulse-sync>div:first-child {
+  -webkit-animation: ball-pulse-sync .6s ease-in-out -.14s infinite;
+  animation: ball-pulse-sync .6s ease-in-out -.14s infinite
+}
+
+.ball-pulse-sync>div:nth-child(2) {
+  -webkit-animation: ball-pulse-sync .6s ease-in-out -.07s infinite;
+  animation: ball-pulse-sync .6s ease-in-out -.07s infinite
+}
+
+.ball-pulse-sync>div:nth-child(3) {
+  -webkit-animation: ball-pulse-sync .6s ease-in-out 0s infinite;
+  animation: ball-pulse-sync .6s ease-in-out 0s infinite
+}
+
+.ball-pulse-sync>div {
+  background-color: #545cd8;
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
+  margin: 2px;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  display: inline-block
+}
+
+@-webkit-keyframes spin-rotate {
+  0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg)
+  }
+
+  50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg)
+  }
+
+  to {
+          -webkit-transform: rotate(1turn);
+          transform: rotate(1turn)
+  }
+}
+
+@keyframes spin-rotate {
+  0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg)
+  }
+
+  50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg)
+  }
+
+  to {
+          -webkit-transform: rotate(1turn);
+          transform: rotate(1turn)
+  }
+}
+
+.semi-circle-spin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden
+}
+
+.semi-circle-spin>div {
+  position: absolute;
+  border-width: 0;
+  border-radius: 100%;
+  -webkit-animation: spin-rotate .6s linear 0s infinite;
+  animation: spin-rotate .6s linear 0s infinite;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(transparent),color-stop(70%,transparent),color-stop(30%,#545cd8),to(#545cd8));
+  background-image: -webkit-linear-gradient(transparent,transparent 70%,#545cd8 0,#545cd8);
+  background-image: linear-gradient(transparent,transparent 70%,#545cd8 0,#545cd8);
+  width: 100%;
+  height: 100%
+}

@@ -8,6 +8,7 @@ import "../../../css/client.css";
 import Home from "../pages/Home";
 import Store from "../pages/Store";
 import Blog from "../pages/Blog";
+import ProductDetails from "../pages/ProductDetails";
 
 function RouterView(props) {
   console.log(props);
@@ -29,6 +30,9 @@ function SwitchPage({ location }) {
         </Route>
         <Route exact path="/store">
           <Store />
+        </Route>
+        <Route exact path="/product/:id">
+          <ProductDetails />
         </Route>
         <Route exact path="/home">
           <Home />

@@ -250,6 +250,68 @@ class AdminProvider extends Component {
         );
       }
     },
+    categories: {
+      data: null,
+      loading: false,
+      updateData: _categories => {
+        this.setState({
+          categories: {
+            ...this.state.categories,
+            ..._categories
+          }
+        });
+      },
+      controlData: ({ type, category }) => {
+        let categories = [];
+        switch (type) {
+          case "add":
+            categories = [...this.state.categories.data, category];
+            break;
+          case "update":
+            categories = this.state.categories.data
+              ? this.state.categories.data.map(it => (it.id === category.id ? category : it))
+              : null;
+            break;
+          case "delete":
+            categories = this.state.categories.data
+              ? this.state.categories.data.filter(it => it.id !== category.id)
+              : null;
+            break;
+          default:
+            break;
+        }
+        this.state.categories.updateData({ data: categories });
+      },
+      fetchData: () => {
+        this.setState(
+          {
+            categories: {
+              ...this.state.categories,
+              loading: true
+            }
+          },
+          () => {
+            console.log("loading: " + this.state.categories.loading);
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "admin/category/findAll"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+                if (type === "success") {
+                  this.state.categories.updateData({ loading: false, data });
+                }
+                this.state.loadingComponent.updateState(false);
+              })
+              .catch(err => {
+                this.state.categories.updateData({ loading: false });
+                console.log("Fetch categories faild...");
+              });
+          }
+        );
+      }
+    },
     tags: {
       data: null,
       loading: false,

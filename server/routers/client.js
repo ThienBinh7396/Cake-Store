@@ -6,14 +6,20 @@ const {
   BlogController,
   EmployeeController,
   ProductController,
-  FeedbackController
+  FeedbackController,
+  CategoryController
 } = require("./../controllers");
 const Auth = require('../middlewares/auth');
+
+
+router.get('/category/findAll', [CategoryController.findAll.bind(CategoryController)]);
 
 router.get('/product/newProducts', [ProductController.newProducts.bind(ProductController)]);
 router.get('/product/topSell', [ProductController.topSell.bind(ProductController)]);
 router.get('/product/findAll', [ProductController.findAll.bind(ProductController)]);
 router.get('/product/topDiscounts', [ProductController.topDiscounts.bind(ProductController)]);
+router.get('/product/filter', [ProductController.filter.bind(ProductController)]);
+router.get('/product/findOne', [ProductController.findOne.bind(ProductController)])
 
 router.get('/feedback/show', [FeedbackController.getShow.bind(FeedbackController)]);
 
