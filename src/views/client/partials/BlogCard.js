@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { ClientContext } from "../context/ClientProvider";
-import { formatDate } from "../../../utils/helper";
+import { formatDate, trimText } from "../../../utils/helper";
 import { ButtonBase } from "@material-ui/core";
 import LazyImage from './../../../common/component/LazyImage';
 
@@ -19,15 +19,7 @@ export default function BlogCard(props) {
     }
   }, [clientContext.blog]);
 
-  const trimText = text => {
-    let div = document.createElement("div");
-    div.innerHTML = text;
-
-    let _text = div.innerText.substring(0, 100);
-    div = null;
-
-    return `${_text}...`;
-  };
+ 
 
   return blog ? (
     <div className={`blog-card ${props.type || "normal"}`}>

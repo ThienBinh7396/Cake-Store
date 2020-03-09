@@ -1,0 +1,98 @@
+.banner-header {
+  position: relative;
+  @extend %centerBackgroundImage;
+
+  & .banner-header-image {
+    @extend %absoluteStart;
+    @include getDimension();
+    @extend %centerBackgroundImage;
+  }
+
+  & .banner-header-content {
+    position: relative;
+    min-height: 340px;
+    padding: 32px 0 24px;
+    z-index: $defaultZIndex;
+
+    @include getTransition(fast);
+    @include displayFlexWithProperty($fd: column, $jc: center);
+
+    @include xs {
+      min-height: 280px;
+    }
+
+    & .image {
+      width: 46%;
+      padding-top: 16px;
+      @include getTransition(fast);
+
+      @include sm {
+        width: 100%;
+      }
+
+      & img {
+        max-width: 90%;
+        min-height: 290px;
+        @include getTransition(fast);
+      }
+    }
+
+    & .content {
+      width: 54%;
+      padding-top: 16px;
+      padding-left: 12px;
+      @include getTransition(fast);
+
+      @include sm {
+        width: 100%;
+
+        & .base-carousel-item-btn {
+          @include getSpacing(mx, auto);
+        }
+      }
+
+      & > div {
+        text-align: left;
+
+        @include sm {
+          text-align: center;
+          margin: auto;
+        }
+      }
+    }
+
+    & .banner-header-title {
+      max-width: 90%;
+      text-align: center;
+      text-transform: uppercase;
+      @include getSpacing(mx, auto);
+      color: $lightColor;
+      @extend %h2;
+    }
+
+    & .banner-header-nav {
+      text-align: center;
+      text-transform: uppercase;
+
+      & > div,
+      & > span {
+        position: relative;
+        color: $primaryColor;
+        @extend %h4;
+
+        & a {
+          color: $blurColor;
+
+          &:hover {
+            animation: binkLink 0.9s infinite linear reverse;
+          }
+        }
+
+        & a:hover,
+        & span {
+          color: $primaryColor;
+        }
+      }
+    }
+  }
+}

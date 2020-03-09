@@ -1,0 +1,95 @@
+.nav {
+  @extend %fixedStart;
+  width: 100%;
+  z-index: $highZIndex;
+
+  .sub-nav {
+    @include contrastView(blur);
+    @include getSpacing(py, 5, 2);
+    max-height: 40px;
+    overflow: hidden;
+    @include getTransition(fast);
+    font-size: map-get($font-size, xs);
+
+    &.hidden {
+      @include getSpacing(p, 0);
+      max-height: 0;
+    }
+  }
+
+  .base-navbar {
+    position: relative;
+    width: 100%;
+    background-color: $lightColor;
+
+    &::before,
+    &::after{
+      content: "";
+      @include mapPositionWithCoordinate(absolute, 3px);
+      width: 100%;
+    }
+    &::before{
+      height: 0;
+      border-top: 1px dashed $blackColor;
+    }
+    &::after{
+      height: 17px;
+      background: url("/img/bg-header.png") repeat-x;
+      top: 90%;
+    }
+
+    .base-navbar-content {
+      @include getSpacing(py, 3);
+      @include displayFlexWithProperty($ai: center);
+      justify-content: space-between;
+
+      .header-logo a {
+        font-size: 32px;
+
+        & span{
+          @include getSpacing(ml, 1, 2);
+          color: $primaryColor;
+          @include getFontFamily(cursive);
+        }
+
+        @include xs{
+          font-size: 24px;
+        }
+      }
+
+      .header-menu{
+        display: flex;
+        justify-content: flex-end;
+        @include getFlexWidthGrow(1, true);
+
+        & .main-menu{
+          @include getDimension(100%, 45px);
+          padding-right: 32px;
+          transform: translateX(0);
+          @include getTransition(fast);
+
+          @include xs{
+            transform: translateY(-43px);
+          }
+
+          & .main-menu-content{
+            @include getDimension();
+            @include displayFlexWithProperty(row, $jc: flex-end, $ai: center);
+         
+            & a{
+              @include getSpacing(px, 8 0);
+              font-weight: 600;
+              text-transform: uppercase;
+            }
+          }
+        }
+
+        & .control-menu{
+          border-left: 1px solid rgb(146, 136, 136);
+          @include getSpacing(px, 8 3.5);
+          @include displayFlexWithProperty($ai: center);
+        }
+      }
+    }
+  }
+}

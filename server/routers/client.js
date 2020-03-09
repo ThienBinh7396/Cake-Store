@@ -23,6 +23,9 @@ router.get('/product/findOne', [ProductController.findOne.bind(ProductController
 
 router.get('/feedback/show', [FeedbackController.getShow.bind(FeedbackController)]);
 
-router.get('/blog/lastestBlogs', [BlogController.lastestBlog.bind(BlogController)]);
+router.get('/blogTags/findAll', [BlogTagController.findAll]);
 
+router.get('/blog/lastestBlogs', [BlogController.lastestBlog.bind(BlogController)]);
+router.get('/blog/findOne', [BlogController.findOne.bind(BlogController)]);
+router.get('/blog/filter', [BlogController.filter.bind(BlogController)]);
 module.exports = router;

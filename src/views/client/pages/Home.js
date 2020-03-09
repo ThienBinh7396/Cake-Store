@@ -1,11 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import BannerHeader from "../partials/BannerHeader";
-import {
-  Container,
-  Box,
-  Grid,
-  ButtonBase
-} from "@material-ui/core";
+import { Container, Box, Grid, ButtonBase } from "@material-ui/core";
 import SectionWrapper from "../partials/SectionWrapper";
 import { Skeleton } from "@material-ui/lab";
 import { ClientContext } from "./../context/ClientProvider";
@@ -13,15 +8,19 @@ import BaseCarousel from "../../../common/component/BaseCarousel";
 import ProductCard from "./../partials/ProductCard";
 import FeedbackCard from "../partials/FeedbackCard";
 import BlogCard from "../partials/BlogCard";
-import WrapperSubProductSection from './../partials/WrapperSubProductSection';
+import WrapperSubProductSection from "./../partials/WrapperSubProductSection";
+import ComponentWrapperHelper from "../../../common/component/ComponentWrapperHelper";
 
 export default function Home(props) {
   const [products, setProducts] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [blog, setBlog] = useState(null);
 
-
   const clientContext = useContext(ClientContext);
+
+  useEffect(() => {
+    document.title = 'Cake Stores - Home';
+  }, [])
 
   useEffect(() => {
     setProducts(clientContext.products);
@@ -35,13 +34,12 @@ export default function Home(props) {
     setBlog(clientContext.blog);
   }, [clientContext.blog]);
 
-
   useEffect(() => {
-    console.log("Home did mount")
+    console.log("Home did mount");
     return () => {
-      console.log("Home un mount")
+      console.log("Home un mount");
     };
-  }, [])
+  }, []);
 
   const productCarouselBreakpoint = {
     md: {
@@ -140,65 +138,66 @@ export default function Home(props) {
   );
 
   const FeedbackSection = (
-    <section>
-      <div
-        className={
-          !feedback || feedback.loading || !feedback.data
-            ? ""
-            : "feedback-section"
-        }
-        mt={4}
-      >
-        <BaseCarousel
-          nocontrol
-          pagination
-          playspeed="7000"
-          autoplay={false}
-          className="base-carousel-feedback"
-          
+    <ComponentWrapperHelper>
+      <section>
+        <div
+          className={
+            !feedback || feedback.loading || !feedback.data
+              ? ""
+              : "feedback-section"
+          }
+          mt={4}
         >
-          {!feedback || feedback.loading || !feedback.data
-            ? [1, 2].map(it => (
-                <div
-                  key={`#skeleton-section-product-${it}`}
-                  className="skeletonFeedback"
-                >
-                  <Skeleton variant="rect" animation="wave" height={520} />
-                  <Box className="skeletonFeedbackContent">
-                    <Skeleton
-                      variant="circle"
-                      width={102}
-                      height={102}
-                      animation="wave"
-                      className="skeletonFeedbackItem avatar"
-                    />
-                    <Skeleton
-                      animation="wave"
-                      width={80}
-                      style={{ marginTop: "8px" }}
-                      className="skeletonFeedbackItem"
-                    />
-                    <Skeleton
-                      animation="wave"
-                      width={260}
-                      className="skeletonFeedbackItem title"
-                    />
-                    <Skeleton
-                      variant="rect"
-                      animation="wave"
-                      height={160}
-                      style={{ marginTop: "24px" }}
-                      className="skeletonFeedbackItem"
-                    />
-                  </Box>
-                </div>
-              ))
-            : feedback.data.map(it => (
-                <FeedbackCard key={`#feedback-section-${it.id}`} id={it.id} />
-              ))}
-        </BaseCarousel>
-      </div>
-    </section>
+          <BaseCarousel
+            nocontrol
+            pagination
+            playspeed="7000"
+            autoplay={false}
+            className="base-carousel-feedback"
+          >
+            {!feedback || feedback.loading || !feedback.data
+              ? [1, 2].map(it => (
+                  <div
+                    key={`#skeleton-section-product-${it}`}
+                    className="skeletonFeedback"
+                  >
+                    <Skeleton variant="rect" animation="wave" height={520} />
+                    <Box className="skeletonFeedbackContent">
+                      <Skeleton
+                        variant="circle"
+                        width={102}
+                        height={102}
+                        animation="wave"
+                        className="skeletonFeedbackItem avatar"
+                      />
+                      <Skeleton
+                        animation="wave"
+                        width={80}
+                        style={{ marginTop: "8px" }}
+                        className="skeletonFeedbackItem"
+                      />
+                      <Skeleton
+                        animation="wave"
+                        width={260}
+                        className="skeletonFeedbackItem title"
+                      />
+                      <Skeleton
+                        variant="rect"
+                        animation="wave"
+                        height={160}
+                        style={{ marginTop: "24px" }}
+                        className="skeletonFeedbackItem"
+                      />
+                    </Box>
+                  </div>
+                ))
+              : feedback.data.map(it => (
+                  <FeedbackCard key={`#feedback-section-${it.id}`} id={it.id} />
+                ))}
+          </BaseCarousel>
+        </div>
+      </section>
+    </ComponentWrapperHelper>
   );
 
   const BlogSection = (
@@ -269,7 +268,8 @@ export default function Home(props) {
                   style={{ backgroundColor: "#2f2d2d1c", borderRadius: "8px" }}
                 />
               </Box>
-            ) : (blog.lastestBlogs.data.length === 2 || blog.lastestBlogs.data.length === 1) ? null : (
+            ) : blog.lastestBlogs.data.length === 2 ||
+              blog.lastestBlogs.data.length === 1 ? null : (
               <Box p={2}>
                 <BlogCard id={blog.lastestBlogs.data[2].id} />
               </Box>
@@ -277,7 +277,10 @@ export default function Home(props) {
           </Grid>
         </Grid>
 
-        <ButtonBase className="btn-card-wrapper" style={{marginTop: '48px', width: '320px', maxWidth: '72%'}}>
+        <ButtonBase
+          className="btn-card-wrapper"
+          style={{ marginTop: "48px", width: "320px", maxWidth: "72%" }}
+        >
           <div className="btn-card">
             Get More
             <i className="fas fa-angle-right"></i>

@@ -24,7 +24,7 @@ class Helper {
 
     let check = true;
     params.forEach(it => {
-      if (body[it] == null) {
+      if (body[it] === undefined || body[it] === null) {
         res.send(this.getStatus("error", `${it} param isn't provided`));
         check = false;
       }
@@ -37,10 +37,10 @@ class Helper {
 
     let check = true;
 
-    console.log(query)
+    console.log(query);
 
     params.forEach(it => {
-      if (query[it] === null) {
+      if (query[it] === null || query[it] === undefined) {
         res.send(this.getStatus("error", `${it} param isn't provided`));
         check = false;
       }
@@ -53,7 +53,6 @@ class Helper {
     return { type, message, data };
   }
 
-  
   hassPassword(password) {
     return CryptoJS.HmacSHA1(password, process.env.SECRET_KEY).toString();
   }
@@ -124,6 +123,7 @@ class Helper {
       fullType: full
     };
   }
+
 }
 
 module.exports = new Helper();

@@ -1,0 +1,78 @@
+%fixedStart {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+%absoluteStart {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+%centerBackgroundImage{
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+
+%h2{
+  font-size: 32px;
+  @include getTransition(fast);
+  
+  @include xs{
+    font-size: 27px;
+  }
+
+}
+
+%h3{
+  font-size: 22px;
+  @include getTransition(fast);
+
+  @include xs{
+    font-size: 16px;
+  }
+}
+
+%h4{
+  font-size: 16px;
+  @include getTransition(fast);
+
+  @include xs{
+    font-size: 12px;
+  }
+}
+%h5{
+  font-size: 14px;
+  @include getTransition(fast);
+
+  @include xs{
+    font-size: 12px;
+  }
+}
+
+%maxViewWidth {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+%tag-spacing {
+  @include getSpacing(my, 0 2);
+  @include getSpacing(mr, 1);
+}
+
+%chipOutline{
+  cursor: pointer;
+  @extend %tag-spacing;
+  @include oulineStyle(
+    darken($greyColor, 20%),
+    lighten($blurColor, 10%)
+  );
+  @include getTransition(fast);
+
+  &:hover {
+    @include oulineStyle($primaryColor, lighten($primaryColor, 5%));
+  }
+}

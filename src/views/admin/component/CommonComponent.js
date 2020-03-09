@@ -1,6 +1,6 @@
 import React from "react";
 
-import "../../../css/admin.css";
+import "../../../styles/admin.css";
 
 import { AdminContext } from "../context/AdminProvider";
 import LoadingDialog from "../../../common/component/LoadingDialog";
@@ -31,7 +31,7 @@ const useStyles = theme => ({
   root: {
     display: "flex",
     paddingTop: "56px",
-    fontFamily: "'Roboto', sans-serif"
+    fontFamily: "'Varela Round', sans-serif"
   },
   appbar: {
     width: "100%",

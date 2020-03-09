@@ -15,19 +15,20 @@ import {
   CircularProgress
 } from "@material-ui/core";
 
-import "./../../../css/login.css";
+import "./../../../styles/login.css";
 
 import { withSnackbar } from "notistack";
 import { withRouter } from "react-router-dom";
 import cookie from './../../../utils/cookie';
 import Axios from "axios";
+import { BASE_URL } from './../../../constant/index';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
 
     this.axios = Axios.create({
-      baseURL: "http://localhost:5000/api/",
+      baseURL: BASE_URL,
     
     });
   }

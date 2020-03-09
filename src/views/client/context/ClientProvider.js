@@ -3,6 +3,9 @@ import React, { createContext } from "react";
 
 import { BASE_URL } from "../../../constant";
 import cookie from "./../../../utils/cookie";
+import { withRouter } from "react-router-dom";
+
+import { change_alias } from "../../../utils/helper";
 
 export const ClientContext = createContext();
 
@@ -381,23 +384,22 @@ class ClientProvider extends React.Component {
         page: 0,
         pageLength: 12,
         range: [0, 1000],
-        status: null,
+        status: "all",
         category: "all",
         query: "",
         max: 0,
         sort: ["createdAt", "DESC"],
+        queueFilter: null,
         updateFilter: ({ page, range, status, query, sort, category }) => {
-         
           this.setState(
             {
               products: {
                 ...this.state.products,
                 filter: {
                   ...this.state.products.filter,
-                  page:
-                    page !== undefined && page !== null ? page : 0,
+                  page: page !== undefined && page !== null ? page : 0,
                   range:
-                    range !== undefined  && range !== null
+                    range !== undefined && range !== null
                       ? range
                       : this.state.products.filter.range,
                   status:
@@ -413,7 +415,9 @@ class ClientProvider extends React.Component {
                       ? query
                       : this.state.products.filter.query,
                   sort:
-                    sort !== undefined && sort !== null ? sort : this.state.products.filter.sort
+                    sort !== undefined && sort !== null
+                      ? sort
+                      : this.state.products.filter.sort
                 }
               }
             },
@@ -422,8 +426,32 @@ class ClientProvider extends React.Component {
               if (!this.state.products.filter.loading) {
                 console.log("UPDATE FILETE", this.state.products.filter);
                 this.state.products.filter.fetchData();
+              } else {
+                this.state.products.filter.updateData({
+                  queueFilter: true
+                });
               }
             }
+          );
+        },
+        updateData: (_filter, callback) => {
+          if (_filter.hasOwnProperty("data")) {
+            this.state.products.updateData({
+              data: [...(this.state.products.data || []), ..._filter.data]
+            });
+          }
+
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                filter: {
+                  ...this.state.products.filter,
+                  ..._filter
+                }
+              }
+            },
+            callback
           );
         },
         fetchData: () => {
@@ -458,25 +486,23 @@ class ClientProvider extends React.Component {
                   let { data, type, message } = rs.data;
 
                   if (type === "success") {
-                    this.state.products.updateData({
-                      data: [...(this.state.products.data || []), ...data.data]
-                    });
-
-                    this.setState(
+                    this.state.products.filter.updateData(
                       {
-                        products: {
-                          ...this.state.products,
-                          filter: {
-                            ...this.state.products.filter,
-                            loading: false,
-                            firstLoading: true,
-                            data: data.data,
-                            max: Number(data.count)
-                          }
-                        }
+                        data: data.data,
+                        loading: false,
+                        firstLoading: true,
+                        data: data.data,
+                        max: Number(data.count)
                       },
                       () => {
-                        console.log(this.state.products.filter);
+                        if (this.state.products.filter.queueFilter) {
+                          console.log("QUEUE: ", this.state.blog.filter.query);
+                          this.state.products.filter.updateFilter({});
+
+                          this.state.products.filter.updateData({
+                            queueFilter: null
+                          });
+                        }
                       }
                     );
                   } else {
@@ -489,9 +515,6 @@ class ClientProvider extends React.Component {
       },
       updateData: _products => {
         if (_products.hasOwnProperty("data")) {
-          console.log("%c UPDATE DATA AAA");
-          console.log(_products);
-
           _products.data = _products.data.reduce((arr, current) => {
             return arr.findIndex(it => it.id === current.id) < 0
               ? [...arr, current]
@@ -585,18 +608,262 @@ class ClientProvider extends React.Component {
         );
       }
     },
+    blogTags: {
+      data: null,
+      loading: false,
+      updateData: (_blogTags, callback) => {
+        if (_blogTags.hasOwnProperty("data")) {
+          _blogTags.data = [
+            ...(this.state.blogTags.data || []),
+            ..._blogTags.data
+          ].reduce((arr, current) => {
+            return !arr.find(it => it.id === current.id)
+              ? [...arr, current]
+              : arr;
+          }, []);
+        }
+
+        this.setState(
+          {
+            blogTags: {
+              ...this.state.blogTags,
+              ..._blogTags
+            }
+          },
+          callback
+        );
+      },
+      fetchData: () => {
+        this.state.blogTags.updateData(
+          {
+            loading: true
+          },
+          () => {
+            this.state.axios
+              .connect({
+                url: "client/blogTags/findAll",
+                method: "GET"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+                if (type === "success") {
+                  this.state.blogTags.updateData(
+                    {
+                      data,
+                      loading: false
+                    },
+                    () => {
+                      console.log(
+                        "%c Component tags",
+                        "color:red;font-size:24px"
+                      );
+                      console.log(this.state.blogTags.data);
+                    }
+                  );
+                }
+              });
+          }
+        );
+      }
+    },
+    toBlog: ({ title, id }) => {
+      this.props.history.push(`/blog/${encodeURIComponent(title)}/${id}`);
+    },
     blog: {
       data: null,
       loading: false,
+      addingBlogId: [],
+      addOne: id => {
+
+        if (
+          this.state.blog.addingBlogId.findIndex(it => it === id) < 0
+        ) {
+          this.setState(
+            {
+              blog: {
+                ...this.state.blog,
+                addingBlogId: [...this.state.blog.addingBlogId, id]
+              }
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  url: "client/blog/findOne",
+                  method: "GET",
+                  params: {
+                    id
+                  }
+                })
+                .then(rs => {
+                  let { data, type } = rs.data;
+                  if (type === "success") {
+                    this.state.blog.updateData({
+                      data: [data]
+                    });
+                  }
+                });
+            }
+          );
+        }
+      },
+      recent: {
+        data: null,
+        loading: false,
+        updateData: (_recent, callback) => {
+          if (_recent.hasOwnProperty("data")) {
+            this.state.blog.updateData({
+              data: _recent.data
+            });
+          }
+
+          this.setState(
+            {
+              blog: {
+                ...this.state.blog,
+                recent: {
+                  ...this.state.blog.recent,
+                  ..._recent
+                }
+              }
+            },
+            callback
+          );
+        },
+        fetchData: () => {
+          this.state.blog.recent.updateData(
+            {
+              loading: true
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  url: "client/blog/filter",
+                  method: "GET",
+                  params: {
+                    page: 0,
+                    pageLength: 5,
+                    query: "",
+                    tag: "all"
+                  }
+                })
+                .then(rs => {
+                  let { data, type } = rs.data;
+                  if (type === "success") {
+                    this.state.blog.recent.updateData({
+                      data: data.data,
+                      loading: false
+                    });
+                  }
+                });
+            }
+          );
+        }
+      },
+      filter: {
+        data: null,
+        first: false,
+        loading: false,
+        page: 0,
+        pageLength: 5,
+        max: 0,
+        query: "",
+        tag: "all",
+        sortBy: ["createdAt", "DESC"],
+        queueFilter: null,
+        updateData: (_filter, callback) => {
+          if (_filter.hasOwnProperty("data")) {
+            this.state.blog.updateData({
+              data: _filter.data
+            });
+          }
+
+          this.setState(
+            {
+              blog: {
+                ...this.state.blog,
+                filter: {
+                  ...this.state.blog.filter,
+                  ..._filter
+                }
+              }
+            },
+            callback
+          );
+        },
+        updateFilter: ({ page, pageLength, query, tag, sortBy, max }) => {
+          this.state.blog.filter.updateData(
+            {
+              page: page !== undefined ? page : this.state.blog.filter.page,
+              pageLength:
+                pageLength !== undefined
+                  ? pageLength
+                  : this.state.blog.filter.pageLength,
+              max: max !== undefined ? max : this.state.blog.filter.max,
+              query: query !== undefined ? query : this.state.blog.filter.query,
+              tag: tag !== undefined ? tag : this.state.blog.filter.tag,
+              sortBy:
+                sortBy !== undefined ? sortBy : this.state.blog.filter.sortBy
+            },
+            () => {
+              if (!this.state.blog.filter.loading) {
+                this.state.blog.filter.fetchData();
+              } else {
+                console.log(this.state.blog.filter.query);
+
+                this.state.blog.filter.updateData({ queueFilter: true });
+              }
+            }
+          );
+        },
+        fetchData: () => {
+          this.state.blog.filter.updateData(
+            {
+              loading: true
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  url: "client/blog/filter",
+                  method: "GET",
+                  params: {
+                    page: this.state.blog.filter.page,
+                    pageLength: this.state.blog.filter.pageLengh,
+                    query: this.state.blog.filter.query,
+                    tag: this.state.blog.filter.tag
+                  }
+                })
+                .then(rs => {
+                  let { data, type } = rs.data;
+                  if (type === "success") {
+                    this.state.blog.filter.updateData(
+                      {
+                        data: data.data,
+                        first: true,
+                        loading: false,
+                        max: Number(data.count)
+                      },
+                      () => {
+                        if (this.state.blog.filter.queueFilter) {
+                          console.log("QUEUE: ", this.state.blog.filter.query);
+                          this.state.blog.filter.updateFilter({});
+
+                          this.state.blog.filter.updateData({
+                            queueFilter: null
+                          });
+                        }
+                      }
+                    );
+                  }
+                });
+            }
+          );
+        }
+      },
       lastestBlogs: {
         data: null,
         loading: false,
         updateData: (_lastestBlog, callback) => {
           if (_lastestBlog.hasOwnProperty("data")) {
-            console.log([
-              ...(this.state.blog.data || []),
-              ..._lastestBlog.data
-            ]);
             this.state.blog.updateData({
               data: [...(this.state.blog.data || []), ..._lastestBlog.data]
             });
@@ -643,23 +910,29 @@ class ClientProvider extends React.Component {
           );
         }
       },
-      updateData: _blog => {
+      updateData: (_blog, callback) => {
         if (_blog.hasOwnProperty("data")) {
-          _blog.data = _blog.data.reduce((arr, current) => {
-            return arr.findIndex(it => it.id === current.id) < 0
-              ? [...arr, current]
-              : arr;
-          }, []);
+          _blog.data = [...(this.state.blog.data || []), ..._blog.data].reduce(
+            (arr, current) => {
+              return arr.findIndex(it => it.id === current.id) < 0
+                ? [...arr, current]
+                : arr;
+            },
+            []
+          );
 
           console.log("Blog .............");
           console.log(_blog);
         }
-        this.setState({
-          blog: {
-            ...this.state.blog,
-            ..._blog
-          }
-        });
+        this.setState(
+          {
+            blog: {
+              ...this.state.blog,
+              ..._blog
+            }
+          },
+          callback
+        );
       }
     }
   };
@@ -673,4 +946,4 @@ class ClientProvider extends React.Component {
   }
 }
 
-export default ClientProvider;
+export default withRouter(ClientProvider);

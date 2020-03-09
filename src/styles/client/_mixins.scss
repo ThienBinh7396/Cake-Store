@@ -1,0 +1,329 @@
+@mixin xs {
+  @media (max-width: $sm - 1px) {
+    @content;
+  }
+}
+@mixin sm {
+  @media (max-width: $md - 1px) {
+    @content;
+  }
+}
+@mixin md {
+  @media (max-width: $lg - 1px) {
+    @content;
+  }
+}
+@mixin lg {
+  @media (max-width: $xl - 1px) {
+    @content;
+  }
+}
+@mixin xl {
+  @media (min-width: $xl) {
+    @content;
+  }
+}
+
+@mixin mapContentToOnlyBreakpointWrapper(
+  $breakpoint,
+  $classname,
+  $mapOfProperty
+) {
+  $breakpoint-wrappers: appendNewValueToListInMap(
+    $breakpoint-wrappers,
+    $breakpoint,
+    $classname $mapOfProperty
+  ) !global;
+}
+
+@mixin mapBreakpoints($classname, $mapOfProperty) {
+  @each $breakpoint, $window-size in $breakpoints {
+    @include mapContentToOnlyBreakpointWrapper(
+      $breakpoint,
+      $classname,
+      $mapOfProperty
+    );
+  }
+}
+
+// GET TRANSITION
+@mixin getTransition($type, $timing-function: linear) {
+  transition: map-get($transition, $type) ($timing-function);
+}
+@each $key, $value in $transition {
+  .transition-#{$key} {
+    @include getTransition($key);
+  }
+}
+// GET TRANSITION
+
+// GET SPACING
+
+@mixin getSpacing($type, $value, $increase_val: 4) {
+  $switchSpacing: (
+    p: (
+      type: padding
+    ),
+    pt: (
+      type: padding-top
+    ),
+    pb: (
+      type: padding-bottom
+    ),
+    py: (
+      type: [padding-top padding-bottom]
+    ),
+    pl: (
+      type: padding-left
+    ),
+    pr: (
+      type: padding-right
+    ),
+    px: (
+      type: [padding-left padding-right]
+    ),
+    m: (
+      type: margin
+    ),
+    mt: (
+      type: margin-top
+    ),
+    mb: (
+      type: margin-bottom
+    ),
+    my: (
+      type: [margin-top margin-bottom]
+    ),
+    ml: (
+      type: margin-left
+    ),
+    mr: (
+      type: margin-right
+    ),
+    mx: (
+      type: [margin-left margin-right]
+    )
+  );
+
+  $_val: if($value == auto, auto, nth($value, 1) * $increase_val + px)
+    if(
+      $value == auto,
+      auto,
+      nth($value, if(length($value) > 1, 2, 1)) * $increase_val + px
+    );
+
+  $index: 1;
+
+  @each $_type in map-get(map-get($switchSpacing, $type), type) {
+    #{$_type}: nth($_val, $index) !important;
+    $index: $index + 1;
+  }
+}
+
+@each $prefix in $prefixSpacing {
+  @for $index from 0 through 24 {
+    @include mapBreakpoints(
+      #{$prefix}-#{$index},
+      getMapSpacing($prefix, $index, 2)
+    );
+  }
+}
+
+// GET SPACING
+
+// CONTRAST VIEW
+@mixin mapColorWithBackground($color, $background) {
+  color: $color;
+  background: $background;
+}
+
+@mixin contrastView($type) {
+  @include mapColorWithBackground(
+    map-get(map-get($typeContrasts, $type), color),
+    map-get(map-get($typeContrasts, $type), background-color)
+  );
+}
+
+@each $label, $value in $typeContrasts {
+  .contrast-view-#{$label} {
+    @include contrastView($label);
+  }
+}
+
+// CONTRAST VIEW
+
+// GET POSITION WRAPPER
+
+@mixin mapPositionWithCoordinate($position, $top: 0, $left: 0) {
+  position: $position;
+  top: $top;
+  left: $left;
+}
+
+@each $pos in $positions {
+  .pos-#{$pos} {
+    position: $pos;
+  }
+}
+
+// GET POSITION WRAPPER
+
+// GET FONT
+
+@mixin getFontFamily($type) {
+  font-family: map-get($font-family, $type);
+}
+
+@each $type, $value in $font-family {
+  .font-#{$type} {
+    @include getFontFamily($type);
+  }
+}
+
+@mixin getFont($color, $fw: 400) {
+  color: $color;
+  font-weight: $fw;
+}
+
+@mixin oulineStyle(
+  $color,
+  $border-color,
+  $border-size: 1px,
+  $border-style: solid,
+  $background-color: transparent
+) {
+  color: $color;
+  background-color: $background-color;
+  @if $border-color == null {
+    $border-color: $color;
+  }
+
+  border-color: $border-color;
+  border-style: $border-style;
+  border-width: $border-size;
+}
+
+// GET FONT
+
+// GET DISPLAY
+
+@mixin getFlexWidthGrow($flex-grow: 1, $hidden-overflow: false) {
+  width: 0;
+  flex-grow: $flex-grow;
+
+  @if $hidden-overflow {
+    overflow: hidden;
+  }
+}
+
+@mixin higherFlexGrow($grow: 1){
+  width: 0;
+  flex-grow: $grow;
+}
+
+@mixin displayFlexWithProperty(
+  $fd: row,
+  $fw: nowrap,
+  $jc: flex-start,
+  $ai: stretch
+) {
+  display: flex;
+  flex-direction: $fd;
+  flex-wrap: $fw;
+  justify-content: $jc;
+  align-items: $ai;
+}
+
+@each $display in $displays {
+  @include mapBreakpoints(
+    d-#{$display},
+    (
+      display: $display
+    )
+  );
+}
+
+@each $_flex-direction in $flex-direction {
+  @include mapBreakpoints(
+    flex-#{$_flex-direction},
+    (
+      flex-direction: $_flex-direction
+    )
+  );
+}
+// GET DISPLAY
+
+// GET DIMENS
+@mixin getDimension(
+  $width: 100%,
+  $height: 100%,
+  $round: false,
+  $overflow-hidden: false
+) {
+  width: $width;
+  height: $height;
+  @if $overflow-hidden {
+    overflow: hidden;
+  }
+
+  @if $round {
+    border-radius: $height;
+  }
+}
+
+// GET DIMENS
+
+// LINK CSS
+@mixin getLinkCSS($defaultColor: #5e3c3e) {
+  cursor: pointer;
+  color: $defaultColor;
+  text-decoration: none;
+  transform: scale(1);
+  @include getTransition(fast);
+
+  &.active,
+  &:hover {
+    color: $primaryColor;
+  }
+  &:active {
+    transform: scale(0.98);
+    @include getTransition(faster);
+  }
+}
+
+// LINK CSS
+
+// ELEVATION CSS
+
+@mixin getElevation($key) {
+  box-shadow: #{map-get($umbra-map, $key) rgba($baseline-color, $umbra-opacity)},
+    #{map-get($penumbra-map, $key) rgba($baseline-color, $penumbra-opacity)},
+    #{map-get($ambient-map, $key) rgba($baseline-color, $ambient-opacity)};
+}
+
+@for $index from 0 through 24 {
+  .elevation-#{$index} {
+    @include getElevation($index);
+  }
+}
+// ELEVATION CSS
+
+// Pseudo CSS
+@mixin getPseudoOverlayContent(
+  $position: absolute,
+  $top: 0,
+  $left: 0,
+  $width: 100%,
+  $height: 100%,
+  $zIndex: 0
+) {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+// Pseudo CSS

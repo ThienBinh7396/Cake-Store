@@ -3,7 +3,30 @@ const model = require("../models");
 
 const { Blog, BlogTags, MapBlogTag, Customer } = model;
 
+const sequelize = require("sequelize");
+
+const { Op } = sequelize;
+
 class BlogController {
+  async count(where) {
+    return new Promise(res => {
+      let config = {
+        attributes: [[sequelize.fn("count", sequelize.col("*")), "count"]]
+      };
+
+      if (where) {
+        config.where = where;
+      }
+
+      Blog.findAll(config)
+        .then(rs => {
+          res(rs[0].toJSON().count);
+        })
+        .catch(err => {
+          res(null);
+        });
+    });
+  }
   async find(config) {
     return new Promise((res, rej) => {
       const { limit, offset, order, where } = config || {};
@@ -37,6 +60,89 @@ class BlogController {
         });
     });
   }
+
+  async filterWithTag(field, value) {
+    return new Promise(res => {
+      let _where = {};
+      _where[field] = value;
+
+      MapBlogTag.findAll({
+        include: [
+          {
+            model: BlogTags,
+            where: _where
+          }
+        ]
+      })
+        .then(tags => {
+          res(tags.map(it => it.toJSON().blog_id));
+        })
+        .catch(err => {
+          res([]);
+        });
+    });
+  }
+
+  async filter(req, res) {
+    let { page, pageLength, query, tag, sortBy } = req.query;
+
+    let config = {
+      page: page !== null && page !== undefined ? page : 0,
+      pageLength:
+        pageLength !== null && pageLength !== undefined ? pageLength : 5,
+      query: query !== null && query !== undefined ? query : "",
+      tag: tag !== null && tag !== undefined ? tag : "all",
+      sortBy:
+        sortBy !== null && sortBy !== undefined
+          ? JSON.parse(sortBy)
+          : ["createdAt", "DESC"]
+    };
+
+    let _where = {
+      title: {
+        [Op.like]: `%${config.query}%`
+      },
+      status: 1
+    };
+
+    if (config.tag !== "all") {
+      let mapBlogIdWithTag = await this.filterWithTag("alias", config.tag);
+      _where.id = {
+        [Op.in]: mapBlogIdWithTag
+      };
+    }
+
+    let _order = [config.sortBy];
+
+    let filterConfig = {
+      count: true,
+      offset: config.page * config.pageLength,
+      limit: config.pageLength,
+      order: _order,
+      where: _where
+    };
+
+    this.find(filterConfig)
+      .then(async rs => {
+        res.send(
+          helper.getStatus("success", "Successful!", {
+            data: rs,
+            count: await this.count(_where)
+          })
+        );
+      })
+      .catch(err => {
+        res.send(
+          helper.getStatus(
+            "error",
+            err.errors
+              ? err.errors.map(it => it.message)
+              : "Filter blog failed!"
+          )
+        );
+      });
+  }
+
   lastestBlog(req, res) {
     this.find({
       limit: 3,
@@ -106,6 +212,10 @@ class BlogController {
           {
             model: BlogTags,
             required: false
+          },
+          {
+            model: Customer,
+            required: false
           }
         ]
       })
@@ -116,6 +226,26 @@ class BlogController {
           res(null);
         });
     });
+  }
+
+  async findOne(req, res) {
+    let providerAttributes = helper.checkGetProviderAttributes(req, res, [
+      "id"
+    ]);
+    if (!providerAttributes) return;
+
+    let result = await this.helperFindOne(providerAttributes.id);
+
+    if (result) {
+      res.send(helper.getStatus("success", "Successful", result));
+    } else {
+      res.send(
+        helper.getStatus(
+          "error",
+          `Can't find blog with identity ${providerAttributes.id}`
+        )
+      );
+    }
   }
 
   create(req, res) {

@@ -1,17 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ClientProvider from "../context/ClientProvider";
 import CommonComponent from "../component/CommonComponent";
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 
-import "../../../css/client.css";
+import "../../../styles/client/index.scss";
+import "../../../styles/client.css";
 
 import Home from "../pages/Home";
 import Store from "../pages/Store";
 import Blog from "../pages/Blog";
 import ProductDetails from "../pages/ProductDetails";
+import BlogDetails from './../pages/BlogDetails';
 
 function RouterView(props) {
-  console.log(props);
+  useEffect(() => {
+    console.log("props.location change...............");
+    setTimeout(() => {
+      document.getElementById("main-content").scrollTop = 0;
+    }, 100);
+  }, [props.location]);
+
   return (
     <ClientProvider>
       <CommonComponent>
@@ -23,24 +31,26 @@ function RouterView(props) {
 
 function SwitchPage({ location }) {
   return (
- 
-      <Switch key={location.key}>
-        <Route exact path="/blog">
-          <Blog />
-        </Route>
-        <Route exact path="/store">
-          <Store />
-        </Route>
-        <Route exact path="/product/:id">
-          <ProductDetails />
-        </Route>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home"></Redirect>
-        </Route>
-      </Switch>
+    <Switch key={location.key}>
+      <Route exact path="/blog">
+        <Blog />
+      </Route>
+      <Route exact path="/blog/:title/:id">
+        <BlogDetails />
+      </Route>
+      <Route exact path="/store">
+        <Store />
+      </Route>
+      <Route exact path="/product/:id">
+        <ProductDetails />
+      </Route>
+      <Route exact path="/home">
+        <Home />
+      </Route>
+      <Route exact path="/">
+        <Redirect to="/home"></Redirect>
+      </Route>
+    </Switch>
   );
 }
 export default withRouter(RouterView);

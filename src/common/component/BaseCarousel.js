@@ -316,7 +316,7 @@ class BaseCarousel extends Component {
           (this.state.currentIndex % this.state.defaultCarousels.length) /
             this.state.itemToShow
         ) - 1
-      ) * 112;
+      ) * 122;
     if (_transform > 0) _transform = 0;
 
     return `translateX(${_transform}px)`;

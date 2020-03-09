@@ -1,0 +1,77 @@
+
+@function appendNewValueToListInMap($map, $key, $newValue) {
+  $origin: map-get($map, $key);
+  $map: map-merge(
+    $map,
+    (
+      $key: append($origin, $newValue)
+    )
+  );
+
+  @return $map;
+}
+
+
+@function getMapSpacing($type, $value, $increase_val: 4) {
+  $switchSpacing: (
+    p: (
+      type: padding
+    ),
+    pt: (
+      type: padding-top
+    ),
+    pb: (
+      type: padding-bottom
+    ),
+    py: (
+      type: [padding-top padding-bottom]
+    ),
+    pl: (
+      type: padding-left
+    ),
+    pr: (
+      type: padding-right
+    ),
+    px: (
+      type: [padding-left padding-right]
+    ),
+    m: (
+      type: margin
+    ),
+    mt: (
+      type: margin-top
+    ),
+    mb: (
+      type: margin-bottom
+    ),
+    my: (
+      type: [margin-top margin-bottom]
+    ),
+    ml: (
+      type: margin-left
+    ),
+    mr: (
+      type: margin-right
+    ),
+    mx: (
+      type: [margin-left margin-right]
+    )
+  );
+
+  $_val: if($value == auto, auto, nth($value, 1) * $increase_val + px)
+    if(
+      $value == auto,
+      auto,
+      nth($value, if(length($value) > 1, 2, 1)) * $increase_val + px
+    );
+
+    $index: 1;
+    $resultMap: ();
+
+    @each $_type in map-get(map-get($switchSpacing, $type), type) {
+      $resultMap: map-merge($resultMap, ($_type:  nth($_val, $index)));
+    }
+
+    @return $resultMap;
+}
+

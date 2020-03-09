@@ -1,6 +1,6 @@
 import React from "react";
 import './App.css'
-import "./css/animation.css";
+import "./styles/animation.css";
 
 import MainLayout from "./views/MainLayout";
 import { createMuiTheme, ThemeProvider,  IconButton } from "@material-ui/core";

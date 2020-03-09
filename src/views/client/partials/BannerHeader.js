@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import Carousel from "../../../common/component/BaseCarousel";
 import { Grid, Box, ButtonBase } from "@material-ui/core";
 import { PropTypes } from "prop-types";
@@ -39,7 +39,7 @@ const carousels = [
   }
 ];
 
-class BannerHeader extends Component {
+class BannerHeader extends React.PureComponent {
   constructor(props) {
     super(props);
     this.now = btoa(`${new Date().getTime()}`);
@@ -100,16 +100,47 @@ class BannerHeader extends Component {
             <>
               <div className="banner-header-title">{this.props.title}</div>
               <div className="banner-header-nav">
-                {this.state.nav.map(it => (
-                  <div key={`#banner-header-${it.text}`}>
+                {this.state.nav.map((it, index) => (
+                  <span key={`#banner-header-${it.text}`} >
                     {it.disable ? (
-                      <span>{it.text}</span>
+                      <span>{`${it.text}${
+                        index < this.state.nav.length - 1 ? " / " : ""
+                      }`}</span>
                     ) : (
-                      <Link to={it.to}>{it.text}</Link>
+                      <Link to={it.to}>{`${it.text}${
+                        index < this.state.nav.length - 1 ? " / " : ""
+                      }`}</Link>
                     )}
-                  </div>
+                  </span>
                 ))}
               </div>
+            </>
+          )}
+          {this.state.type === "title-with-custom-nav" && (
+            <>
+              <div className="banner-header-title">{this.props.title}</div>
+              {
+                <div className="banner-header-nav">
+                  {this.props.nav && this.props.nav.map((it, index) => (
+                    <span key={`#banner-header-${it.text}`} className={it.className}>
+                      {it.disable ? (
+                        <span>{`${
+                          index > 0 ? " / " : ""
+                        }${it.text}`}</span>
+                      ) : (
+                        <Link to={it.to}>{`${
+                          index > 0 ? " / " : ""
+                        }${it.text}`}</Link>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              }
+            </>
+          )}
+          {this.state.type === "only-title" && (
+            <>
+              <div className="banner-header-title">{this.props.title}</div>
             </>
           )}
           {this.state.type === "carousel" && (

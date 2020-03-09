@@ -5,14 +5,14 @@ import { ClientContext } from "./../context/ClientProvider";
 import { withSnackbar } from "notistack";
 import BaseDialog from "../../../common/component/BaseDialog";
 
-import Footer from "../partials/Footer"
+import Footer from "../partials/Footer";
 
 const useStyles = theme => ({
   root: {
     height: "100vh",
     overflowY: "auto",
     paddingTop: "110px",
-    fontFamily: "'Roboto Slab', serif",
+    fontFamily: "'Libre Baskerville', serif",
     backgroundColor: "#fff",
     scrollBehavior: "smooth"
   }
@@ -40,22 +40,17 @@ class CommonComponent extends Component {
     );
   }
   handleScrollTop(e) {
-    if (this.timerScroll) {
-      clearTimeout(this.timerScroll);
-    }
-
     const event = {
       scrollTop: e.target.scrollTop
     };
-
-    this.timerScroll = setTimeout(
-      function() {
-        this.setState({
-          scrollTop: event.scrollTop
-        });
-      }.bind(this),
-      100
-    );
+    const checkPrev = this.state.scrollTop >= 100;
+    const checkCurrent = e.target.scrollTop >= 100;
+    if ( checkPrev !== checkCurrent) {
+      console.log("Update scroll", event.scrollTop);
+      this.setState({
+        scrollTop: event.scrollTop
+      });
+    }
   }
 
   componentDidMount() {
@@ -120,7 +115,11 @@ class CommonComponent extends Component {
     const { classes } = this.props;
     const { dialogReloadPage } = this.context;
     return (
-      <div className={classes.root} id="main-content" onScroll={this.handleScrollTop.bind(this)}>
+      <div
+        className={classes.root}
+        id="main-content"
+        onScroll={this.handleScrollTop.bind(this)}
+      >
         <div
           style={{
             minHeight: "100vh"
@@ -142,7 +141,7 @@ class CommonComponent extends Component {
             browser window.
           </BaseDialog>
           <NavBar scrolltop={this.state.scrollTop} />
-          <Box pt={1}>{this.props.children}</Box>
+          <Box >{this.props.children}</Box>
           <Footer />
         </div>
       </div>

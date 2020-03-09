@@ -9,7 +9,10 @@ import {
   RadioGroup,
   FormControlLabel,
   Box,
-  ButtonBase
+  ButtonBase,
+  Select,
+  MenuItem,
+  Container
 } from "@material-ui/core";
 import BaseRadioButton from "./../../../common/component/BaseRadioButton";
 import { ClientContext } from "./../context/ClientProvider";
@@ -19,8 +22,9 @@ import { Skeleton } from "@material-ui/lab";
 import ProductCard from "../partials/ProductCard";
 import BaseSpinner from "./../../../common/component/BaseSpinner";
 import { withRouter } from "react-router-dom";
+import { compareArray } from "../../../utils/helper";
 
-class Store extends React.Component {
+class Store extends React.PureComponent {
   static contextType = ClientContext;
   state = {
     filter: null,
@@ -80,7 +84,7 @@ class Store extends React.Component {
       categories.data !== null &&
       this.state.categories &&
       (this.state.categories.data === null ||
-        !this.compareArray(categories.data, this.state.categories.data, "id"))
+        !compareArray(categories.data, this.state.categories.data, "id"))
     ) {
       this.setState({
         categories: {
@@ -116,8 +120,8 @@ class Store extends React.Component {
           if (Array.isArray(filter[it])) {
             let check =
               it === "data"
-                ? this.compareArray(filter[it], products.filter[it], "id")
-                : this.compareArray(filter[it], products.filter[it]);
+                ? compareArray(filter[it], products.filter[it], "id")
+                : compareArray(filter[it], products.filter[it]);
             if (!check) {
               this.updateFilterFromContext(it);
             }
@@ -147,17 +151,6 @@ class Store extends React.Component {
       });
     }
   }
-
-  compareArray = (arr1, arr2, field) => {
-    if (arr1.length === 0 && arr2.length === 0) return true;
-    if (arr1.length !== arr2.length) return false;
-
-    return arr1.every((value, index) => {
-      return field
-        ? value[field] === arr2[index][field]
-        : value === arr2[index];
-    });
-  };
 
   handleChangeFilterPrice = (event, _newValue) => {
     this.setState({
@@ -263,6 +256,11 @@ class Store extends React.Component {
               onChange={this.handleChangeStatus}
             >
               <FormControlLabel
+                label="All"
+                value="all"
+                control={<BaseRadioButton bcolor={"#f6675c"} />}
+              ></FormControlLabel>
+              <FormControlLabel
                 label="Available"
                 value="available"
                 control={<BaseRadioButton bcolor={"#f6675c"} />}
@@ -326,22 +324,32 @@ class Store extends React.Component {
   getStatusBar = () => (
     <>
       <div className="filter-status-bar">
-        <div className="display-style">
-          <i className="fas fa-th-large active"></i>
+        <div className="filter-status-bar-content filter-status-bar-left">
+          <div className="display-style">
+            <i className="fas fa-th-large active"></i>
+          </div>
+          <div>
+            Showing{" "}
+            {this.state.filter
+              ? this.state.filter.page * this.state.filter.pageLength + 1
+              : 0}{" "}
+            -{" "}
+            {this.state.filter
+              ? (this.state.filter.page + 1) * this.state.filter.pageLength >
+                this.state.filter.max
+                ? this.state.filter.max
+                : (this.state.filter.page + 1) * this.state.filter.pageLength
+              : 0}{" "}
+            of {this.state.filter ? this.state.filter.max : 0} results
+          </div>
         </div>
-        <div>
-          Showing{" "}
-          {this.state.filter
-            ? this.state.filter.page * this.state.filter.pageLength + 1
-            : 0}{" "}
-          -{" "}
-          {this.state.filter
-            ? (this.state.filter.page + 1) * this.state.filter.pageLength >
-              this.state.filter.max
-              ? this.state.filter.max
-              : (this.state.filter.page + 1) * this.state.filter.pageLength
-            : 0}{" "}
-          of {this.state.filter ? this.state.filter.max : 0} results
+        <div className="filter-status-bar-content filter-status-bar-right">
+          <div>Sort by: </div>
+          <FormControl className="sort-form">
+            <Select value={"time"}>
+              <MenuItem value={"time"}>Time</MenuItem>
+            </Select>
+          </FormControl>
         </div>
       </div>
     </>
@@ -351,7 +359,7 @@ class Store extends React.Component {
     <>
       {
         <div
-          className="loading-filter-product"
+          className="loading-filter"
           style={{
             height:
               this.state.filter && this.state.filter.loading ? "30px" : "0px"
@@ -408,8 +416,15 @@ class Store extends React.Component {
                 xs={12}
                 key={`#right-sidebar-product-${it.id}`}
               >
-                <Box py={2} px={1} width={"100%"}>
-                  <ProductCard id={it.id} />
+                <Box py={2} width={"100%"}>
+                  <ProductCard
+                    id={it.id}
+                    hightlighttitleregex={
+                      this.state.filter.query
+                        ? new RegExp(`${this.state.filter.query}`, "ig")
+                        : null
+                    }
+                  />
                 </Box>
               </Grid>
             ))}
@@ -457,15 +472,26 @@ class Store extends React.Component {
           type="title-with-nav"
           title="Stores"
         />
-
-        <Grid container>
-          <Grid item xs={12} sm={4} md={5} lg={4} className="widget-wrapper">
-            {this.getLeftSidebar()}
-          </Grid>
-          <Grid item xs={12} sm={8} md={7} lg={8}>
-            {this.getRightSidebar()}
-          </Grid>
-        </Grid>
+        <div className="pos-relative widget-wrapper-hightlight container container-3">
+          <Container>
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                sm={4}
+                md={4}
+                lg={3}
+                xl={4}
+                className="widget-wrapper"
+              >
+                {this.getLeftSidebar()}
+              </Grid>
+              <Grid item xs={12} sm={8} md={8} lg={9} xl={8} className="px-4">
+                {this.getRightSidebar()}
+              </Grid>
+            </Grid>
+          </Container>
+        </div>
       </div>
     );
   }

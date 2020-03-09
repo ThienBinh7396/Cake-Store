@@ -1,0 +1,187 @@
+%wrapper-blog-css {
+  position: relative;
+  width: 100%;
+}
+
+.blog-list-wrapper {
+  & .blog-thumbnail {
+    cursor: pointer;
+    @extend %wrapper-blog-css;
+    line-height: 0;
+
+    &::before {
+      @include getTransition(fast);
+      @include getPseudoOverlayContent();
+    }
+    &:hover::before {
+      background-color: rgba($primaryColor, $alpha: 0.3);
+    }
+
+    img {
+      width: 100%;
+    }
+  }
+  &.small .blog-thumbnail {
+    width: 33.33%;
+    height: 103px;
+    flex: 1 0 auto;
+
+    @extend %centerBackgroundImage;
+  }
+
+  & .blog-header {
+    padding: 20px 0 32px;
+
+    & .blog-title {
+      @include getLinkCSS($blackColor);
+      @extend %h3;
+      @extend %wrapper-blog-css;
+      margin-bottom: 12px;
+    }
+    & .blog-meta {
+      @include displayFlexWithProperty();
+      @include getFontFamily(sans-serif);
+
+      & .blog-meta-item {
+        padding: 0 16px;
+        color: lighten($blackColor, 50%);
+
+        &:first-child {
+          padding-left: 0;
+        }
+
+        & i {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+  &.small .blog-header {
+    width: 66.67%;
+    flex: 1 0 auto;
+    padding: 0 0 0 8px;
+
+    & .blog-title {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    & i {
+      display: none;
+    }
+
+    & .blog-meta-small {
+      display: block;
+      font-size: 12px;
+    }
+  }
+
+  & .blog-meta-small,
+  &.small .blog-meta {
+    display: none;
+  }
+
+  & .blog-content {
+    @include getFontFamily(sans-serif);
+    color: lighten($blackColor, 27.5%);
+    font-size: 16px;
+    margin-bottom: 22px;
+
+    p {
+      line-height: 1.9em;
+    }
+  }
+  &.small .blog-content {
+    display: none;
+  }
+
+  & .blog-information {
+    color: lighten($blackColor, 27.5%);
+
+    & .blog-information-tags {
+      & .MuiChip-root {
+        @extend %chipOutline;
+      }
+    }
+
+    & .blog-information-owner {
+      @include displayFlexWithProperty();
+      @include getSpacing(my, 6, 8);
+
+      .thumbnail {
+        @include displayFlexWithProperty($jc: center, $ai: center);
+        @include getDimension(80px, 80px, true, true);
+        @extend %centerBackgroundImage;
+        color: #63feec;
+        font-size: 20px;
+        font-weight: bold;
+        @include getFontFamily(cursive);
+        background-image: url("/img/avatar_icon.png");
+
+        &.border {
+          border: 2px solid lighten($blurColor, 10%);
+        }
+
+        img {
+          @include getDimension();
+        }
+      }
+
+      .info {
+        margin-left: 12px;
+        padding: 16px 20px;
+        border-radius: 4px;
+        @include higherFlexGrow();
+        color: $blackColor;
+        background-color: $widgetColor;
+        @include getFontFamily(sans-serif);
+
+        & .title {
+          @extend %h4;
+        }
+
+        & .des {
+          color: $greyColor;
+          font-size: 13px;
+        }
+
+        & p {
+          margin-top: 14px;
+          font-size: 14px;
+          color: lighten($blackColor, $amount: 30);
+        }
+      }
+    }
+  }
+
+  & .blog-commtent-wrapper {
+    h3 {
+      text-transform: uppercase;
+      color: lighten($blackColor, $amount: 15);
+    }
+
+    form {
+      .textarea {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        min-height: 120px;
+        padding: 16px 20px;
+        border-radius: 2px;
+        @include oulineStyle($blackColor, $widgetColor, $background-color: $widgetColor);
+        font-size: 14px;
+
+        &:focus{
+          border-color: $primaryColor;
+        }
+      }
+    }
+  }
+
+  & .btn-awesome {
+    width: 210px;
+  }
+  &.small .btn-awesome {
+    display: none;
+  }
+}

@@ -27,6 +27,7 @@ import Autocomplete, {
 } from "@material-ui/lab/Autocomplete";
 import BaseDialog from "../../../common/component/BaseDialog";
 import Categories from "./Categories";
+import { compareArray } from "../../../utils/helper";
 
 const useStyles = theme => ({
   root: {
@@ -273,18 +274,6 @@ class Cake extends React.Component {
     this.updateCakeFromStore();
   }
 
-  compareArray = (arr1, arr2, field) => {
-    if (!arr1 || !arr2) return false;
-    if (arr1.length === 0 && arr2.length === 0) return true;
-    if (arr1.length !== arr2.length) return false;
-
-    return arr1.every((value, index) => {
-      return field
-        ? value[field] === arr2[index][field]
-        : value === arr2[index];
-    });
-  };
-
   componentDidUpdate(prevProps, prevState) {
     const { categories } = this.context;
     const { adminContext } = prevProps;
@@ -301,7 +290,7 @@ class Cake extends React.Component {
 
     if (
       this.context.products.data !== null &&
-      !this.compareArray(
+      !compareArray(
         adminContext.products.data || [],
         this.context.products.data,
         "id"

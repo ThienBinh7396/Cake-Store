@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React from "react";
 import { Container, Grid } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { CLIENT_NAV } from './../../../constant/index';
 
 
-export default class Footer extends Component {
+export default class Footer extends React.PureComponent {
   render() {
     return (
       <div className="footer">

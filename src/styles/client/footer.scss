@@ -1,0 +1,76 @@
+
+.footer {
+  @include contrastView(blur);
+  @include getSpacing(py, 6 4, 8);
+  @include getTransition(fast);
+
+  & .MuiGrid-item {
+    padding-right: 32px;
+  }
+
+  & h3 {
+    color: $lightColor;
+  }
+
+  & .footer-note {
+    color: $primaryColor;
+  }
+  & .footer-address {
+    margin-top: 32px;
+    font-size: map-get($font-size, md);
+  }
+
+  & .footer-navigation {
+    list-style: none;
+    padding-left: 4px;
+
+    li {
+      width: fit-content;
+      margin-bottom: 10px;
+      @include displayFlexWithProperty($ai: center, $fd: row-reverse);
+
+      %width {
+        width: 24px;
+      }
+
+      &:hover a{
+        color: $primaryColor;
+      }
+      &:hover span {
+        @extend %width;
+      }
+
+      & a {
+        color: $blurColor;
+
+        & ~ span {
+          @include getDimension(0, 1px);
+          margin-right: 4px;
+          background-color: $primaryColor;
+          @include getTransition(fast, ease);
+        }
+
+        &:hover {
+          color: $primaryColor;
+        }
+        &.active ~ span,
+        &:hover ~ span {
+          @extend %width;
+        }
+      }
+    }
+  }
+
+  & .footer-contact {
+    @include displayFlexWithProperty();
+    padding: 0;
+    margin-bottom: 42px;
+  }
+  & .footer-contact li {
+    font-size: 18px;
+    margin-right: 16px;
+    cursor: pointer;
+
+    @include getLinkCSS($blurColor);
+  }
+}

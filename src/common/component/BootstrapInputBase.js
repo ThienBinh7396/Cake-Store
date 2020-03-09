@@ -14,12 +14,12 @@ const BootstrapInput = withStyles(theme => ({
     fontSize: 16,
     padding: '10px 26px 10px 12px',
     transition: theme.transitions.create(['border-color', 'box-shadow']),
-    // Use the system font instead of the default Roboto font.
+    // Use the system font instead of the default Varela Round font.
     fontFamily: [
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
-      'Roboto',
+      'Varela Round',
       '"Helvetica Neue"',
       'Arial',
       'sans-serif',

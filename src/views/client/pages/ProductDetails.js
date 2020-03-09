@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import { Skeleton, Rating } from "@material-ui/lab";
 import AwesomeInput from "../../../common/component/AwesomeInput";
+import { compareArray } from "../../../utils/helper";
 
 const mapStuatusWithColor = {
   available: "#48ce4e",
@@ -58,20 +59,12 @@ class ProductDetails extends Component {
       product: _product,
       products,
       gallery: _gallery
+    }, () => {
+      document.title = `Cake Stores - ${_product.title}`;
     });
   }
 
-  compareArray = (arr1, arr2, field) => {
-    if (!arr1 || !arr2) return false;
-    if (arr1.length === 0 && arr2.length === 0) return true;
-    if (arr1.length !== arr2.length) return false;
 
-    return arr1.every((value, index) => {
-      return field
-        ? value[field] === arr2[index][field]
-        : value === arr2[index];
-    });
-  };
 
   componentDidMount() {
     this.initialize();
@@ -82,7 +75,7 @@ class ProductDetails extends Component {
       this.context.products.data !== null &&
       (this.state.id !== Number(this.props.match.params.id) ||
         (this.state.product === null &&
-          !this.compareArray(
+          !compareArray(
             this.state.products.data,
             this.context.products.data,
             "id"

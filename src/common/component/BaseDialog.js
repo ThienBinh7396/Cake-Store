@@ -19,7 +19,7 @@ export default function BaseDialog(props) {
   const useStyles = makeStyles(theme => ({
     root: {
       zIndex: `${props.zIndex || 1301} !important`,
-      fontFamily: "Roboto, sans-serif",
+      fontFamily: "Varela Round, sans-serif",
       "& .MuiDialog-paper": {
         padding: 0,
         borderRadius: 0,

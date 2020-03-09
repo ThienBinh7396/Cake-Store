@@ -6,6 +6,7 @@ module.exports = {
       return queryInterface.bulkInsert('BlogTags', [{
         id: 1,
         title: 'Recipes',
+        alias: 'recipes',
         employee_update_id: 1,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -13,6 +14,7 @@ module.exports = {
       {
         id: 2,
         title: 'Promos Food',
+        alias: 'Promos-Food',
         employee_update_id: 2,
         createdAt: new Date(),
         updatedAt: new Date()

@@ -20,7 +20,7 @@ code {
 
 ::-webkit-scrollbar {
   width: 7px;
-  transition: 0.2s;
+  transition: 0.02s;
 }
 ::-webkit-scrollbar:hover {
   width: 10px;
@@ -34,8 +34,7 @@ code {
 ::-webkit-scrollbar-thumb {
   background-color: #ccc;
   cursor: pointer;
-  border-radius: 4px;
-  transition: 0.2s;
+  transition: 0.02s;
 }
 
 /* Handle on hover */

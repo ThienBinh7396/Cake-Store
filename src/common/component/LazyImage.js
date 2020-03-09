@@ -36,7 +36,7 @@ export default class LazyImage extends React.Component {
     this.setState(
       {
         src: this.props.src,
-        placeHolder: this.props.placeHolder,
+        placeHolder: this.props.placeHolder || '/img/placeholder.png',
         effect: this.props.effect || "opacity",
         alt: this.props.alt || "Image alt",
         keepRatio: this.props.keepRatio || false,
@@ -94,7 +94,7 @@ export default class LazyImage extends React.Component {
         width={this.state.width}
         height={this.state.height}
         ref={imgElm => (this.imgElm = imgElm)}
-        className="lazy-image"
+        className="lazy-image transition-medium"
         alt={this.state.alt}
       />
     );

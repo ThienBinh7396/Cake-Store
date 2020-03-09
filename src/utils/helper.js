@@ -43,7 +43,6 @@ export const formatDate = (str, type) => {
       break;
 
     case 2: //ex: Sat, Aug 29 2020
-      console.log(date.getDay());
       f = `${dayInWeek[date.getDay()]}, ${
         monthInYear[month - 1]
       } ${formatNumber(d)} ${y}`;
@@ -92,4 +91,26 @@ export const change_alias = (str) => {
   str = str.replace(/Đ/g, "D");
   str = str.replace(/\s+/g, "-");
   return str;
+}
+
+export const compareArray = (arr1, arr2, field) => {
+  if (!arr1 || !arr2) return false;
+  if (arr1.length === 0 && arr2.length === 0) return true;
+  if (arr1.length !== arr2.length) return false;
+
+  return arr1.every((value, index) => {
+    return field
+      ? value[field] === arr2[index][field]
+      : value === arr2[index];
+  });
+};
+
+export const trimText = (text, length = 100) => {
+  let div = document.createElement("div");
+  div.innerHTML = text;
+
+  let _text = div.innerText.substring(0, length);
+  div = null;
+
+  return `${_text}...`;
 }

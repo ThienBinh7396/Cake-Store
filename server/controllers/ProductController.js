@@ -170,7 +170,7 @@ class CakeCategoriesController {
       };
     }
 
-    if (providerAttributes.status) {
+    if (providerAttributes.status !== 'all') {
       _where.status = providerAttributes.status;
     }
 
