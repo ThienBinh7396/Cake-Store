@@ -17,7 +17,8 @@ class BlogDetails extends React.PureComponent {
     id: -1,
     blog: null,
     blogDetail: null,
-    nav: null
+    nav: null,
+    query: ""
   };
 
   componentDidMount() {
@@ -175,7 +176,6 @@ class BlogDetails extends React.PureComponent {
               fullcontent
               withcomment
             />
-            
           </div>
         )}
       </div>
@@ -183,9 +183,15 @@ class BlogDetails extends React.PureComponent {
   }
 
   handleChangeQuery = e => {
-    if (this.state.filter) {
-      this.state.filter.updateFilter({ query: e.target.value });
-    }
+    this.setState({ query: e.target.value });
+  };
+
+  toQueryBlog = () => {
+    this.context.toFilterBlog({ query: this.state.query });
+  };
+
+  toTagBlog = tag => {
+    this.context.toFilterBlog({ tag });
   };
 
   getRightContent() {
@@ -198,14 +204,13 @@ class BlogDetails extends React.PureComponent {
               <input
                 type="text"
                 placeholder="Type something..."
-                value={
-                  this.state.filter && this.state.filter.query
-                    ? this.state.filter.query
-                    : ""
-                }
+                value={this.state.query ? this.state.query : ""}
                 onChange={this.handleChangeQuery}
               />
-              <i className="search-icon pe-7s-search"></i>
+              <i
+                className="search-icon pe-7s-search"
+                onClick={e => this.toQueryBlog()}
+              ></i>
             </form>
           </div>
         </div>
@@ -221,20 +226,36 @@ class BlogDetails extends React.PureComponent {
             <div className="tags">
               {!this.state.blogTags ||
               !this.state.blogTags.data ||
-              this.state.blogTags.loading
-                ? Array(4)
-                    .fill(null)
-                    .map((it, index) => (
-                      <Skeleton
-                        className="skeleton"
-                        variant="rect"
-                        height="32px"
-                        key={`#-skeleton-tag-${index}`}
-                      />
-                    ))
-                : this.state.blogTags.data.map(it => (
-                    <Chip label={`#${it.title}`} key={`#tag-${it.id}`} />
+              this.state.blogTags.loading ? (
+                Array(4)
+                  .fill(null)
+                  .map((it, index) => (
+                    <Skeleton
+                      className="skeleton"
+                      variant="rect"
+                      height="32px"
+                      key={`#-skeleton-tag-${index}`}
+                    />
+                  ))
+              ) : (
+                <>
+                  {
+                    <Chip
+                      onClick={e => this.toTagBlog("all")}
+                      label={`#All`}
+                    />
+                  }
+
+                  {this.state.blogTags.data.map(it => (
+                    <Chip
+                      onClick={e => this.toTagBlog(it.alias)}
+                   
+                      label={`#${it.title}`}
+                      key={`#tag-${it.id}`}
+                    />
                   ))}
+                </>
+              )}
             </div>
           </div>
         </div>

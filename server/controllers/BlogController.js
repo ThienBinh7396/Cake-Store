@@ -75,9 +75,11 @@ class BlogController {
         ]
       })
         .then(tags => {
+          console.log("Tags: ", tags);
           res(tags.map(it => it.toJSON().blog_id));
         })
         .catch(err => {
+          console.log("ERR", err);
           res([]);
         });
     });
@@ -105,7 +107,7 @@ class BlogController {
       status: 1
     };
 
-    if (config.tag !== "all") {
+    if (config.tag.toLocaleLowerCase() !== "all") {
       let mapBlogIdWithTag = await this.filterWithTag("alias", config.tag);
       _where.id = {
         [Op.in]: mapBlogIdWithTag

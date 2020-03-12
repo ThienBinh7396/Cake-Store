@@ -1,0 +1,91 @@
+.base-carousel {
+  position: relative;
+  padding-bottom: 32px;
+  overflow: hidden;
+
+  &.dots {
+    padding-bottom: 112px;
+  }
+
+  .slick-list {
+    width: 100%;
+  }
+
+  .slick-arrow {
+    @include mapPositionWithCoordinate(absolute, 50%, -94px, false, true);
+    @include getDimension(40px, 40px, true);
+    border: 1px solid $widgetColor;
+    color: $primaryColor;
+    background: $lightColor;
+    z-index: $defaultZIndex;
+
+    &.slick-next {
+      left: calc(100% + 58px);
+      &::before {
+        content: "\f105";
+      }
+    }
+
+    @include getTransition(fast);
+
+    &::before {
+      content: "\f053";
+      font-weight: 600;
+      color: $primaryColor;
+      font-family: "Font Awesome 5 Pro";
+      font-size: 18px;
+    }
+
+    &:hover {
+      color: $lightColor;
+      background-color: #e47277;
+      border-color: #e47277;
+
+      &::before {
+        color: $lightColor;
+      }
+    }
+    &:active {
+      transform: translateY(-50%) scale(1.46);
+    }
+  }
+
+  &:hover .slick-arrow {
+    left: 20px;
+  }
+
+  &:hover .slick-next {
+    left: calc(100% - 56px);
+  }
+
+  .slick-dots {
+    @include mapPositionWithCoordinate(
+      absolute,
+      calc(100% - 72px),
+      50%,
+      true,
+      false
+    );
+    @include displayFlexWithProperty($jc: center);
+
+    li {
+      position: relative;
+      @include getDimension(16px, 16px, true);
+      background: darken($lightColor, $amount: 20);
+      margin: 0 5px;
+      cursor: pointer;
+      @include getTransition(fast);
+
+      &.slick-active {
+        width: 60px;
+        background-color: $primaryColor;
+      }
+
+      button {
+        opacity: 0;
+        @include mapPositionWithCoordinate(absolute, 0, 0);
+        @include getDimension();
+      }
+    }
+  }
+}

@@ -14,6 +14,10 @@ module.exports = {
       alias: {
         type: Sequelize.STRING
       },
+      thumbnail: {
+        type: Sequelize.TEXT,
+        defaultValue: '/img/category.jpg'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

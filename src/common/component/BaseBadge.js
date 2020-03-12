@@ -1,25 +1,40 @@
 import React from "react";
-import { Badge, makeStyles } from "@material-ui/core";
 
-import { PropTypes } from 'prop-types';
+import { PropTypes } from "prop-types";
 
-function BaseBadge(props) {
-  const useStyles = makeStyles(theme => ({
-    root: {
-      "& .MuiBadge-badge": {
-        backgroundColor: props.typecolor,
-        color: '#fff',
-        top: props.top || 0,
-        right: props.right || 0
-      }
+export default class BaseBadge extends React.Component {
+  componentDidMount() {
+    this.styles = {
+      color: "#fff",
+      backgroundColor: this.props.typecolor,
+     
+    };
+  }
+
+  renderWithMax = (num) => {
+    let _num = Number(`${num}`);
+    if(this.props.max){
+      _num = _num > this.props.max ? `${this.props.max}+`: _num; 
     }
-  }));
-  const classes = useStyles();
-  return <Badge {...props} className={classes.root}></Badge>;
+
+    return _num;
+  }
+
+  render() {
+    return (
+      <span className={`badge-root ${this.props.className}`}>
+        {this.props.children}
+        <span
+          className="badge"
+          style={{ ...this.styles }}
+        >
+          {this.renderWithMax(this.props.badgeContent)}
+        </span>
+      </span>
+    );
+  }
 }
 
 BaseBadge.propTypes = {
   typecolor: PropTypes.string.isRequired
-}
-
-export default BaseBadge;
+};

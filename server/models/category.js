@@ -2,7 +2,8 @@
 module.exports = (sequelize, DataTypes) => {
   const Category = sequelize.define('Category', {
     title: DataTypes.STRING,
-    alias: DataTypes.STRING
+    alias: DataTypes.STRING,
+    thumbnail: DataTypes.TEXT
   }, {});
   Category.associate = function(models) {
     Category.hasMany(models.MapProductWithCategory, {

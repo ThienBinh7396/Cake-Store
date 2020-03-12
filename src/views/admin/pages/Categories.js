@@ -21,11 +21,13 @@ import {
 import { AdminContext } from "../context/AdminProvider";
 import BaseIcon from "../../../common/component/BaseIcon";
 
-import * as Helper from  "../../../utils/helper";
+import * as Helper from "../../../utils/helper";
 import BaseButton from "../../../common/component/BaseButton";
 import QueueAnim from "rc-queue-anim";
 import BaseDialog from "../../../common/component/BaseDialog";
 import { withSnackbar } from "notistack";
+import BaseWrapperImage from "./../../../common/component/BaseWrapperImage";
+import LazyImage from "./../../../common/component/LazyImage";
 
 const useStyles = theme => ({
   paperContainer: {
@@ -102,6 +104,11 @@ class Categories extends React.Component {
         return !!this.state.title.value;
       }
     },
+    thumbnail: {
+      file: null,
+      url: "/img/category.jpg",
+      default: "/img/category.jpg"
+    },
     columns: [
       {
         title: "No",
@@ -114,6 +121,10 @@ class Categories extends React.Component {
       {
         title: "Alias",
         field: "alias"
+      },
+      {
+        title: "Thumbnail",
+        field: "thumbnail"
       },
       {
         title: "Time",
@@ -132,7 +143,12 @@ class Categories extends React.Component {
 
   componentDidMount() {
     document.title = "Admin - categories Page";
-    const { categories, loadingComponent, progressDialog, axios } = this.context;
+    const {
+      categories,
+      loadingComponent,
+      progressDialog,
+      axios
+    } = this.context;
 
     if (this.props.tempTitle) {
       this.handleChange("title", this.props.tempTitle);
@@ -164,6 +180,8 @@ class Categories extends React.Component {
     }
   }
   updateForm({ type, category }) {
+    console.log("Category: ", category);
+
     let _state;
     switch (type) {
       case "reset": {
@@ -174,6 +192,10 @@ class Categories extends React.Component {
           title: {
             ...this.state.title,
             value: ""
+          },
+          thumbnail: {
+            ...this.state.thumbnail,
+            url: this.state.thumbnail.default
           }
         };
         break;
@@ -186,6 +208,10 @@ class Categories extends React.Component {
           title: {
             ...this.state.title,
             value: category.title
+          },
+          thumbnail: {
+            ...this.state.thumbnail,
+            url: category.thumbnail
           }
         };
         break;
@@ -219,6 +245,18 @@ class Categories extends React.Component {
               return (
                 <StyledTableCell key={`#colume-${i}`}>
                   <strong>{index + 1}</strong>
+                </StyledTableCell>
+              );
+            }
+            case "thumbnail": {
+              return (
+                <StyledTableCell key={`#colume-${i}`}>
+                  <LazyImage
+                    src={it[_column.field]}
+                    width={"62px"}
+                    height={"auto"}
+                    containertarget={document.querySelector(".main-content")}
+                  />
                 </StyledTableCell>
               );
             }
@@ -303,12 +341,48 @@ class Categories extends React.Component {
     this.setState(_state);
   }
 
-  controlcategory() {
+  async controlcategory() {
     if (!this.state.title.validate()) {
       this.showToast(this.state.title.helperText(), "warning");
       return;
     }
     this.progressDialog.updateState(true, "Submitting...");
+
+    let thumbnailUrl = this.state.thumbnail.url;
+
+    console.log("CATEGORY.........", this.state.category);
+
+    if (this.state.thumbnail.file != null) {
+      let formData = new FormData();
+      formData.append("file", this.state.thumbnail.file);
+
+      let resultUploadThumbnail = await this.state.axios.uploadFile(formData);
+
+      if (
+        !resultUploadThumbnail ||
+        resultUploadThumbnail[0].file.status !== "successful"
+      ) {
+        this.showToast("Upload file failed!", "warning");
+        this.setState({
+          isSubmitting: false
+        });
+        this.progressDialog.updateState(false, "Submitting...");
+        return;
+      }
+
+      thumbnailUrl = resultUploadThumbnail[0].file.path;
+
+      this.setState({
+        thumbnail: {
+          ...this.state.thumbnail,
+          file: null,
+          url: resultUploadThumbnail[0].file.path,
+          
+        }
+      });
+    }
+
+    console.log("CATEGORY.........", this.state.category);
 
     this.state.axios
       .connect({
@@ -317,9 +391,10 @@ class Categories extends React.Component {
           this.state.type === "add" ? "create" : "update"
         }`,
         data: {
-          id: this.state.category ? this.state.category.id : -1,
+          id: this.state.id ,
           title: this.state.title.value,
-          alias: Helper.change_alias(this.state.title.value)
+          alias: Helper.change_alias(this.state.title.value),
+          thumbnail: thumbnailUrl,
         }
       })
       .then(rs => {
@@ -328,7 +403,10 @@ class Categories extends React.Component {
         let { data, type, message } = rs.data;
         this.showToast(message, type);
         if (type === "success") {
-          this.state.categories.controlData({ type: this.state.type, category: data });
+          this.state.categories.controlData({
+            type: this.state.type,
+            category: data
+          });
           this.updateForm({ type: "reset" });
         }
       })
@@ -369,6 +447,23 @@ class Categories extends React.Component {
         this.progressDialog.updateState(false, "Deleting...");
       });
   }
+
+  handleThumbnailInput = e => {
+    console.log(e.target.nextSibling.style.height);
+    //e.target.nextSibling.style.height =  `${e.target.nextSibling.children[0].offsetHeight}px`
+
+    let file = e.target.files[0];
+
+    let url = file ? URL.createObjectURL(file) : this.state.thumbnail.default;
+
+    this.setState({
+      thumbnail: {
+        ...this.state.thumbnail,
+        file,
+        url
+      }
+    });
+  };
 
   render() {
     const { classes } = this.props;
@@ -429,7 +524,27 @@ class Categories extends React.Component {
                     ></input>
                   </div>
                 </div>
-                <Box display="flex" alignItems="center">
+
+                <div className="simple-form">
+                  <label>Thumbnail: </label>
+                  <div className="simple-form-input clear-margin">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="thumbnail-upload"
+                      onChange={e => {
+                        this.handleThumbnailInput(e);
+                      }}
+                    ></input>
+                    <BaseWrapperImage
+                      mt={2}
+                      image={this.state.thumbnail.url}
+                      width="100%"
+                    />
+                  </div>
+                </div>
+
+                <Box display="flex" className="mt-8" alignItems="center">
                   <BaseButton
                     color="#3f6ad8"
                     margin="0 4px 0 0"
@@ -545,5 +660,6 @@ const withAdminContext = Element => {
   });
 };
 
-
-export default withStyles(useStyles)(withAdminContext(withSnackbar(Categories)));
+export default withStyles(useStyles)(
+  withAdminContext(withSnackbar(Categories))
+);

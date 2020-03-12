@@ -1,6 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
 
-import Carousel from "../../../common/component/BaseCarousel";
 import { withRouter, Link } from "react-router-dom";
 import { ClientContext } from "./../context/ClientProvider";
 import {
@@ -14,6 +13,7 @@ import {
 import { Skeleton, Rating } from "@material-ui/lab";
 import AwesomeInput from "../../../common/component/AwesomeInput";
 import { compareArray } from "../../../utils/helper";
+import Slider from "react-slick";
 
 const mapStuatusWithColor = {
   available: "#48ce4e",
@@ -21,7 +21,7 @@ const mapStuatusWithColor = {
   unavailable: "#ff0101"
 };
 
-class ProductDetails extends Component {
+class ProductDetails extends React.PureComponent {
   static contextType = ClientContext;
 
   state = {
@@ -33,6 +33,34 @@ class ProductDetails extends Component {
     review: {
       rate: 5,
       message: ""
+    },
+
+    settings: {
+      autoplay: true,
+      autoplaySpeed: 15000,
+      cssEase: "linear",
+      dots: false,
+      arrows: false,
+      slidesToShow: 1,
+      slidesToScroll: 1
+    },
+    navigationSettings: {
+      dots: false,
+      arrows: false,
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      swipeToSlide: true,
+      focusOnSelect: true,
+      variableWidth: true,
+      responsive: [
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3
+          }
+        }
+      ]
     }
   };
 
@@ -54,17 +82,18 @@ class ProductDetails extends Component {
       ..._product.Galleries
     ];
 
-    this.setState({
-      id: _id,
-      product: _product,
-      products,
-      gallery: _gallery
-    }, () => {
-      document.title = `Cake Stores - ${_product.title}`;
-    });
+    this.setState(
+      {
+        id: _id,
+        product: _product,
+        products,
+        gallery: _gallery
+      },
+      () => {
+        document.title = `Cake Stores - ${_product.title}`;
+      }
+    );
   }
-
-
 
   componentDidMount() {
     this.initialize();
@@ -132,21 +161,40 @@ class ProductDetails extends Component {
           </>
         ) : (
           <>
-            <Carousel
-              autoplay={false}
-              nocontrol
-              pagination
-              paginationWithImage={this.state.gallery}
-              className="product-detail-carousel"
+            <Slider
+              className="base-carousel"
+              {...this.state.settings}
+              asNavFor={this.navigationCarousel}
+              ref={slider => (this.mainCarousel = slider)}
             >
               {this.state.gallery.map(it => (
-                <div
-                  className="product-detail-gallery"
-                  key={`#gallery-${it.id}`}
-                  style={{ backgroundImage: `url(${it.url})` }}
-                />
+                <div key={`#gallery-${it.id}`}>
+                  <div
+                    className="product-detail-gallery"
+                    style={{ backgroundImage: `url(${it.url})` }}
+                  />
+                </div>
               ))}
-            </Carousel>
+            </Slider>
+            <Slider
+              {...this.state.navigationSettings}
+              className="base-carousel carousel-product-gallery"
+              asNavFor={this.mainCarousel}
+              ref={slider => (this.navigationCarousel = slider)}
+            >
+              {this.state.gallery.map(it => (
+                <div key={`#-pagination-${it.id}`}>
+                  <div className={`product-detail-gallery-pagination`}>
+                    <div
+                      className={`product-detail-gallery-pagination-image`}
+                      style={{
+                        backgroundImage: `url(${it.url})`
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </Slider>
           </>
         )}
       </>
@@ -158,6 +206,12 @@ class ProductDetails extends Component {
     this.setState({
       amount: value
     });
+  };
+
+  addToCart = () => {
+    const { cart } = this.context;
+
+    cart.control({ product: this.state.product, amount: this.state.amount });
   };
 
   getRightContent() {
@@ -259,7 +313,10 @@ class ProductDetails extends Component {
 
               <div className="add">
                 {" "}
-                <ButtonBase className="btn-card-wrapper btn-add-to-cart-large">
+                <ButtonBase
+                  className="btn-card-wrapper btn-add-to-cart-large"
+                  onClick={this.addToCart}
+                >
                   <div className="btn-card">
                     Add to cart
                     <i className="fas fa-angle-right"></i>
@@ -276,7 +333,7 @@ class ProductDetails extends Component {
   render() {
     return (
       <Box component={Container} pt={4} maxWidth="lg">
-        <Grid container>
+        <Grid container className="product-detail">
           <Box
             component={Grid}
             px={this.props.width === "xs" ? 0 : 3}
@@ -285,7 +342,7 @@ class ProductDetails extends Component {
             item
             xs={12}
             sm={12}
-            md={6}
+            md={5}
           >
             {this.getLeftContent()}
           </Box>
@@ -297,7 +354,7 @@ class ProductDetails extends Component {
             item
             xs={12}
             sm={12}
-            md={6}
+            md={7}
           >
             {this.getRightContent()}
           </Box>

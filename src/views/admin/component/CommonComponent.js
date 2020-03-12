@@ -498,7 +498,7 @@ class CommonComponent extends React.Component {
             </div>
           </PerfectScrollbar>
         </div>
-        <PerfectScrollbar className={classes.mainContent}>
+        <PerfectScrollbar  className={`main-content ${classes.mainContent}`} >
           {this.state.breadcrumbs.length !== 0 && (
             <Breadcrumbs style={{ margin: "14px 0px 2px 8px" }}>
               {this.state.breadcrumbs.map(it =>

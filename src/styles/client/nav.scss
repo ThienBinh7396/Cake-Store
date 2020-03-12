@@ -23,60 +23,60 @@
     background-color: $lightColor;
 
     &::before,
-    &::after{
+    &::after {
       content: "";
       @include mapPositionWithCoordinate(absolute, 3px);
       width: 100%;
     }
-    &::before{
+    &::before {
       height: 0;
       border-top: 1px dashed $blackColor;
     }
-    &::after{
+    &::after {
       height: 17px;
       background: url("/img/bg-header.png") repeat-x;
       top: 90%;
     }
 
     .base-navbar-content {
-      @include getSpacing(py, 3);
+      @include getSpacing(py, 2);
       @include displayFlexWithProperty($ai: center);
       justify-content: space-between;
 
       .header-logo a {
         font-size: 32px;
 
-        & span{
+        & span {
           @include getSpacing(ml, 1, 2);
           color: $primaryColor;
           @include getFontFamily(cursive);
         }
 
-        @include xs{
+        @include xs {
           font-size: 24px;
         }
       }
 
-      .header-menu{
+      .header-menu {
         display: flex;
         justify-content: flex-end;
         @include getFlexWidthGrow(1, true);
 
-        & .main-menu{
-          @include getDimension(100%, 45px);
+        & .main-menu {
+          @include getDimension(100%, 53px);
           padding-right: 32px;
           transform: translateX(0);
           @include getTransition(fast);
 
-          @include xs{
-            transform: translateY(-43px);
+          @include xs {
+            transform: translateY(-51px);
           }
 
-          & .main-menu-content{
+          & .main-menu-content {
             @include getDimension();
             @include displayFlexWithProperty(row, $jc: flex-end, $ai: center);
-         
-            & a{
+
+            & a {
               @include getSpacing(px, 8 0);
               font-weight: 600;
               text-transform: uppercase;
@@ -84,12 +84,104 @@
           }
         }
 
-        & .control-menu{
-          border-left: 1px solid rgb(146, 136, 136);
+        & .control-menu {
+          position: relative;
+          color: $secondaryColor;
           @include getSpacing(px, 8 3.5);
           @include displayFlexWithProperty($ai: center);
+
+          &::before {
+            @include getPseudoOverlayContent(
+              $top: 50%,
+              $width: 1px,
+              $height: 32px
+            );
+            background-color: $greyColor;
+            transform: translateY(-50%);
+          }
+
+          i {
+            cursor: pointer;
+          }
+
+          .cart-header-btn {
+            @include getDimension(36px, 36px, true);
+            color: $lightColor;
+            background-color: $secondaryColor;
+            @include displayFlexWithProperty($ai: center, $jc: center);
+            font-size: 19px;
+            @include getTransition(fast);
+
+            &.open {
+              background-color: $primaryColor;
+            }
+
+            .badge {
+              border: 1px solid $lightColor;
+              top: -6px;
+              left: 20px;
+            }
+          }
         }
       }
+    }
+  }
+}
+.cart-header {
+  @include getFontFamily(sans-serif);
+
+  .MuiPaper-root {
+    width: 300px;
+    margin-top: 12px;
+    border-radius: 5px;
+    @include getElevation(4);
+    z-index: $defaultZIndex;
+
+    ul {
+      padding: 0;
+    }
+
+    .cart-header-content {
+      max-height: 261px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      
+      .wrapper{
+        @include getTransition(fast);
+        
+        .cart-content-row {
+          @extend %cart-content-row;
+        }
+  
+        .empty-cart {
+          padding: 16px 15px 32px;
+          @include displayFlexWithProperty($fd: column, $ai: center, $jc: center);
+          color: #5e6977;
+          font-weight: bold;
+  
+          img {
+            width: 160px;
+            margin-bottom: 20px;
+          }
+        }
+      }
+    }
+
+    .cart-header-total {
+      padding: 15px 15px 12px;
+      border-top: 1px solid #f3f3f3;
+
+      .row {
+        color: #5e6977;
+        @include displayFlexWithProperty($jc: space-between, $ai: center);
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+    }
+
+    .view-cart {
+      height: 52px;
+      border-radius: 0 0 5px 5px;
     }
   }
 }

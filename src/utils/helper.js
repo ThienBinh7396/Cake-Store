@@ -98,10 +98,13 @@ export const compareArray = (arr1, arr2, field) => {
   if (arr1.length === 0 && arr2.length === 0) return true;
   if (arr1.length !== arr2.length) return false;
 
-  return arr1.every((value, index) => {
+  let mainArr = arr1.length > arr2.length ? arr1 : arr2;
+  let compareArr = arr1.length <= arr2.length ? arr1 : arr2;
+
+  return mainArr.every((value, index) => {
     return field
-      ? value[field] === arr2[index][field]
-      : value === arr2[index];
+      ? value[field] === compareArr[index][field]
+      : value === compareArr[index];
   });
 };
 

@@ -1,0 +1,122 @@
+.product-detail {
+  .carousel-product-gallery {
+    @include xs {
+      height: 168px;
+    }
+  }
+
+  .slick-list {
+    overflow-y: hidden;
+
+    .slick-track {
+      min-width: 100%;
+
+      .slick-cloned {
+        opacity: 0;
+      }
+    }
+  }
+
+  .product-detail-gallery {
+    @extend %centerBackgroundImage;
+    min-height: 460px;
+    background-size: auto 100%;
+    @include getTransition(fast);
+
+    @include xs {
+      min-height: 320px;
+    }
+  }
+
+  .product-detail-gallery-pagination {
+    position: relative;
+    width: 130px;
+    padding-bottom: 100%;
+
+    .product-detail-gallery-pagination-image {
+      @include mapPositionWithCoordinate(absolute, 50%, 50%, center, center);
+      @include getDimension(96%, 96%);
+      @extend %centerBackgroundImage;
+      @include getTransition(fast);
+      filter: blur(1.5px) grayscale(10%);
+    }
+  }
+  .slick-current
+    .product-detail-gallery-pagination
+    .product-detail-gallery-pagination-image {
+    filter: blur(0) grayscale(0);
+  }
+
+  .product-details-content {
+    & > div {
+      @include getFontFamily(serif);
+    }
+
+    .title {
+      @extend %h2;
+      text-transform: uppercase;
+    }
+
+    .rate .MuiRating-root {
+      font-size: 1rem;
+    }
+
+    .price {
+      @extend %h3;
+      color: $greyColor;
+      margin-bottom: 18px;
+
+      .origin {
+        text-decoration: line-through;
+        margin-right: 8px;
+      }
+
+      .real {
+        @extend %h2;
+        color: $blackColor;
+      }
+    }
+
+    .des {
+      @extend %h4;
+      line-height: 1.25rem;
+      color: $secondaryColor;
+      margin-bottom: 16px;
+    }
+
+    .amount {
+      width: 210px;
+      margin-bottom: 0;
+
+      & ~ .card-product-action {
+        @include mapPositionWithCoordinate(relative);
+        opacity: 1;
+      }
+    }
+    .button-icon {
+      opacity: 1;
+    }
+
+    .status {
+      @extend %h4;
+      text-transform: uppercase;
+      user-select: none;
+
+      span {
+        margin-left: 6px;
+        text-transform: capitalize;
+      }
+    }
+
+    .add {
+      button {
+        width: 240px;
+        margin-top: 32px;
+      }
+      .btn-card {
+        font-size: 16px;
+        line-height: 32px;
+      }
+    }
+  }
+}

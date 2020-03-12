@@ -72,6 +72,10 @@ button.btn-awesome {
     @include getElevation(3);
   }
 
+  &.block {
+    border-radius: 0;
+  }
+
   &.primary {
     @include mapColorWithBackground(
       $lightColor,
@@ -295,6 +299,44 @@ button.btn-awesome-outline {
           }
         }
       }
+    }
+  }
+}
+
+.badge-root {
+  display: inline-flex;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+
+  .badge {
+    padding: 0 6px;
+    font-size: 0.75rem;
+    min-width: 20px;
+    @include getDimension(auto, 20px, true);
+    @include displayFlexWithProperty($fw: wrap, $ai: center, $jc: center);
+    @include mapPositionWithCoordinate(absolute, 0, 0);
+  }
+}
+
+.alert {
+  @include displayFlexWithProperty($ai: center);
+  width: 100%;
+  padding: 12px 24px;
+
+  .alert-icon {
+    font-size: 18px;
+    margin-right: 14px;
+  }
+
+  .alert-content {
+    @include displayFlexWithProperty($ai: center);
+    width: 0;
+    flex-grow: 1;
+    
+    .alert-title {
+      font-size: 1rem;
+      font-weight: bold;
     }
   }
 }

@@ -1,23 +1,25 @@
 import React from "react";
 import { ClientContext } from "./../context/ClientProvider";
-import { Container, Grid, Chip, Box } from "@material-ui/core";
+import { Container, Grid, Chip, Box, FormControl, Select, MenuItem, Hidden } from "@material-ui/core";
 import BannerHeader from "../partials/BannerHeader";
 import { compareArray } from "../../../utils/helper";
 import { Skeleton, Pagination } from "@material-ui/lab";
 import BaseSpinner from "./../../../common/component/BaseSpinner";
 import BlogListWrapper from "../partials/BlogListWrapper";
 import RecentBlog from "../partials/RecentBlog";
+import { withRouter } from "react-router-dom";
 
 class Blog extends React.PureComponent {
   static contextType = ClientContext;
 
   state = {
     blogTags: null,
-    filter: null
+    filter: null,
+    queryString: null
   };
 
   componentDidMount() {
-    document.title = 'Cake Stores - Blogs';
+    document.title = "Cake Stores - Blogs";
 
     const { blogTags, blog } = this.context;
 
@@ -25,11 +27,17 @@ class Blog extends React.PureComponent {
 
     this.setState(
       {
-        filter: blog.filter
+        filter: blog.filter,
+        queryString: new URLSearchParams(this.props.location.search)
       },
       () => {
+        let tag = this.state.queryString.get("tag");
+        let query = this.state.queryString.get("query");
+
+        console.log("%c tag: " + tag, "color:purple");
+
         if (this.state.filter && !this.state.filter.first) {
-          this.state.filter.updateFilter({});
+          this.state.filter.updateFilter({ tag, query });
         }
       }
     );
@@ -109,12 +117,48 @@ class Blog extends React.PureComponent {
     }
   }
 
+  getStatusBar = () => (
+    <>
+      <div className="filter-status-bar">
+        <div className="filter-status-bar-content filter-status-bar-left">
+          <Hidden smDown>
+            <div>
+              Showing{" "}
+              {this.state.filter
+                ? this.state.filter.page * this.state.filter.pageLength + 1
+                : 0}{" "}
+              -{" "}
+              {this.state.filter
+                ? (this.state.filter.page + 1) * this.state.filter.pageLength >
+                  this.state.filter.max
+                  ? this.state.filter.max
+                  : (this.state.filter.page + 1) * this.state.filter.pageLength
+                : 0}{" "}
+              of {this.state.filter ? this.state.filter.max : 0} results
+            </div>
+          </Hidden>
+        </div>
+        <div className="filter-status-bar-content filter-status-bar-right">
+          <div>Sort by: </div>
+          <FormControl className="sort-form">
+            <Select value={"time"}>
+              <MenuItem value={"time"}>Time</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+      </div>
+    </>
+  );
+
   getLeftContent() {
     return (
       <div className="pr-16-md pr-0">
+        <Box py={2} pt={0}>
+          {this.getStatusBar()}
+        </Box>
         {this.state.filter && (
           <>
-          <div
+            <div
               className="loading-filter left"
               style={{
                 height:
@@ -145,17 +189,16 @@ class Blog extends React.PureComponent {
                   ))}
               </div>
             ) : (
-              
               <div className="mt-21">
-                 <div
-                className={`no-results-filter ${
-                  this.state.filter.data.length === 0 ? "show" : ""
-                }`}
-              >
-                <img src="/img/not-found.jpg" alt="not-found" />
-                <div>Sorry, no result found!</div>
-              </div>
-              
+                <div
+                  className={`no-results-filter ${
+                    this.state.filter.data.length === 0 ? "show" : ""
+                  }`}
+                >
+                  <img src="/img/not-found.jpg" alt="not-found" />
+                  <div>Sorry, no result found!</div>
+                </div>
+
                 {this.state.filter.data.map(it => (
                   <BlogListWrapper
                     className="mb-21"
@@ -197,10 +240,16 @@ class Blog extends React.PureComponent {
   }
 
   handleChangeQuery = e => {
-    if(this.state.filter){
-      this.state.filter.updateFilter({query: e.target.value});
+    if (this.state.filter) {
+      this.state.filter.updateFilter({ query: e.target.value });
     }
-  }
+  };
+
+  handleUpdateTag = tag => {
+    if (this.state.filter) {
+      this.state.filter.updateFilter({ tag });
+    }
+  };
 
   getRightContent() {
     return (
@@ -209,7 +258,16 @@ class Blog extends React.PureComponent {
           <div className="title">Search</div>
           <div className="content">
             <form className="search">
-              <input type="text" placeholder="Type something..." value={this.state.filter && this.state.filter.query ? this.state.filter.query : ""} onChange={this.handleChangeQuery}/>
+              <input
+                type="text"
+                placeholder="Type something..."
+                value={
+                  this.state.filter && this.state.filter.query
+                    ? this.state.filter.query
+                    : ""
+                }
+                onChange={this.handleChangeQuery}
+              />
               <i className="search-icon pe-7s-search"></i>
             </form>
           </div>
@@ -226,20 +284,41 @@ class Blog extends React.PureComponent {
             <div className="tags">
               {!this.state.blogTags ||
               !this.state.blogTags.data ||
-              this.state.blogTags.loading
-                ? Array(4)
-                    .fill(null)
-                    .map((it, index) => (
-                      <Skeleton
-                        className="skeleton"
-                        variant="rect"
-                        height="32px"
-                        key={`#-skeleton-tag-${index}`}
-                      />
-                    ))
-                : this.state.blogTags.data.map(it => (
-                    <Chip label={`#${it.title}`} key={`#tag-${it.id}`} />
+              this.state.blogTags.loading ? (
+                Array(4)
+                  .fill(null)
+                  .map((it, index) => (
+                    <Skeleton
+                      className="skeleton"
+                      variant="rect"
+                      height="32px"
+                      key={`#-skeleton-tag-${index}`}
+                    />
+                  ))
+              ) : (
+                <>
+                  {
+                    <Chip
+                      onClick={e => this.handleUpdateTag("all")}
+                      className={`${
+                        "all" === this.state.filter.tag ? "active" : ""
+                      }`}
+                      label={`#All`}
+                    />
+                  }
+
+                  {this.state.blogTags.data.map(it => (
+                    <Chip
+                      onClick={e => this.handleUpdateTag(it.alias)}
+                      className={`${
+                        it.alias === this.state.filter.tag ? "active" : ""
+                      }`}
+                      label={`#${it.title}`}
+                      key={`#tag-${it.id}`}
+                    />
                   ))}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -273,4 +352,4 @@ class Blog extends React.PureComponent {
   }
 }
 
-export default Blog;
+export default withRouter(Blog);

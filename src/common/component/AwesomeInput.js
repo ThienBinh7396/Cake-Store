@@ -36,6 +36,8 @@ class AwesomeInput extends Component {
           value={this.props.value}
           onKeyDown={this.handleKeyDown}
           onChange={e => this.state.onChange(e.target.value)}
+          min={this.props.min || null}
+
         />
         <div className="btn btn-ascend" onClick={e => this.handleControl(true)}>
           <i className="fas fa-plus" />

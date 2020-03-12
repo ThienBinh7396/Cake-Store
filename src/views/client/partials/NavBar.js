@@ -4,32 +4,94 @@ import BaseIcon from "../../../common/component/BaseIcon";
 import { Link, NavLink } from "react-router-dom";
 import BaseBadge from "./../../../common/component/BaseBadge";
 import { CLIENT_NAV } from "./../../../constant/index";
+import CartHeader from "./CartHeader";
+import { ClientContext } from "./../context/ClientProvider";
 
-class NavBar extends React.PureComponent{
+class NavBar extends React.PureComponent {
+  static contextType = ClientContext;
+
+  constructor(props) {
+    super(props);
+
+    this.controlMenuRef = React.createRef();
+  }
+
   state = {
-    scrolltop: null
-  }
+    cart: null,
+    scrolltop: null,
+    openCart: false
+  };
 
-  componentWillMount(){
+  componentDidMount() {
+    const { cart } = this.context;
+
     const { scrolltop } = this.props;
-    this.setState({scrolltop});
-  }
-  
-  componentDidUpdate(prevProps){
-    const {scrolltop} = this.props;
-    
-    if(this.state.scrolltop !== scrolltop){
-      this.setState({scrolltop});
-    }
-    
+    this.setState({ scrolltop, cart });
   }
 
-  render(){
+  compareCart = (cart1, cart2) => {
+    if (cart1 === null && cart2 === null) {
+      return true;
+    }
+
+    if (cart1 === null || cart2 === null || cart1.length !== cart2.length) {
+      return false;
+    }
+
+    let mainArr = cart1.length > cart2.length ? cart1 : cart2;
+    let compareArr = cart1.length <= cart2.length ? cart1 : cart2;
+
+    return mainArr.every((it, index) => {
+      return (
+        it.product.id === compareArr[index].product.id &&
+        it.amount === compareArr[index].amount
+      );
+    });
+  };
+
+  componentDidUpdate(prevProps) {
+    const { scrolltop } = this.props;
+
+    const { cart } = this.context;
+
+    if (this.state.scrolltop !== scrolltop) {
+      this.setState({ scrolltop });
+    }
+
+    if (
+      cart.data !== null &&
+      (this.state.cart.data === null ||
+        !this.compareCart(this.state.cart.data, cart.data))
+    ) {
+      this.setState({
+        cart: {
+          ...cart,
+          data: cart.data
+        }
+      });
+    }
+  }
+
+  toggleCart = e => {
+    this.setState({
+      openCart: !this.state.openCart
+    });
+  };
+
+  handleClose = e => {
+    this.setState({
+      openCart: false
+    });
+  };
+
+  render() {
     return (
       <section className="nav">
         <div
           key="#subNavHeader"
-          className={`sub-nav ${this.state.scrolltop && this.state.scrolltop > 100 ? "hidden" : ""}`}
+          className={`sub-nav ${
+            this.state.scrolltop && this.state.scrolltop > 100 ? "hidden" : ""
+          }`}
         >
           <Container maxWidth="lg">
             <Grid container>
@@ -70,25 +132,31 @@ class NavBar extends React.PureComponent{
                   <BaseIcon size={20} icon="fas fa-bars"></BaseIcon>
                 </div>
               </div>
-              <div className="control-menu">
+              <div className="control-menu" onClick={this.toggleCart}>
                 <BaseIcon icon="fas fa-search" size={17} margin="0 24px 0 0" />
-                <BaseBadge
-                  badgeContent={4}
-                  max={99}
-                  typecolor="#e47277"
-                  top={"-3px"}
-                  right={"-4px"}
-                >
-                  <img src="/img/icon-cart.png" alt="c" />
-                </BaseBadge>
+                <span ref={this.controlMenuRef}>
+                  <BaseBadge
+                    badgeContent={this.state.cart && this.state.cart.data ? this.state.cart.data.length : 0}
+                    max={9}
+                    typecolor="#e47277"
+                    className={`cart-header-btn ${
+                      this.state.openCart ? "open" : ""
+                    }`}
+                  >
+                    <i className={`pe-7s-cart`} />
+                  </BaseBadge>
+                </span>
+                <CartHeader
+                  anchorEl={this.controlMenuRef}
+                  handleClose={this.handleClose}
+                  open={this.state.openCart}
+                />
               </div>
             </div>
           </Container>
         </div>
       </section>
-    )
-
+    );
   }
- 
 }
 export default NavBar;

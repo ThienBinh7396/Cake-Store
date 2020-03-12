@@ -12,7 +12,8 @@ import {
   ButtonBase,
   Select,
   MenuItem,
-  Container
+  Container,
+  Hidden
 } from "@material-ui/core";
 import BaseRadioButton from "./../../../common/component/BaseRadioButton";
 import { ClientContext } from "./../context/ClientProvider";
@@ -26,6 +27,14 @@ import { compareArray } from "../../../utils/helper";
 
 class Store extends React.PureComponent {
   static contextType = ClientContext;
+
+  constructor(props) {
+    super(props);
+
+    this.valueLabelFormat = this.valueLabelFormat.bind(this);
+    this.handleChangeFilterPrice = this.handleChangeFilterPrice.bind(this);
+  }
+
   state = {
     filter: null,
     categories: null,
@@ -75,7 +84,7 @@ class Store extends React.PureComponent {
     }
   }
 
-  componentDidUpdate(propPrev) {
+  componentDidUpdate() {
     const { products, categories } = this.context;
 
     const { filter } = this.state;
@@ -290,9 +299,9 @@ class Store extends React.PureComponent {
               color={"secondary"}
               aria-labelledby="vertical-slider"
               valueLabelDisplay="auto"
-              valueLabelFormat={this.valueLabelFormat.bind(this)}
-              getAriaValueText={this.valueLabelFormat.bind(this)}
-              onChange={this.handleChangeFilterPrice.bind(this)}
+              valueLabelFormat={this.valueLabelFormat}
+              getAriaValueText={this.valueLabelFormat}
+              onChange={this.handleChangeFilterPrice}
             />
             <label>
               Price: ${this.getRealPrice(this.state.price.value[0])}- $
@@ -328,20 +337,22 @@ class Store extends React.PureComponent {
           <div className="display-style">
             <i className="fas fa-th-large active"></i>
           </div>
-          <div>
-            Showing{" "}
-            {this.state.filter
-              ? this.state.filter.page * this.state.filter.pageLength + 1
-              : 0}{" "}
-            -{" "}
-            {this.state.filter
-              ? (this.state.filter.page + 1) * this.state.filter.pageLength >
-                this.state.filter.max
-                ? this.state.filter.max
-                : (this.state.filter.page + 1) * this.state.filter.pageLength
-              : 0}{" "}
-            of {this.state.filter ? this.state.filter.max : 0} results
-          </div>
+          <Hidden smDown>
+            <div>
+              Showing{" "}
+              {this.state.filter
+                ? this.state.filter.page * this.state.filter.pageLength + 1
+                : 0}{" "}
+              -{" "}
+              {this.state.filter
+                ? (this.state.filter.page + 1) * this.state.filter.pageLength >
+                  this.state.filter.max
+                  ? this.state.filter.max
+                  : (this.state.filter.page + 1) * this.state.filter.pageLength
+                : 0}{" "}
+              of {this.state.filter ? this.state.filter.max : 0} results
+            </div>
+          </Hidden>
         </div>
         <div className="filter-status-bar-content filter-status-bar-right">
           <div>Sort by: </div>
@@ -478,7 +489,7 @@ class Store extends React.PureComponent {
               <Grid
                 item
                 xs={12}
-                sm={4}
+                sm={6}
                 md={4}
                 lg={3}
                 xl={4}
@@ -486,7 +497,7 @@ class Store extends React.PureComponent {
               >
                 {this.getLeftSidebar()}
               </Grid>
-              <Grid item xs={12} sm={8} md={8} lg={9} xl={8} className="px-4">
+              <Grid item xs={12} sm={6} md={8} lg={9} xl={8} className="px-4">
                 {this.getRightSidebar()}
               </Grid>
             </Grid>

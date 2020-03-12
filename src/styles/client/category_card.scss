@@ -1,0 +1,38 @@
+.category-card {
+  position: relative;
+  @include squareDimension(90%, 10px, true);
+  margin: auto;
+  color: $lightColor;
+  text-align: left;
+  cursor: pointer;
+  
+  .card-skeleton{
+    @include mapPositionWithCoordinate(absolute);
+    @include squareDimension(100%, 10px, true);
+
+  }
+
+  .card-content {
+    @include mapPositionWithCoordinate(absolute);
+    @include getDimension(100%, 100%);
+    background: linear-gradient(0deg,transparent,rgba(0,0,0,.4));
+    padding: 16px;
+
+    &:hover .card-image{
+      transform: rotate(20deg) scale(1.2) translate(18%, -2%);
+    }
+    
+    .card-image{
+      @include mapPositionWithCoordinate(absolute, calc(100% - 120px), calc(100% - 120px));
+      @include getDimension(120px, 120px);
+      transform: rotate(25deg) translate(18%,-2%);
+      box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
+      @include getTransition(fast, ease);
+      @extend %centerBackgroundImage;
+    }
+
+    .card-title{
+      @extend %h3;
+    }
+  }
+}

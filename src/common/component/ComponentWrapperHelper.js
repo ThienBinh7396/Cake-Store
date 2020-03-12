@@ -36,6 +36,8 @@ export default class ComponentWrapperHelper extends React.PureComponent {
   }
 
   componentDidMount() {
+    this.handleScrollMainContent();
+
     document
       .getElementById("main-content")
       .addEventListener("scroll", this.handleScrollMainContent);

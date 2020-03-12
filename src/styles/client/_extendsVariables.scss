@@ -10,45 +10,43 @@
   left: 0;
 }
 
-%centerBackgroundImage{
+%centerBackgroundImage {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
 }
 
-
-%h2{
+%h2 {
   font-size: 32px;
   @include getTransition(fast);
-  
-  @include xs{
-    font-size: 27px;
-  }
 
+  @include xs {
+    font-size: 25px;
+  }
 }
 
-%h3{
-  font-size: 22px;
+%h3 {
+  font-size: 27px;
   @include getTransition(fast);
 
-  @include xs{
-    font-size: 16px;
+  @include xs {
+    font-size: 22px;
   }
 }
 
-%h4{
-  font-size: 16px;
+%h4 {
+  font-size: 18px;
   @include getTransition(fast);
 
-  @include xs{
-    font-size: 12px;
+  @include xs {
+    font-size: 14px;
   }
 }
-%h5{
+%h5 {
   font-size: 14px;
   @include getTransition(fast);
 
-  @include xs{
+  @include xs {
     font-size: 12px;
   }
 }
@@ -63,16 +61,102 @@
   @include getSpacing(mr, 1);
 }
 
-%chipOutline{
+%chipOutline {
   cursor: pointer;
   @extend %tag-spacing;
-  @include oulineStyle(
-    darken($greyColor, 20%),
-    lighten($blurColor, 10%)
-  );
+  @include outlineStyle(darken($greyColor, 20%), lighten($blurColor, 10%));
   @include getTransition(fast);
 
+  &.active,
   &:hover {
-    @include oulineStyle($primaryColor, lighten($primaryColor, 5%));
+    @include outlineStyle($primaryColor, lighten($primaryColor, 5%));
   }
 }
+
+%text-truncate {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+%clearfix {
+  &::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+}
+
+%cart-content-row {
+  position: relative;
+  @include displayFlexWithProperty($fw: nowrap);
+  padding: 15px 15px 20px;
+  color: #666666;
+  font-size: 13px;
+
+  .image {
+    @include squareDimension(60px);
+    @extend %centerBackgroundImage;
+  }
+
+  .content {
+    flex-grow: 1;
+    width: 0;
+    padding: 8px 8px 0;
+
+    .title {
+      margin-bottom: 6px;
+      padding-right: 26px;
+      @include getFontFamily(serif);
+      @include getLinkCSS();
+      @extend %text-truncate;
+    }
+    .info {
+      @include displayFlexWithProperty($jc: space-between);
+    }
+  }
+  .remove {
+    @include mapPositionWithCoordinate(absolute, 15px, calc(100% - 36px));
+    line-height: 12px;
+    background-color: #c2c2c2;
+    color: $lightColor;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+
+    @include getTransition(fast);
+
+    &:hover {
+      background-color: $blackColor;
+    }
+  }
+
+  .price{
+    color: $primaryColor;
+  }
+
+  &::after,
+  &::before {
+    @include getPseudoOverlayContent(
+      absolute,
+      calc(100% - 2px),
+      0,
+      100%,
+      1.5px
+    );
+    background-color: $primaryColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    @include getTransition(fast);
+  }
+
+  &:not(:last-child):after {
+    background-color: #f3f3f3;
+    transform: scaleX(0.95);
+  }
+  &:hover::before {
+    transform: scaleX(0.95);
+    z-index: 2;
+  }
+}
+

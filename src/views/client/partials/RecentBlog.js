@@ -1,7 +1,7 @@
 import React from "react";
 import { ClientContext } from "./../context/ClientProvider";
 import { compareArray } from "../../../utils/helper";
-import { Box, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import BlogListWrapper from "./BlogListWrapper";
 

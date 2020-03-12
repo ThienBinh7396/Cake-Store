@@ -115,7 +115,7 @@
   $index: 1;
 
   @each $_type in map-get(map-get($switchSpacing, $type), type) {
-    #{$_type}: nth($_val, $index) !important;
+    #{$_type}: nth($_val, $index);
     $index: $index + 1;
   }
 }
@@ -154,10 +154,27 @@
 
 // GET POSITION WRAPPER
 
-@mixin mapPositionWithCoordinate($position, $top: 0, $left: 0) {
+@mixin mapPositionWithCoordinate(
+  $position,
+  $top: 0,
+  $left: 0,
+  $centerX: false,
+  $centerY: false
+) {
   position: $position;
   top: $top;
   left: $left;
+
+  $transform: '';
+
+  @if $centerX {
+    $transform: append($transform, 'translateX(-50%)')
+  }
+  @if $centerY {
+    $transform: append($transform, 'translateY(-50%)')
+  }
+
+  transform: if($transform != '', #{$transform}, none);
 }
 
 @each $pos in $positions {
@@ -185,7 +202,7 @@
   font-weight: $fw;
 }
 
-@mixin oulineStyle(
+@mixin outlineStyle(
   $color,
   $border-color,
   $border-size: 1px,
@@ -216,7 +233,7 @@
   }
 }
 
-@mixin higherFlexGrow($grow: 1){
+@mixin higherFlexGrow($grow: 1) {
   width: 0;
   flex-grow: $grow;
 }
@@ -226,7 +243,7 @@
   $fw: nowrap,
   $jc: flex-start,
   $ai: stretch
-) {
+  ) {
   display: flex;
   flex-direction: $fd;
   flex-wrap: $fw;
@@ -258,7 +275,8 @@
   $width: 100%,
   $height: 100%,
   $round: false,
-  $overflow-hidden: false
+  $overflow-hidden: false,
+  $border-radius: 0
 ) {
   width: $width;
   height: $height;
@@ -268,6 +286,17 @@
 
   @if $round {
     border-radius: $height;
+  } @else {
+    border-radius: $border-radius;
+  }
+}
+
+@mixin squareDimension($width, $border-radius: 0, $overflow-hidden: false) {
+  width: $width;
+  padding-bottom: $width;
+  border-radius: $border-radius;
+  @if $overflow-hidden{
+    overflow: hidden;
   }
 }
 
@@ -318,12 +347,12 @@
   $zIndex: 0
 ) {
   content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  position: $position;
+  top: $top;
+  left: $left;
+  width: $width;
+  height: $height;
+  z-index: $zIndex;
 }
 
 // Pseudo CSS

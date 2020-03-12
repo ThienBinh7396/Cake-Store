@@ -9,8 +9,10 @@ import "../../../styles/client.css";
 import Home from "../pages/Home";
 import Store from "../pages/Store";
 import Blog from "../pages/Blog";
+import Contact from "../pages/Contact";
 import ProductDetails from "../pages/ProductDetails";
-import BlogDetails from './../pages/BlogDetails';
+import BlogDetails from "./../pages/BlogDetails";
+import Cart from "./../pages/Cart";
 
 function RouterView(props) {
   useEffect(() => {
@@ -35,11 +37,17 @@ function SwitchPage({ location }) {
       <Route exact path="/blog">
         <Blog />
       </Route>
+      <Route exact path="/contact">
+        <Contact xxx={1} />
+      </Route>
       <Route exact path="/blog/:title/:id">
         <BlogDetails />
       </Route>
       <Route exact path="/store">
         <Store />
+      </Route>
+      <Route exact path="/cart">
+        <Cart />
       </Route>
       <Route exact path="/product/:id">
         <ProductDetails />

@@ -517,6 +517,7 @@ class BaseCarousel extends Component {
             <div
               className="base-carousel"
               style={{
+                overflow: 'visible',
                 paddingBottom: "24px",
                 transitionDuration: `${this.state.transition}ms`,
                 transform: `translateX(-${(this.itemWidth /

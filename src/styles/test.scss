@@ -1,0 +1,23 @@
+.x {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 100px;
+  height: 100px;
+  
+  margin: 10px;
+  padding: 10px;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.4;
+  font-family: sans-serif;
+  text-align: right;
+  color: #fff;
+  background-color: #000;
+  border: 10px solid #333;
+  cursor: pointer;
+  /* Other */
+}

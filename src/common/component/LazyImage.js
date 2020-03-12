@@ -19,6 +19,7 @@ export default class LazyImage extends React.Component {
     super(props);
 
     this.state = {
+      containerTarget: null,
       loaded: false,
       src: null,
       placeHolder: null,
@@ -36,27 +37,43 @@ export default class LazyImage extends React.Component {
     this.setState(
       {
         src: this.props.src,
-        placeHolder: this.props.placeHolder || '/img/placeholder.png',
+        placeHolder: this.props.placeHolder || "/img/placeholder.png",
         effect: this.props.effect || "opacity",
         alt: this.props.alt || "Image alt",
         keepRatio: this.props.keepRatio || false,
         width: this.props.width || "100%",
-        height: this.props.height || "100%"
+        height: this.props.height || "auto",
+        containerTarget:
+          this.props.containertarget || document.getElementById("main-content")
       },
       () => {
-        this.handleScroll();
+        this.initHandleScroll();
       }
     );
+  }
 
-    document
-      .getElementById("main-content")
-      .addEventListener("scroll", this.handleScroll);
+  componentDidUpdate() {
+    if (this.state.src !== this.props.src) {
+      this.setState(
+        {
+          src: this.props.src,
+          loaded: false,
+        },
+        () => {
+          this.initHandleScroll();
+        }
+      );
+    }
   }
 
   componentWillUnmount() {
-    document
-      .getElementById("main-content")
-      .removeEventListener("scroll", this.handleScroll);
+    this.state.containerTarget.removeEventListener("scroll", this.handleScroll);
+  }
+
+  initHandleScroll() {
+    this.handleScroll();
+
+    this.state.containerTarget.addEventListener("scroll", this.handleScroll);
   }
 
   handleScroll() {
@@ -81,9 +98,10 @@ export default class LazyImage extends React.Component {
         }
       };
 
-      document
-      .getElementById("main-content")
-      .removeEventListener("scroll", this.handleScroll);
+      this.state.containerTarget.removeEventListener(
+        "scroll",
+        this.handleScroll
+      );
     }
   }
 

@@ -4,31 +4,25 @@ import { Container, Box, Grid, ButtonBase } from "@material-ui/core";
 import SectionWrapper from "../partials/SectionWrapper";
 import { Skeleton } from "@material-ui/lab";
 import { ClientContext } from "./../context/ClientProvider";
-import BaseCarousel from "../../../common/component/BaseCarousel";
-import ProductCard from "./../partials/ProductCard";
-import FeedbackCard from "../partials/FeedbackCard";
 import BlogCard from "../partials/BlogCard";
 import WrapperSubProductSection from "./../partials/WrapperSubProductSection";
-import ComponentWrapperHelper from "../../../common/component/ComponentWrapperHelper";
+import CategorySection from "../partials/CategorySection";
+import NewProductSection from "../partials/NewProductSection";
+import FeedbackSection from './FeedbackSection';
 
 export default function Home(props) {
   const [products, setProducts] = useState(null);
-  const [feedback, setFeedback] = useState(null);
   const [blog, setBlog] = useState(null);
 
   const clientContext = useContext(ClientContext);
 
   useEffect(() => {
-    document.title = 'Cake Stores - Home';
-  }, [])
+    document.title = "Cake Stores - Home";
+  }, []);
 
   useEffect(() => {
     setProducts(clientContext.products);
   }, [clientContext.products]);
-
-  useEffect(() => {
-    setFeedback(clientContext.feedback);
-  }, [clientContext.feedback]);
 
   useEffect(() => {
     setBlog(clientContext.blog);
@@ -40,18 +34,6 @@ export default function Home(props) {
       console.log("Home un mount");
     };
   }, []);
-
-  const productCarouselBreakpoint = {
-    md: {
-      itemToShow: 3
-    },
-    sm: {
-      itemToShow: 2
-    },
-    xs: {
-      itemToShow: 1
-    }
-  };
 
   const BodyIntro = (
     <div className="body-intro">
@@ -93,112 +75,7 @@ export default function Home(props) {
     </div>
   );
 
-  const NewProductSection = (
-    <SectionWrapper
-      title={"New Products"}
-      titleDes={"Sweet Cakes"}
-      style={{ minHeight: "280px" }}
-    >
-      <BaseCarousel
-        className="product-carousel"
-        itemToShow={4}
-        itemToSlide={4}
-        autoplay={true}
-        playspeed={7000}
-        pagination
-        nocontrol
-        breakPoints={productCarouselBreakpoint}
-        style={{ marginTop: "16px" }}
-      >
-        {!products ||
-        !products.newProducts ||
-        products.newProducts.loading ||
-        !products.newProducts.data
-          ? [1, 2, 3, 4].map((it, index) => (
-              <Box
-                py={2}
-                px={1}
-                width={"100%"}
-                key={`#skeleton-section-product-${index}`}
-              >
-                <Skeleton variant="rect" animation="wave" height={282} />
-                <Skeleton
-                  animation="wave"
-                  width="60%"
-                  style={{ marginTop: "8px" }}
-                />
-                <Skeleton variant="rect" animation="wave" height={18} />
-              </Box>
-            ))
-          : products.newProducts.data.map((it, index) => {
-              return <ProductCard id={it.id} key={`#product-${it.id}`} />;
-            })}
-      </BaseCarousel>
-    </SectionWrapper>
-  );
-
-  const FeedbackSection = (
-    <ComponentWrapperHelper>
-      <section>
-        <div
-          className={
-            !feedback || feedback.loading || !feedback.data
-              ? ""
-              : "feedback-section"
-          }
-          mt={4}
-        >
-          <BaseCarousel
-            nocontrol
-            pagination
-            playspeed="7000"
-            autoplay={false}
-            className="base-carousel-feedback"
-          >
-            {!feedback || feedback.loading || !feedback.data
-              ? [1, 2].map(it => (
-                  <div
-                    key={`#skeleton-section-product-${it}`}
-                    className="skeletonFeedback"
-                  >
-                    <Skeleton variant="rect" animation="wave" height={520} />
-                    <Box className="skeletonFeedbackContent">
-                      <Skeleton
-                        variant="circle"
-                        width={102}
-                        height={102}
-                        animation="wave"
-                        className="skeletonFeedbackItem avatar"
-                      />
-                      <Skeleton
-                        animation="wave"
-                        width={80}
-                        style={{ marginTop: "8px" }}
-                        className="skeletonFeedbackItem"
-                      />
-                      <Skeleton
-                        animation="wave"
-                        width={260}
-                        className="skeletonFeedbackItem title"
-                      />
-                      <Skeleton
-                        variant="rect"
-                        animation="wave"
-                        height={160}
-                        style={{ marginTop: "24px" }}
-                        className="skeletonFeedbackItem"
-                      />
-                    </Box>
-                  </div>
-                ))
-              : feedback.data.map(it => (
-                  <FeedbackCard key={`#feedback-section-${it.id}`} id={it.id} />
-                ))}
-          </BaseCarousel>
-        </div>
-      </section>
-    </ComponentWrapperHelper>
-  );
+  
 
   const BlogSection = (
     <SectionWrapper
@@ -335,11 +212,12 @@ export default function Home(props) {
       <Container maxWidth="lg">
         <div className="body-content">
           {BodyIntro}
-          {NewProductSection}
+          <CategorySection />
+          <NewProductSection />
         </div>
       </Container>
 
-      {FeedbackSection}
+      <FeedbackSection />
       <Container maxWidth="lg">
         {products ? (
           <Grid container>
