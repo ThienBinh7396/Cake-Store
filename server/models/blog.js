@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "blog_id",
       ortherKey: "tag_id"
     });
+
+    Blog.hasMany(models.BlogComment, {
+      foreignKey: 'blog_id'
+    })
   };
   return Blog;
 };

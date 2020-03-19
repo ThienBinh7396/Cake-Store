@@ -46,5 +46,20 @@ export const MATERIAL_COLOR = [
   "#535353",
   "#f037a5",
   "#ffc864",
-  "#ff6437"
+  "#ff6437",
+  "#7950F2"
 ];
+
+
+export const REVIEW_LABELS = {
+  0.5: 'Useless',
+  1: 'Useless+',
+  1.5: 'Poor',
+  2: 'Poor+',
+  2.5: 'Ok',
+  3: 'Ok+',
+  3.5: 'Good',
+  4: 'Good+',
+  4.5: 'Excellent',
+  5: 'Excellent+',
+};

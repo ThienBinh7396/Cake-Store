@@ -255,7 +255,7 @@ class Categories extends React.Component {
                     src={it[_column.field]}
                     width={"62px"}
                     height={"auto"}
-                    containertarget={document.querySelector(".main-content")}
+                    containertarget={".main-content"}
                   />
                 </StyledTableCell>
               );

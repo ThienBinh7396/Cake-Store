@@ -1,7 +1,8 @@
 const helper = require("../helper/helper");
 const model = require("../models");
 
-const { Blog, BlogTags, MapBlogTag, Customer } = model;
+const { Blog, BlogTags, BlogComment, MapBlogTag, Customer } = model;
+const CustomerController = require("./CustomerController");
 
 const sequelize = require("sequelize");
 
@@ -39,6 +40,14 @@ class BlogController {
           {
             model: Customer,
             required: false
+          },
+          {
+            model: BlogComment,
+            required: false,
+            include: {
+              model: Customer,
+              required: false
+            }
           }
         ],
         offset: offset || 0,
@@ -218,6 +227,14 @@ class BlogController {
           {
             model: Customer,
             required: false
+          },
+          {
+            model: BlogComment,
+            required: false,
+            include: {
+              model: Customer,
+              required: false
+            }
           }
         ]
       })
@@ -426,6 +443,90 @@ class BlogController {
       .catch(err => {
         res.send(helper.getStatus("error", "Delete blog failed!"));
       });
+  }
+
+  async _helperFindOne(commentId) {
+    return new Promise(res => {
+      BlogComment.findOne({
+        where: {
+          id: commentId
+        },
+        include: {
+          model: Customer
+        }
+      })
+        .then(_comment => {
+          res(_comment);
+        })
+        .catch(err => {
+          console.log("Helper find one comment faild: ", err);
+
+          res(null);
+        });
+    });
+  }
+
+  async createComment(req, res) {
+    let providerAttributes = helper.checkPostProviderAttributes(req, res, [
+      "blogId",
+      "email",
+      "content",
+      "signIn"
+    ]);
+
+    if (!providerAttributes) return;
+
+    const { blogId, email, content, signIn } = providerAttributes;
+
+    console.log({ blogId, email, content, signIn });
+
+    let _createNewCustomer = false;
+
+    if (!signIn) {
+      let check = await CustomerController._helperGetCustomer({ email });
+
+      if (check) {
+        if (check.anonymous !== 1) {
+          res.send(
+            helper.getStatus(
+              "warning",
+              `<strong>${email}</strong> has been taken! <br>You can login or choose orther.`
+            )
+          );
+          return;
+        }
+      } else {
+        _createNewCustomer = true;
+      }
+    }
+
+    let _customer = !_createNewCustomer
+      ? await CustomerController._helperGetCustomer({ email })
+      : await CustomerController._helperCreateAnonymousCustomer(email);
+
+    if (!_customer) {
+      res.send(helper.getStatus("error", "Something went wrong. Try again!"));
+      return;
+    } else {
+      BlogComment.create({
+        blog_id: blogId,
+        customer_info: _customer.id,
+        content
+      })
+        .then(async _comment => {
+          res.send(
+            helper.getStatus(
+              "success",
+              "Thank you for giving us a comment!",
+              await this._helperFindOne(_comment.toJSON().id)
+            )
+          );
+        })
+        .catch(err => {
+          res.send(helper.getStatus("error", "Send review failed!"));
+        });
+    }
+
   }
 }
 module.exports = new BlogController();

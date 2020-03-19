@@ -1,0 +1,50 @@
+.wrapper-loading-component{
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+
+  .overlay{
+    opacity: 0;
+    @include displayFlexWithProperty($ai: center, $jc: center);
+    display: none;
+    z-index: $defaultZIndex;
+    
+    &.show{
+      display: flex;
+      opacity: 1;
+      background-color: rgba($color: #f1f4f6, $alpha: 0.75);
+    }
+  }
+}
+
+@keyframes line-scale {
+  0% {
+    transform: scaley(1);
+  }
+  50% {
+    transform: scaley(0.4);
+  }
+  100% {
+    transform: scaley(1);
+  }
+}
+
+.line-scale {
+  & > div {
+    background-color: #545CD8;
+    @include getDimension(6px, 46px, false, true, 3px);
+    margin: 2px;
+    animation-fill-mode: both;
+    display: inline-block;
+  }
+
+  @for $index from 1 through 5 {
+    & > div:nth-child(#{$index}) {
+      animation: line-scale
+        1s
+        #{$index / 10 - 0.5}s
+        infinite
+        cubic-bezier(0.2, 0.68, 0.18, 1.08);
+    }
+  }
+}

@@ -24,7 +24,7 @@ class Helper {
 
     let check = true;
     params.forEach(it => {
-      if (body[it] === undefined || body[it] === null) {
+      if (body[it] === undefined) {
         res.send(this.getStatus("error", `${it} param isn't provided`));
         check = false;
       }

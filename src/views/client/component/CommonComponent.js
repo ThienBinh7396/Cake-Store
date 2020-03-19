@@ -45,7 +45,7 @@ class CommonComponent extends Component {
     };
     const checkPrev = this.state.scrollTop >= 100;
     const checkCurrent = e.target.scrollTop >= 100;
-    if ( checkPrev !== checkCurrent) {
+    if (checkPrev !== checkCurrent) {
       console.log("Update scroll", event.scrollTop);
       this.setState({
         scrollTop: event.scrollTop
@@ -69,7 +69,9 @@ class CommonComponent extends Component {
       }
     };
 
-    const { products, feedback, blog } = this.context;
+    const { products, feedback, blog, client } = this.context;
+
+    client.checkAndUpdateAnonymous();
 
     if (products.newProducts.data === null) {
       products.newProducts.fetchData();
@@ -95,6 +97,7 @@ class CommonComponent extends Component {
 
   componentDidUpdate(prevProps) {
     const { toast } = this.context;
+
     if (toast.data !== this.state.toast) {
       this.setState(
         {
@@ -141,7 +144,7 @@ class CommonComponent extends Component {
             browser window.
           </BaseDialog>
           <NavBar scrolltop={this.state.scrollTop} />
-          <Box >{this.props.children}</Box>
+          <Box>{this.props.children}</Box>
           <Footer />
         </div>
       </div>

@@ -8,7 +8,8 @@ import BlogCard from "../partials/BlogCard";
 import WrapperSubProductSection from "./../partials/WrapperSubProductSection";
 import CategorySection from "../partials/CategorySection";
 import NewProductSection from "../partials/NewProductSection";
-import FeedbackSection from './FeedbackSection';
+import FeedbackSection from "./FeedbackSection";
+import GiveFeedbackSection from "../partials/GiveFeedbackSection";
 
 export default function Home(props) {
   const [products, setProducts] = useState(null);
@@ -74,8 +75,6 @@ export default function Home(props) {
       </Grid>
     </div>
   );
-
-  
 
   const BlogSection = (
     <SectionWrapper
@@ -167,48 +166,9 @@ export default function Home(props) {
     </SectionWrapper>
   );
 
-  const GiveFeedbackSection = (
-    <section>
-      <Container maxWidth="lg">
-        <Grid container>
-          <Grid item xs={12} sm={8} md={6}>
-            <form className="client-feedback-form">
-              <div className="client-form-title">Send Feedback</div>
-              <div className="client-form-control">
-                <label className="required">Name</label>
-                <div className="client-form-control-wrapper">
-                  <input type="text" />
-                  <div className="client-form-control-line" />
-                </div>
-              </div>
-              <div className="client-form-control">
-                <label className="required">Email</label>
-                <div className="client-form-control-wrapper">
-                  <input type="text" />
-                  <div className="client-form-control-line" />
-                </div>
-              </div>
-              <div className="client-form-control">
-                <label className="required">Your Message</label>
-                <div className="textarea" contentEditable="" />
-              </div>
-
-              <ButtonBase className="btn-card-wrapper">
-                <div className="btn-card">
-                  Send To Us
-                  <i className="fas fa-paper-plane"></i>
-                </div>
-              </ButtonBase>
-            </form>
-          </Grid>
-        </Grid>
-      </Container>
-    </section>
-  );
-
   return (
     <div>
-      <BannerHeader type="carousel"></BannerHeader>
+      <BannerHeader type="carousel" />
       <Container maxWidth="lg">
         <div className="body-content">
           {BodyIntro}
@@ -252,7 +212,7 @@ export default function Home(props) {
         )}
       </Container>
       {BlogSection}
-      {GiveFeedbackSection}
+      <GiveFeedbackSection  />
     </div>
   );
 }

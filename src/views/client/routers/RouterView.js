@@ -3,7 +3,7 @@ import ClientProvider from "../context/ClientProvider";
 import CommonComponent from "../component/CommonComponent";
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 
-import "../../../styles/client/index.scss";
+import "../../../styles/scss/index.scss";
 import "../../../styles/client.css";
 
 import Home from "../pages/Home";
@@ -13,6 +13,7 @@ import Contact from "../pages/Contact";
 import ProductDetails from "../pages/ProductDetails";
 import BlogDetails from "./../pages/BlogDetails";
 import Cart from "./../pages/Cart";
+import Checkout from "../pages/Checkout";
 
 function RouterView(props) {
   useEffect(() => {
@@ -48,6 +49,9 @@ function SwitchPage({ location }) {
       </Route>
       <Route exact path="/cart">
         <Cart />
+      </Route>
+      <Route exact path="/checkout">
+        <Checkout />
       </Route>
       <Route exact path="/product/:id">
         <ProductDetails />

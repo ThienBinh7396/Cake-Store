@@ -6,6 +6,11 @@ import { withRouter } from "react-router-dom";
 import RcQueueAnim from "rc-queue-anim";
 import PerfectScrollbar from "@opuscapita/react-perfect-scrollbar";
 
+import LayoutNotificationCartAction from "../partials/LayoutNotificationCartAction";
+import { withSnackbar } from "notistack";
+
+import {stopPropagationEvent} from "../../../utils/helper"
+
 class CartHeader extends React.PureComponent {
   static contextType = ClientContext;
 
@@ -31,6 +36,27 @@ class CartHeader extends React.PureComponent {
       }
     );
   }
+
+  showToast = ({ product, amount }) => {
+    this.props.enqueueSnackbar("Product is removed", {
+      variant: "default",
+      anchorOrigin: {
+        vertical: "top",
+        horizontal: "left"
+      },
+      content: (key, message) => {
+        console.log("key : ", key);
+        return (
+          <LayoutNotificationCartAction
+            id={key}
+            message={message}
+            product={product}
+            amount={amount}
+          />
+        );
+      }
+    });
+  };
 
   compareCart = (cart1, cart2) => {
     if (cart1 === null && cart2 === null) {
@@ -100,11 +126,13 @@ class CartHeader extends React.PureComponent {
     this.props.history.push(`/product/${product.id}`);
   };
 
-  removeProduct = (e, product) => {
-    e.stopPropagation();
+  removeProduct = (e, product, amount) => {
+    stopPropagationEvent(e);
 
     if (this.state.cart !== null) {
-      this.state.cart.remove({ product });
+      this.state.cart.remove({ product }, () => {
+        this.showToast({ product, amount });
+      });
     }
   };
 
@@ -137,15 +165,14 @@ class CartHeader extends React.PureComponent {
             </div>
           </div>
         </div>
-        <div className="remove" onClick={e => this.removeProduct(e, product)}>
+        <div
+          className="remove"
+          onClick={e => this.removeProduct(e, product, amount)}
+        >
           <i className="pe-7s-close" />
         </div>
       </div>
     );
-  };
-
-  stopPropagationScrollEvent = e => {
-    e.stopPropagation();
   };
 
   toCart = () => {
@@ -175,6 +202,7 @@ class CartHeader extends React.PureComponent {
           <PerfectScrollbar
             className="cart-header-content"
             style={{ height: this.state.height }}
+            onScroll={stopPropagationEvent}
           >
             <div
               className="wrapper"
@@ -241,4 +269,4 @@ CartHeader.propTypes = {
   handleClose: PropTypes.func.isRequired
 };
 
-export default withRouter(CartHeader);
+export default withRouter(withSnackbar(CartHeader));

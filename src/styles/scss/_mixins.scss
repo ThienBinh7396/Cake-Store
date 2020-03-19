@@ -1,3 +1,17 @@
+@function remove($list, $value, $recursive: false) {
+  $result: ();
+
+  @for $i from 1 through length($list) {
+    @if type-of(nth($list, $i)) == list and $recursive {
+      $result: append($result, remove(nth($list, $i), $value, $recursive));
+    } @else if nth($list, $i) != $value {
+      $result: append($result, nth($list, $i));
+    }
+  }
+
+  @return $result;
+}
+
 @mixin xs {
   @media (max-width: $sm - 1px) {
     @content;
@@ -165,16 +179,16 @@
   top: $top;
   left: $left;
 
-  $transform: '';
+  $transform: "";
 
   @if $centerX {
-    $transform: append($transform, 'translateX(-50%)')
+    $transform: append($transform, "translateX(-50%)");
   }
   @if $centerY {
-    $transform: append($transform, 'translateY(-50%)')
+    $transform: append($transform, "translateY(-50%)");
   }
 
-  transform: if($transform != '', #{$transform}, none);
+  transform: if($transform != "", #{$transform}, none);
 }
 
 @each $pos in $positions {
@@ -243,7 +257,7 @@
   $fw: nowrap,
   $jc: flex-start,
   $ai: stretch
-  ) {
+) {
   display: flex;
   flex-direction: $fd;
   flex-wrap: $fw;
@@ -295,7 +309,7 @@
   width: $width;
   padding-bottom: $width;
   border-radius: $border-radius;
-  @if $overflow-hidden{
+  @if $overflow-hidden {
     overflow: hidden;
   }
 }
@@ -308,7 +322,7 @@
   color: $defaultColor;
   text-decoration: none;
   transform: scale(1);
-  @include getTransition(fast);
+  @extend %fastTransition;
 
   &.active,
   &:hover {
@@ -316,11 +330,21 @@
   }
   &:active {
     transform: scale(0.98);
-    @include getTransition(faster);
+    @extend %fasterTransition;
   }
 }
 
 // LINK CSS
+
+// Zindex CSS
+
+@each $key, $value in $zIndexs {
+  .z-index-#{$key} {
+    z-index: $value;
+  }
+}
+
+// Zindex CSS
 
 // ELEVATION CSS
 
@@ -356,3 +380,84 @@
 }
 
 // Pseudo CSS
+
+// Draw shape
+
+// Triangle
+
+// top right bottom left;
+
+@mixin getTriangle($color, $direction, $width1, $width2, $width3) {
+  $border-direction: top, right, bottom, left;
+
+  $indexInList: index($border-direction, $direction);
+
+  $main-direaction: if(
+    $indexInList % 2 == 0,
+    nth($border-direction, 6 - $indexInList),
+    nth($border-direction, 4 - $indexInList)
+  );
+
+  $first: false;
+
+  @each $value in remove($border-direction, $direction) {
+    @if $value == $main-direaction {
+      border-#{$value}: #{$width1} solid #{$color};
+    } @else {
+      border-#{$value}: #{if($first, $width3, $width2)} solid transparent;
+
+      $first: true;
+    }
+  }
+}
+
+//
+
+// Table
+@mixin th-table {
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  @include getFontFamily(serif);
+}
+
+@mixin style-table-small-screen {
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    padding-right: 12px;
+    padding-left: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  td {
+    width: 100% !important;
+    position: relative;
+    padding-left: 35% !important;
+    text-align: right;
+    border: none;
+
+    &:before {
+      content: attr(data-title);
+      width: 35%;
+      text-align: left;
+      @include mapPositionWithCoordinate(absolute, 50%, 6px, false, true);
+
+      @include th-table;
+    }
+  }
+}
+
+// Table

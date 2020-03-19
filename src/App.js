@@ -44,7 +44,7 @@ function App() {
         <SnackbarProvider
           maxSnack={3}
           ref={notistackRef}
-          autoHideDuration={5000}
+          autoHideDuration={50012210}
           action={(key) => <IconButton component="span" size="small" onClick={onClickDismiss(key)}>
             <BaseIcon icon="fas fa-times" style={{ color: '#fff', marginRight: '6px' }}></BaseIcon>
           </IconButton>}

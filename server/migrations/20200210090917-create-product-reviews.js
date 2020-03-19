@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ProductReviews', {
+    return queryInterface.createTable("ProductReviews", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,12 +11,23 @@ module.exports = {
       product_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Products',
-          key: 'id'
+          model: "Products",
+          key: "id"
         }
       },
       customer_info: {
-        type: Sequelize.JSONB
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Customers",
+          key: "id"
+        }
+      },
+      parent_id: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+      rate: {
+        type: Sequelize.FLOAT
       },
       content: {
         type: Sequelize.TEXT
@@ -32,6 +43,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ProductReviews');
+    return queryInterface.dropTable("ProductReviews");
   }
 };

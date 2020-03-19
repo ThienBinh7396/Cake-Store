@@ -7,6 +7,7 @@ import RecentBlog from "../partials/RecentBlog";
 import { Skeleton } from "@material-ui/lab";
 import BlogListWrapper from "./../partials/BlogListWrapper";
 import { compareArray } from "../../../utils/helper";
+import ListBlogComment from "../partials/ListBlogComment";
 
 class BlogDetails extends React.PureComponent {
   static contextType = ClientContext;
@@ -106,6 +107,9 @@ class BlogDetails extends React.PureComponent {
       (this.state.blog.data === null ||
         !compareArray(blog.data, this.state.blog.data, "id"))
     ) {
+      console.log("%cBlog context update", "color:red");
+      console.log("%cBlog context update", this.state.blog);
+
       this.setState(
         {
           blog: {
@@ -130,6 +134,14 @@ class BlogDetails extends React.PureComponent {
           this.initializeBlogContent();
         }
       );
+    }
+
+    const _blog = (blog.data || []).find(it => it.data === id);
+
+    if(_blog && this.state.blogDetail && !compareArray(_blog.BlogComments, this.state.blogDetail.BlogComments, 'id')){
+      this.setState({
+        blogDetail: _blog
+      })
     }
   }
 
@@ -194,9 +206,14 @@ class BlogDetails extends React.PureComponent {
     this.context.toFilterBlog({ tag });
   };
 
+  _stopPropagation = e => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   getRightContent() {
     return (
-      <>
+      <div className="widget-sticky-wrapper" onScroll={this._stopPropagation}>
         <div className="widget widget-search">
           <div className="title">Search</div>
           <div className="content">
@@ -212,6 +229,31 @@ class BlogDetails extends React.PureComponent {
                 onClick={e => this.toQueryBlog()}
               ></i>
             </form>
+          </div>
+        </div>
+        <div className="widget widget-blog-comment">
+          <div className="title">
+            Comments (
+            {this.state.blogDetail
+              ? this.state.blogDetail.BlogComments.length
+              : 0}
+            )
+          </div>
+          <div className="content pos-relative">
+            <div className="pos-relative pb-8">
+              {!this.state.blogDetail ||
+              this.state.blogDetail.BlogComments.length === 0 ? (
+                <div className="no-comment py-24">
+                  <img alt="no-comment" src="/img/no-comment.png" width="236" />
+                  <div className="title">No comment yet.</div>
+                  <div className="sub-title">
+                    Be the first to comment on the publication
+                  </div>
+                </div>
+              ) : (
+                <ListBlogComment blogId={this.state.blogDetail.id}/>
+              )}
+            </div>
           </div>
         </div>
         <div className="widget widget-search">
@@ -239,17 +281,11 @@ class BlogDetails extends React.PureComponent {
                   ))
               ) : (
                 <>
-                  {
-                    <Chip
-                      onClick={e => this.toTagBlog("all")}
-                      label={`#All`}
-                    />
-                  }
+                  {<Chip onClick={e => this.toTagBlog("all")} label={`#All`} />}
 
                   {this.state.blogTags.data.map(it => (
                     <Chip
                       onClick={e => this.toTagBlog(it.alias)}
-                   
                       label={`#${it.title}`}
                       key={`#tag-${it.id}`}
                     />
@@ -259,7 +295,7 @@ class BlogDetails extends React.PureComponent {
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -279,10 +315,10 @@ class BlogDetails extends React.PureComponent {
         <div className="pos-relative widget-wrapper-hightlight container container-4 right hidden-md-down">
           <Container maxWidth="lg" className="pos-relative">
             <Grid container className="flex-column-reverse-xs flex-row-md ">
-              <Grid item xs={12} md={7} lg={8}>
+              <Grid item xs={12} md={7} lg={7}>
                 {this.getLeftContent()}
               </Grid>
-              <Grid item xs={12} md={5} lg={4} className="widget-wrapper ">
+              <Grid item xs={12} md={5} lg={5} className="widget-wrapper ">
                 {this.getRightContent()}
               </Grid>
             </Grid>

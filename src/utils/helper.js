@@ -117,3 +117,11 @@ export const trimText = (text, length = 100) => {
 
   return `${_text}...`;
 }
+
+export const validateEmail = (email) => {
+  return  /.+@.+\..+/.test(email);
+}
+
+export const stopPropagationEvent = e => {
+  e.stopPropagation();
+}

@@ -3,10 +3,12 @@ module.exports = (sequelize, DataTypes) => {
   const BlogComment = sequelize.define('BlogComment', {
     blog_id: DataTypes.INTEGER,
     content: DataTypes.TEXT,
-    customer_info: DataTypes.JSON
+    customer_info: DataTypes.INTEGER
   }, {});
   BlogComment.associate = function(models) {
-    // associations can be defined here
+    BlogComment.belongsTo(models.Customer, {
+      foreignKey: "customer_info"
+    });
   };
   return BlogComment;
 };

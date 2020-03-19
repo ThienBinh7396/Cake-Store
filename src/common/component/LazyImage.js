@@ -34,6 +34,8 @@ export default class LazyImage extends React.Component {
   }
 
   componentDidMount() {
+    console.log(this.props.containertarget);
+
     this.setState(
       {
         src: this.props.src,
@@ -44,9 +46,12 @@ export default class LazyImage extends React.Component {
         width: this.props.width || "100%",
         height: this.props.height || "auto",
         containerTarget:
-          this.props.containertarget || document.getElementById("main-content")
+          this.props.containertarget !== undefined
+            ? document.querySelector(this.props.containertarget)
+            : document.getElementById("main-content")
       },
       () => {
+
         this.initHandleScroll();
       }
     );
@@ -57,7 +62,7 @@ export default class LazyImage extends React.Component {
       this.setState(
         {
           src: this.props.src,
-          loaded: false,
+          loaded: false
         },
         () => {
           this.initHandleScroll();
@@ -77,6 +82,8 @@ export default class LazyImage extends React.Component {
   }
 
   handleScroll() {
+    console.log(this.props.containertarget, this.state.containerTarget.scrollTop);
+
     if (!this.state.loaded && elementInViewport(this.imgElm)) {
       // Load real image
       const imgLoader = new Image();

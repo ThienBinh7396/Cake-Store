@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
     Product.hasMany(models.Gallery, {
       foreignKey: 'product_id'
     })
+
+    Product.hasMany(models.ProductReviews, {
+        foreignKey: 'product_id',
+        required: false
+    });
+
     Product.belongsToMany(models.Category, {
       through: "MapProductWithCategory",
       ortherKey: "category_id",

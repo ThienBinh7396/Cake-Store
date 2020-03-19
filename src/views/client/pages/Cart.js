@@ -7,7 +7,8 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableBody
+  TableBody,
+  Grid
 } from "@material-ui/core";
 import AwesomeInput from "../../../common/component/AwesomeInput";
 import { withSnackbar } from "notistack";
@@ -141,6 +142,15 @@ class Cart extends React.PureComponent {
     });
   };
 
+  removeProductInCart = ({ product, amount }) => {
+    this.state.cart.remove({ product });
+    this.showToast({ product, amount });
+  };
+
+  _toCheckout = () => {
+    this.props.history.push('/checkout');
+  }
+
   renderRow = _cart => {
     const { product, amount } = _cart;
 
@@ -154,8 +164,8 @@ class Cart extends React.PureComponent {
         <TableCell data-title="Discounts">
           <span className="price">
             ${((product.price * (100 - product.discount)) / 100).toFixed(2)}
-          </span>{" "}
-          (-
+          </span>
+          &nbsp; (-
           {product.discount}%)
         </TableCell>
         <TableCell data-title="Quantity">
@@ -168,8 +178,8 @@ class Cart extends React.PureComponent {
             min="1"
           />
         </TableCell>
-        <TableCell data-title="Total"  style={{width: '100px'}}>
-          <strong className="price">
+        <TableCell data-title="Total" style={{ width: "110px" }}>
+          <strong className="price total">
             $
             {(
               ((product.price * (100 - product.discount)) / 100) *
@@ -181,7 +191,7 @@ class Cart extends React.PureComponent {
           <div
             className="remove"
             onClick={e => {
-              this.showToast({ product, amount });
+              this.removeProductInCart({ product, amount });
             }}
           >
             <i className="pe-7s-close" />
@@ -241,6 +251,34 @@ class Cart extends React.PureComponent {
                   </TableHead>
                   <TableBody>
                     {this.state.cart.data.map(it => this.renderRow(it))}
+
+                    <TableRow className="cart-summary">
+                      <TableCell colSpan={4}></TableCell>
+                      <TableCell colSpan={3}>
+                        <div className="cart-summary-wrapper">
+                          <div className="cart-summary-title">Cart Sumary</div>
+                          <div className="cart-summary-content">
+                            <div className="row">
+                              <label>Subtotal: </label>
+                              <div>${this.state.cart.total.toFixed(2)}</div>
+                            </div>
+                            <div className="row">
+                              <label>Delivery: </label>
+                              <div>Free</div>
+                            </div>
+                            <div className="row">
+                              <label>Total: </label>
+                              <div>${this.state.cart.total.toFixed(2)}</div>
+                            </div>
+                          </div>
+                          <button className="btn-awesome primary cart-summary-checkout"
+                            onClick={this._toCheckout}
+                          >
+                            Checkout
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>

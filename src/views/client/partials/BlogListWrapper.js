@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ComponentWrapperHelper from "../../../common/component/ComponentWrapperHelper";
 import LazyImage from "../../../common/component/LazyImage";
-import { formatDate, trimText } from "../../../utils/helper";
+import { formatDate, trimText, validateEmail } from "../../../utils/helper";
 import { ClientContext } from "./../context/ClientProvider";
-import { Chip } from "@material-ui/core";
+import { Chip, TextareaAutosize, CircularProgress } from "@material-ui/core";
+import { withSnackbar } from "notistack";
+import SnackbarLayout from "./SnackbarLayout";
 
 class BlogListWrapper extends React.PureComponent {
   static propTypes = {
@@ -13,11 +14,27 @@ class BlogListWrapper extends React.PureComponent {
 
   static contextType = ClientContext;
 
+  constructor(props) {
+    super(props);
+    this._updateTempComment = this._updateTempComment.bind(this);
+  }
+
   state = {
-    blog: null
+    blog: null,
+    tempComment: {
+      handling: false,
+      email: "",
+      content: ""
+    }
   };
 
   componentDidMount() {
+    const { client } = this.context;
+
+    this._updateTempComment({
+      email: client.data ? client.data.email : client.tempEmailInStorage || ""
+    });
+
     this.setState({
       blog: this.props.blog
     });
@@ -37,10 +54,128 @@ class BlogListWrapper extends React.PureComponent {
     }
   };
 
+  _updateTempComment = _temp => {
+    this.setState({
+      tempComment: {
+        ...this.state.tempComment,
+        ..._temp
+      }
+    });
+  };
+
+  _handleChangeEmail = e => {
+    e.preventDefault();
+
+    this._updateTempComment({
+      email: e.target.value
+    });
+  };
+
+  _handleChangeContent = e => {
+    e.preventDefault();
+
+    this._updateTempComment({
+      content: e.target.value
+    });
+  };
+
+  _showToast({ type, title, content, icon }) {
+    this.props.enqueueSnackbar(title, {
+      variant: "default",
+      anchorOrigin: {
+        vertical: "top",
+        horizontal: "left"
+      },
+      content: (key, message) => {
+        console.log("key : ", key);
+        return (
+          <SnackbarLayout type={type} icon={icon} id={key} message={message}>
+            <div dangerouslySetInnerHTML={{ __html: content }} />
+          </SnackbarLayout>
+        );
+      }
+    });
+  }
+
+  _sendComment = e => {
+    e.preventDefault();
+
+    const { email, content } = this.state.tempComment;
+
+    const { axios, client, blog } = this.context;
+
+    if (`${email}`.trim().length === 0 || `${content}`.trim().length === 0) {
+      this._showToast({
+        title: "Reported!",
+        icon: true,
+        type: "warning",
+        content: "Email and content is required!"
+      });
+
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      this._showToast({
+        type: "error",
+        icon: true,
+        title: "Reported",
+        content: "Email is invalid!"
+      });
+      return;
+    }
+
+    this._updateTempComment({
+      handling: true
+    });
+
+    axios
+      .connect({
+        url: "client/blog/createComment",
+        method: "POST",
+        data: {
+          blogId: this.state.blog.id,
+          email,
+          content,
+          signIn: client.data
+        }
+      })
+      .then(rs => {
+        let { data } = rs;
+
+        this._showToast({
+          type: data.type,
+          content: data.message,
+          icon: true,
+          title: "Reported!"
+        });
+
+        if (data.type === "success") {
+          blog.addBlogComment(data.data);
+
+          if (
+            !client.data &&
+            (!client.tempEmailInStorage || client.tempEmailInStorage !== email)
+          ) {
+            client.updateTempEmail(email);
+          }
+        }
+
+        this._updateTempComment({
+          handling: false
+        });
+      })
+      .catch(err => {
+        this._updateTempComment({
+          handling: false
+        });
+      });
+  };
+
   render() {
     return (
       this.state.blog && (
-        <ComponentWrapperHelper className={this.props.className}>
+        <div className={this.props.className}>
           <div
             className={`blog-list-wrapper ${this.props.small ? "small" : ""} ${
               this.props.row ? "d-flex flex-row" : ""
@@ -97,7 +232,7 @@ class BlogListWrapper extends React.PureComponent {
               </div>
             )}
             {!this.props.fullcontent && (
-              <button className="btn-awesome primary">
+              <button className="btn-awesome primary" onClick={this.toBlog}>
                 <span>Read More</span>
                 <i className="fas fa-angle-right" />
               </button>
@@ -163,19 +298,48 @@ class BlogListWrapper extends React.PureComponent {
             )}
 
             {this.props.withcomment && (
-              <div className="blog-commtent-wrapper">
+              <div className="blog-send-commtent-wrapper">
                 <h3 className="mb-4">0 Commments</h3>
                 <h3>Give a comment</h3>
                 <form>
-                  <div className="textarea mb-8" contentEditable/>
-                  <button className="btn-awesome primary">post comment</button>
+                  <input
+                    value={this.state.tempComment.email}
+                    placeholder="Email"
+                    className="mb-8"
+                    onChange={this._handleChangeEmail}
+                  />
+                  <TextareaAutosize
+                    value={this.state.tempComment.content}
+                    placeholder="Comment"
+                    className="textarea mb-8"
+                    onChange={this._handleChangeContent}
+                  />
+                  <button
+                    className="btn-awesome primary"
+                    type="submit"
+                    onClick={this._sendComment}
+                  >
+                    post comment
+                    {this.state.tempComment.handling ? (
+                      <CircularProgress
+                        style={{ margin: "-2px 0 0 8px " }}
+                        size={18}
+                        color="inherit"
+                      />
+                    ) : (
+                      <i
+                        className="fas fa-paper-plane"
+                        style={{ marginTop: "-2px" }}
+                      ></i>
+                    )}
+                  </button>
                 </form>
               </div>
             )}
           </div>
-        </ComponentWrapperHelper>
+        </div>
       )
     );
   }
 }
-export default BlogListWrapper;
+export default withSnackbar(BlogListWrapper);

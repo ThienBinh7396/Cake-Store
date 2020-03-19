@@ -1,6 +1,17 @@
 const model = require("../models");
 
-const { Product, Gallery, Category, MapProductWithCategory } = model;
+const {
+  Product,
+  ProductReviews,
+  Gallery,
+  Category,
+  MapProductWithCategory,
+  Customer
+} = model;
+
+const CustomerController = require("./CustomerController");
+
+console.log(CustomerController);
 
 const helper = require("../helper/helper");
 
@@ -18,7 +29,7 @@ const { Op } = sequelize;
 //   console.log(err);
 // })
 
-class CakeCategoriesController {
+class ProductController {
   async count(where) {
     return new Promise(res => {
       let config = {
@@ -57,6 +68,29 @@ class CakeCategoriesController {
         },
         {
           model: Gallery
+        },
+        {
+          model: ProductReviews,
+          where: {
+            parent_id: 0
+          },
+          required: false,
+          include: [
+            {
+              model: Customer,
+              attributes: ["id", "email", "thumbnail", "name"]
+            },
+            {
+              model: ProductReviews,
+
+              as: "children",
+
+              include: {
+                model: Customer,
+                attributes: ["id", "email", "thumbnail", "name"]
+              }
+            }
+          ]
         }
       ]
     })
@@ -73,6 +107,8 @@ class CakeCategoriesController {
         }
       })
       .catch(err => {
+        console.log(err);
+
         res.send(
           helper.getStatus(
             "error",
@@ -94,6 +130,27 @@ class CakeCategoriesController {
           },
           {
             model: Gallery
+          },
+          {
+            model: ProductReviews,
+            where: {
+              parent_id: 0
+            },
+            required: false,
+            include: [
+              {
+                model: Customer,
+                attributes: ["id", "email", "thumbnail", "name"]
+              },
+              {
+                model: ProductReviews,
+                as: "children",
+                include: {
+                  model: Customer,
+                  attributes: ["id", "email", "thumbnail", "name"]
+                }
+              }
+            ]
           }
         ],
         limit,
@@ -119,15 +176,17 @@ class CakeCategoriesController {
 
   async filterWithCategory(field, value) {
     return new Promise(res => {
-      console.log("Value", value)
-      console.log("Field", field)
-      let _where = {}
-      _where[field] = value
+      console.log("Value", value);
+      console.log("Field", field);
+      let _where = {};
+      _where[field] = value;
       MapProductWithCategory.findAll({
-        include: [{
-          model: Category,
-          where: _where
-        }]
+        include: [
+          {
+            model: Category,
+            where: _where
+          }
+        ]
       })
         .then(categories => {
           res(categories.map(it => it.toJSON().product_id));
@@ -163,14 +222,15 @@ class CakeCategoriesController {
 
     if (providerAttributes.category !== "all") {
       let mapProductIdWithCategory = await this.filterWithCategory(
-        'alias', providerAttributes.category
+        "alias",
+        providerAttributes.category
       );
       _where.id = {
         [Op.in]: mapProductIdWithCategory
       };
     }
 
-    if (providerAttributes.status !== 'all') {
+    if (providerAttributes.status !== "all") {
       _where.status = providerAttributes.status;
     }
 
@@ -225,6 +285,7 @@ class CakeCategoriesController {
         res.send(helper.getStatus("success", "Successful", rs));
       })
       .catch(err => {
+        console.log(err);
         res.send(helper.getStatus("error", "Fetch data failed!"));
       });
   }
@@ -290,9 +351,33 @@ class CakeCategoriesController {
           id: product_id
         },
         include: [
-          { model: Category },
+          {
+            model: Category,
+            required: false
+          },
           {
             model: Gallery
+          },
+          {
+            model: ProductReviews,
+            where: {
+              parent_id: 0
+            },
+            required: false,
+            include: [
+              {
+                model: Customer,
+                attributes: ["id", "email", "thumbnail", "name"]
+              },
+              {
+                model: ProductReviews,
+                as: "children",
+                include: {
+                  model: Customer,
+                  attributes: ["id", "email", "thumbnail", "name"]
+                }
+              }
+            ]
           }
         ]
       })
@@ -532,6 +617,146 @@ class CakeCategoriesController {
         res.send(helper.getStatus("error", "Delete product failed!"));
       });
   }
+
+  async helperGetCustomer(email) {
+    return new Promise(res => {
+      Customer.findOne({
+        where: {
+          email
+        }
+      })
+        .then(customer => {
+          res(customer);
+        })
+        .catch(err => {
+          res(null);
+        });
+    });
+  }
+  async helperCreateAnonymousCustomer(email) {
+    return new Promise(res => {
+      Customer.create({
+        email,
+        thumbnail: "/img/avatar_mask.svg",
+        anonymous: 1
+      })
+        .then(customer => {
+          res(customer);
+        })
+        .catch(err => {
+          console.log(err);
+          res(null);
+        });
+    });
+  }
+
+  async _helperFindOneComment(commentId) {
+    return new Promise(res => {
+      ProductReviews.findOne({
+        where: {
+          id: commentId
+        },
+        include: [
+          { model: Customer, attributes: ["id", "email", "thumbnail", "name"] },
+          {
+            model: ProductReviews,
+            as: "children",
+            include: {
+              model: Customer,
+              attributes: ["id", "email", "thumbnail", "name"]
+            }
+          }
+        ]
+      })
+        .then(_comment => {
+          res(_comment);
+        })
+        .catch(err => {
+          console.log("Helper find one comment faild: ", err);
+
+          res(null);
+        });
+    });
+  }
+
+  async createComment(req, res) {
+    let providerAttributes = helper.checkPostProviderAttributes(req, res, [
+      "anonymous",
+      "email",
+      "message",
+      "productId",
+      "parentId",
+      "signIn",
+      "rate"
+    ]);
+
+    if (!providerAttributes) return;
+
+    let {
+      productId,
+      parentId,
+      anonymous,
+      email,
+      message,
+      signIn,
+      rate
+    } = providerAttributes;
+
+    let _createNewCustomer = false;
+
+    if (!signIn) {
+      let check = await CustomerController._helperGetCustomer({ email });
+
+      console.log(check);
+
+      if (!anonymous) {
+        if (check) {
+          if (check.anonymous !== 1) {
+            res.send(
+              helper.getStatus(
+                "warning",
+                `<strong>${email}</strong> has been taken! <br>You can login or choose orther.`
+              )
+            );
+            return;
+          }
+        } else {
+          _createNewCustomer = true;
+        }
+      } else {
+        _createNewCustomer = anonymous && !check;
+      }
+    }
+    console.log("Email: ", email, _createNewCustomer);
+
+    let _customer = _createNewCustomer
+      ? await CustomerController._helperCreateAnonymousCustomer(email)
+      : await CustomerController._helperGetCustomer({ email });
+
+    if (!_customer) {
+      res.send(helper.getStatus("error", "Something went wrong. Try again!"));
+    } else {
+      ProductReviews.create({
+        product_id: productId,
+        parent_id: parentId !== null ? parentId : 0,
+        customer_info: _customer.id,
+        content: message,
+        rate
+      })
+        .then(async _review => {
+          res.send(
+            helper.getStatus(
+              "success",
+              "Thank you for giving us a review!",
+              await this._helperFindOneComment(_review.toJSON().id)
+            )
+          );
+        })
+        .catch(err => {
+          res.send(helper.getStatus("error", "Send review failed!"));
+        });
+    }
+  }
 }
 
-module.exports = new CakeCategoriesController();
+module.exports = new ProductController();

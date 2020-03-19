@@ -1,9 +1,3 @@
-@mixin th-cart-table {
-  font-weight: bold;
-  font-size: 12px;
-  text-transform: uppercase;
-  @include getFontFamily(serif);
-}
 .alert-empty-cart {
   border-top: 3px solid $primaryColor;
   background-color: #f7f7f7;
@@ -21,20 +15,25 @@
   }
 }
 
-%th-cart-table {
-  @include th-cart-table;
+
+
+%btn-block {
+  display: none;
+  width: 240px;
+  border-radius: 2px;
+  float: right;
 }
 
 .cart-table {
   position: relative;
   width: 100%;
 
-  .price{
+  .price {
     color: $primaryColor;
   }
 
   thead th {
-    @extend %th-cart-table;
+    @extend %th-table;
     padding: 8px;
 
     &:nth-child(1) {
@@ -42,8 +41,49 @@
     }
   }
   tbody tr {
-    &:hover {
-      background-color: rgba($color: #eeeeee, $alpha: 0.5);
+    &:hover:not(:last-child) {
+      background-color: rgba($color: #eeeeee, $alpha: 0.45);
+    }
+
+    &.cart-summary {
+      padding: 0 0 0;
+
+      td {
+        border: none !important;
+      }
+
+      td:last-child {
+        text-align: left !important;
+        padding: 0;
+
+        .cart-summary-wrapper {
+          margin: 42px 0 0 0;
+          padding: 16px !important;
+          background-color: rgba($color: #eeeeee, $alpha: 0.45);
+
+          .cart-summary-title {
+            margin-bottom: 20px;
+            @include th-table;
+          }
+
+          .cart-summary-content {
+            color: #6b6b6b;
+
+            .row {
+              @include displayFlexWithProperty($jc: space-between);
+              margin-bottom: 16px;
+            }
+          }
+
+          .cart-summary-checkout {
+            @extend %btn-block;
+            display: block;
+            width: 100%;
+            margin: 42px 0 24px;
+            float: none;
+          }
+        }
+      }
     }
 
     td {
@@ -63,10 +103,7 @@
       }
 
       .remove-mobile {
-        display: none;
-        width: 240px;
-        border-radius: 2px;
-        float: right;
+        @extend %btn-block;
       }
 
       .remove {
@@ -116,9 +153,17 @@
       padding-right: 12px;
       padding-left: 12px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+      &.cart-summary {
+        td:last-child {
+          margin-top: 32px !important;
+          padding-left: 0 !important;
+        }
+      }
     }
 
     td {
+      width: 100% !important;
       position: relative;
       padding-left: 35% !important;
       text-align: right;
@@ -129,12 +174,16 @@
         width: 35%;
         text-align: left;
         @include mapPositionWithCoordinate(absolute, 50%, 6px, false, true);
-        @include th-cart-table;
+        @include th-table;
       }
 
       &:nth-child(1) {
         max-width: 100% !important;
         padding: 12px !important;
+      }
+
+      .total {
+        float: right;
       }
 
       .awesome-input {
@@ -178,6 +227,7 @@
         color: $lightColor;
         font-size: 18px;
         line-height: 38px;
+        @extend %fastTransition;
 
         &.expanded.hide {
           transform: rotate(180deg);

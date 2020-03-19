@@ -10,7 +10,15 @@ module.exports = (sequelize, DataTypes) => {
     anonymous: DataTypes.INTEGER
   }, {});
   Customer.associate = function(models) {
-    // associations can be defined here
+    Customer.hasMany(models.ProductReviews, {
+      foreignKey: 'customer_info'
+    })
+    
+    Customer.hasMany(models.BlogComment, {
+      foreignKey: 'customer_info'
+    })
+
+
   };
   return Customer;
 };

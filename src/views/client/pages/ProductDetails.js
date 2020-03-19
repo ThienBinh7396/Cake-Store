@@ -8,12 +8,25 @@ import {
   Box,
   Hidden,
   ButtonBase,
-  withWidth
+  withWidth,
+  FormControlLabel,
+  Switch,
+  CircularProgress,
+  TextareaAutosize
 } from "@material-ui/core";
 import { Skeleton, Rating } from "@material-ui/lab";
 import AwesomeInput from "../../../common/component/AwesomeInput";
-import { compareArray } from "../../../utils/helper";
+import { compareArray, validateEmail } from "../../../utils/helper";
 import Slider from "react-slick";
+
+import ExpandedView from "../partials/ExpandedView";
+
+import { REVIEW_LABELS } from "../../../constant";
+import { withSnackbar } from "notistack";
+import SnackbarLayout from "../partials/SnackbarLayout";
+import ListProductReview from "../partials/ListProductReview";
+import WrapperLoadingComponent from "../../../common/component/WrapperLoadingComponent";
+import TextareaAutoHeight from "../../../common/component/TextareaAutoHeight";
 
 const mapStuatusWithColor = {
   available: "#48ce4e",
@@ -24,17 +37,36 @@ const mapStuatusWithColor = {
 class ProductDetails extends React.PureComponent {
   static contextType = ClientContext;
 
+  constructor(props) {
+    super(props);
+
+    this._handleChangeAnonymousReview = this._handleChangeAnonymousReview.bind(
+      this
+    );
+    this._handleChangeRateEmail = this._handleChangeRateEmail.bind(this);
+    this._handleChangeMessageReview = this._handleChangeMessageReview.bind(
+      this
+    );
+    this._handleChangeRateReview = this._handleChangeRateReview.bind(this);
+    this._handleChangeRateHover = this._handleChangeRateHover.bind(this);
+    this._sendReview = this._sendReview.bind(this);
+  }
+
   state = {
     id: -1,
     product: null,
+    productReview: null,
     products: null,
     gallery: null,
     amount: 1,
     review: {
+      handling: false,
       rate: 5,
-      message: ""
+      message: "",
+      email: "",
+      anonymous: false,
+      hover: -1
     },
-
     settings: {
       autoplay: true,
       autoplaySpeed: 15000,
@@ -66,7 +98,7 @@ class ProductDetails extends React.PureComponent {
 
   initialize() {
     const _id = Number(this.props.match.params.id);
-    const { products } = this.context;
+    const { products, productReview, client } = this.context;
 
     if (!products.data) return;
 
@@ -87,7 +119,12 @@ class ProductDetails extends React.PureComponent {
         id: _id,
         product: _product,
         products,
-        gallery: _gallery
+        productReview,
+        gallery: _gallery,
+        review: {
+          ...this.state.review,
+          email: client.data ? client.data.email : (client.tempEmailInStorage || "") 
+        }
       },
       () => {
         document.title = `Cake Stores - ${_product.title}`;
@@ -98,6 +135,50 @@ class ProductDetails extends React.PureComponent {
   componentDidMount() {
     this.initialize();
   }
+
+  _clearProductReview = () => {
+    this.context.productReview.update(null);
+  };
+
+  _checkProductReview = () => {
+    if (!this.state.productReview) return;
+
+    const { productReview } = this.context;
+
+    let _updateProductReview = null;
+
+    let _checkUpdate = false;
+
+    if (
+      (productReview.targetReview === null ||
+        this.state.productReview.targetReview === null) &&
+      this.state.productReview.targetReview !== productReview.targetReview
+    ) {
+      _updateProductReview = productReview;
+      _checkUpdate = true;
+    }
+
+    if (
+      productReview.targetReview !== null &&
+      this.state.productReview.targetReview !== null &&
+      this.state.productReview.targetReview.id !== productReview.targetReview.id
+    ) {
+      _updateProductReview = productReview;
+      _checkUpdate = true;
+    }
+    if (_checkUpdate) {
+      this.setState(
+        {
+          productReview: _updateProductReview
+        },
+        () => {
+          const txt = document.getElementById("message-form");
+
+          txt && txt.focus();
+        }
+      );
+    }
+  };
 
   componentDidUpdate() {
     if (
@@ -112,6 +193,8 @@ class ProductDetails extends React.PureComponent {
     ) {
       this.initialize();
     }
+
+    this._checkProductReview();
   }
 
   getLeftContent() {
@@ -121,14 +204,6 @@ class ProductDetails extends React.PureComponent {
           <>
             <Skeleton animation="wave" variant="rect" height={320} />
             <Box display="flex" flexWrap="no-wrap" mt={3}>
-              <Box mx={2} width="100%">
-                <Skeleton
-                  animation="wave"
-                  variant="rect"
-                  width="100%"
-                  height={110}
-                />
-              </Box>
               <Box mx={2} width="100%">
                 <Skeleton
                   animation="wave"
@@ -248,6 +323,7 @@ class ProductDetails extends React.PureComponent {
                 <Rating
                   precision={0.5}
                   value={this.state.product.rate}
+                  readOnly
                   name="rating-product"
                   icon={<i className="far fa-star"></i>}
                   style={{ color: "#fa6e75" }}
@@ -330,95 +406,360 @@ class ProductDetails extends React.PureComponent {
     );
   }
 
+  _handleChangeReview(_review) {
+    this.setState({
+      review: {
+        ...this.state.review,
+        ..._review
+      }
+    });
+  }
+
+  _handleChangeAnonymousReview(e) {
+    this._handleChangeReview({ anonymous: e.target.checked });
+  }
+
+  _handleChangeRateEmail(e) {
+    this._handleChangeReview({ email: e.target.value });
+  }
+
+  _handleChangeMessageReview(e) {
+    this._handleChangeReview({ message: e.target.value });
+  }
+
+  _handleChangeRateReview(e) {
+    this._handleChangeReview({ rate: Number(e.target.value) });
+  }
+
+  _handleChangeRateHover(event, newHover) {
+    console.log(newHover);
+
+    this._handleChangeReview({ hover: newHover });
+  }
+
+  _showToast({ type, title, content, icon }) {
+    this.props.enqueueSnackbar(title, {
+      variant: "default",
+      anchorOrigin: {
+        vertical: "top",
+        horizontal: "left"
+      },
+      content: (key, message) => {
+        console.log("key : ", key);
+        return (
+          <SnackbarLayout type={type} icon={icon} id={key} message={message}>
+            <div dangerouslySetInnerHTML={{ __html: content }} />
+          </SnackbarLayout>
+        );
+      }
+    });
+  }
+
+  _sendReview(e) {
+    const { review } = this.state;
+
+    const { axios, client, productReview } = this.context;
+
+    if (!review.anonymous && `${review.email}`.trim().length === 0) {
+      this._showToast({
+        type: "warning",
+        icon: true,
+        title: "Reported",
+        content: "Email is required!"
+      });
+      return;
+    }
+
+    if (!review.anonymous && !validateEmail(review.email)) {
+      this._showToast({
+        type: "error",
+        icon: true,
+        title: "Reported",
+        content: "Email is invalid!"
+      });
+      return;
+    }
+
+    this._handleChangeReview({
+      handling: true
+    });
+
+    axios
+      .connect({
+        url: "/client/product/createComment",
+        method: "POST",
+        data: {
+          productId: this.state.product.id,
+          anonymous: review.anonymous,
+          email: review.anonymous ? client.anonymous : review.email,
+          message: review.message,
+          signIn: !!client.data,
+          parentId:
+            this.context.productReview &&
+            this.context.productReview.targetReview
+              ? this.context.productReview.targetReview.id
+              : 0,
+          rate: review.rate
+        }
+      })
+      .then(rs => {
+        let { data } = rs;
+
+        this._showToast({
+          type: data.type,
+          content: data.message,
+          icon: true,
+          title: "Reported!"
+        });
+
+        if (data.type === "success") {
+          if(!client.data && (!client.tempEmailInStorage || client.tempEmailInStorage !== review.email)){
+            client.updateTempEmail(review.email)
+          }
+
+          productReview.updateProductReviewToProduct(
+            this.state.product.id,
+            data.data
+          );
+        }
+        this._handleChangeReview({
+          handling: false
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        this._handleChangeReview({
+          handling: false
+        });
+      });
+
+    if (`${review.message}`.trim().length === 0) {
+      this._showToast({
+        type: "warning",
+        icon: true,
+        title: "Reported",
+        content: "Send to us something!"
+      });
+      return;
+    }
+  }
+
   render() {
     return (
-      <Box component={Container} pt={4} maxWidth="lg">
-        <Grid container className="product-detail">
-          <Box
-            component={Grid}
-            px={this.props.width === "xs" ? 0 : 3}
-            py={3}
-            pt={0}
-            item
-            xs={12}
-            sm={12}
-            md={5}
-          >
-            {this.getLeftContent()}
-          </Box>
-          <Box
-            component={Grid}
-            px={this.props.width === "xs" ? 0 : 3}
-            pb={6}
-            pt={0}
-            item
-            xs={12}
-            sm={12}
-            md={7}
-          >
-            {this.getRightContent()}
-          </Box>
-        </Grid>
-        <Grid item>
+      <div>
+        <Box component={Container} pt={4} maxWidth="lg">
+          <Grid container className="product-detail">
+            <Box
+              component={Grid}
+              px={this.props.width === "xs" ? 0 : 3}
+              py={3}
+              pt={0}
+              item
+              xs={12}
+              sm={12}
+              md={5}
+            >
+              {this.getLeftContent()}
+            </Box>
+            <Box
+              component={Grid}
+              px={this.props.width === "xs" ? 0 : 3}
+              pb={6}
+              pt={0}
+              item
+              xs={12}
+              sm={12}
+              md={7}
+            >
+              {this.getRightContent()}
+            </Box>
+          </Grid>
+        </Box>
+        <Container>
           <ul className="tabWrapper">
             <li className="active">Reviews</li>
           </ul>
-          <div className="review-content">
+        </Container>
+        <div
+          className="review-content fixed-background"
+          style={{ backgroundImage: "url(/img/bg-feedback.jpg)" }}
+        >
+          <Container maxWidth="lg">
             <Grid container>
-              <Grid item md={5}>
-                <div
+              <Grid
+                item
+                lg={7}
+                md={6}
+                sm={12}
+                xs={12}
+                className="pos-relative "
+              >
+                <div className="overlay" />
+                <WrapperLoadingComponent loading={!this.state.product}>
+                  <div className="pos-relative pb-24">
+                    {!this.state.product ||
+                    this.state.product.ProductReviews.length === 0 ? (
+                      <div className="no-comment py-24">
+                        <img
+                          alt="no-comment"
+                          src="/img/no-comment.png"
+                          width="260"
+                        />
+                        <div className="title">No comment yet.</div>
+                        <div className="sub-title">
+                          Be the first to comment on the publication
+                        </div>
+                      </div>
+                    ) : (
+                      <ListProductReview productId={this.state.product.id} />
+                    )}
+                  </div>
+                </WrapperLoadingComponent>
+              </Grid>
+              <Grid item lg={5} md={6} sm={12} xs={12}>
+                <form
+                  name="reviewForm"
                   className="client-feedback-form review-form"
                   style={{ textAlign: "left" }}
                 >
-                  <div className="client-form-title">Send Reviews</div>
-                  <div className="client-form-control rate">
-                    <label className="required">Rating:</label>
-                  </div>
-                  <Rating
-                    precision={0.5}
-                    value={this.state.review.rate}
-                    name="rating-reviews"
-                    icon={<i className="far fa-star"></i>}
-                    style={{ color: "#fa6e75" }}
+                  <FormControlLabel
+                    className="switch-anonymous"
+                    control={
+                      <Switch
+                        checked={this.state.review.anonymous}
+                        onChange={this._handleChangeAnonymousReview}
+                        value={this.state.review.anonymous}
+                        color="secondary"
+                      />
+                    }
+                    label={<small>Anonymous</small>}
                   />
+
+                  <div className="client-form-title">Send Reviews</div>
+
+                  <ExpandedView
+                    expanded={
+                      this.state.productReview &&
+                      this.state.productReview.targetReview
+                        ? true
+                        : false
+                    }
+                  >
+                    <div className="reply pos-relative">
+                      <div className="reply-info">
+                        <i className="fas fa-reply mr-2"></i>
+                        <strong>
+                          {this.state.productReview &&
+                          this.state.productReview.targetReview
+                            ? this.state.productReview.targetReview.Customer
+                                .name ||
+                              this.state.productReview.targetReview.Customer
+                                .email
+                            : ""}
+                        </strong>
+                      </div>
+                      <div
+                        className="close pos-absolute close"
+                        onClick={this._clearProductReview}
+                      >
+                        <i className="fas fa-times" />
+                      </div>
+                      <div className="content mt-2">
+                        {this.state.productReview &&
+                        this.state.productReview.targetReview
+                          ? this.state.productReview.targetReview.content
+                          : ""}
+                      </div>
+                    </div>
+                  </ExpandedView>
+                  <ExpandedView
+                    expanded={
+                      !(
+                        this.state.productReview &&
+                        this.state.productReview.targetReview
+                      )
+                    }
+                  >
+                    <div className="client-form-control rate">
+                      <label className="required">Rating</label>
+                    </div>
+                    <div className="rating-wrapper">
+                      <Rating
+                        precision={0.5}
+                        value={this.state.review.rate}
+                        name="rating-reviews"
+                        icon={<i className="far fa-star"></i>}
+                        onChange={this._handleChangeRateReview}
+                        onChangeActive={this._handleChangeRateHover}
+                        style={{ color: "#fa6e75" }}
+                      />
+                      {this.state.review.rate !== null && (
+                        <label>
+                          {
+                            REVIEW_LABELS[
+                              this.state.review.hover !== -1
+                                ? this.state.review.hover
+                                : this.state.review.rate
+                            ]
+                          }
+                        </label>
+                      )}
+                    </div>
+                  </ExpandedView>
+
+                  <ExpandedView min={0} expanded={!this.state.review.anonymous}>
+                    <div className="client-form-control">
+                      <label className="required">Email</label>
+                      <div className="client-form-control-wrapper">
+                        <input
+                          type="text"
+                          value={this.state.review.email}
+                          onChange={this._handleChangeRateEmail}
+                        />
+                        <div className="client-form-control-line" />
+                      </div>
+                    </div>
+                  </ExpandedView>
+
                   <div className="client-form-control">
                     <label className="required">Your Message</label>
-                    <div
-                      className="textarea"
-                      contentEditable="true"
-                      dangerouslySetInnerHTML={{
-                        __html: this.state.review.message
-                      }}
-                      onInput={e => {
-                        this.setState({
-                          review: {
-                            ...this.state.review,
-                            message: e.target.innerHTML
-                          }
-                        });
-                      }}
-                    />
+
+                    <div className="client-form-control-wrapper">
+                      <TextareaAutosize
+                        className="textarea"
+                        value={this.state.review.message}
+                        name="messageForm"
+                        id="message-form"
+                        onChange={this._handleChangeMessageReview}
+                      />
+                      <div className="client-form-control-line" />
+                    </div>
                   </div>
 
                   <ButtonBase className="btn-card-wrapper">
                     <div
-                      className="btn-card"
-                      onClick={e => {
-                        console.log(this.state.review);
-                      }}
+                      className="btn-awesome primary"
+                      onClick={this._sendReview}
                     >
                       Send To Us
-                      <i className="fas fa-paper-plane"></i>
+                      {this.state.review.handling ? (
+                        <CircularProgress
+                          style={{ margin: "-2px 0 0 8px " }}
+                          size={18}
+                          color="inherit"
+                        />
+                      ) : (
+                        <i className="fas fa-paper-plane"></i>
+                      )}
                     </div>
                   </ButtonBase>
-                </div>
+                </form>
               </Grid>
-              <Grid item md={7}></Grid>
             </Grid>
-          </div>
-        </Grid>
-      </Box>
+          </Container>
+        </div>
+      </div>
     );
   }
 }
-export default withWidth()(withRouter(ProductDetails));
+export default withWidth()(withRouter(withSnackbar(ProductDetails)));

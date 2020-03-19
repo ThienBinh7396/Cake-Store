@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { ClientContext } from "../context/ClientProvider";
 import { formatDate, trimText } from "../../../utils/helper";
 import { ButtonBase } from "@material-ui/core";
-import LazyImage from './../../../common/component/LazyImage';
+import LazyImage from "./../../../common/component/LazyImage";
 
 export default function BlogCard(props) {
   const clientContext = useContext(ClientContext);
@@ -19,36 +19,37 @@ export default function BlogCard(props) {
     }
   }, [clientContext.blog]);
 
- 
+  const toBlog = () => {
+    if (blog) {
+      clientContext.toBlog(blog);
+    }
+  };
 
   return blog ? (
     <div className={`blog-card ${props.type || "normal"}`}>
-      <div
-        className="blog-card-image"
-      >
-         <LazyImage
-                placeHolder={"/img/placeholder.png"}
-                src={blog.thumbnail}
-                effect={"opacity"}
-                alt={blog.thumbnail}
-              />
+      <div className="blog-card-image">
+        <LazyImage
+          placeHolder={"/img/placeholder.png"}
+          src={blog.thumbnail}
+          effect={"opacity"}
+          alt={blog.thumbnail}
+        />
       </div>
       <div className="blog-card-content">
         <div className="blog-card-infor">
           by{" "}
           <span className="blog-upload">
             {blog.upload_id === -1 ? "Admin" : "Client"}
-          </span>
-          {" "}
+          </span>{" "}
           /{" "}
           <span className="blog-time">
             {formatDate(blog.createdAt, 2).format}
           </span>
         </div>
-        <div className="blog-card-title">{blog.title}</div>
+        <div className="blog-card-title" onClick={toBlog}>{blog.title}</div>
         <div className="blog-card-des">{trimText(blog.content)}</div>
 
-        <ButtonBase className="btn-card-wrapper">
+        <ButtonBase className="btn-card-wrapper" style={{width: '240px'}} onClick={toBlog}>
           <div className="btn-card">
             Read More
             <i className="fas fa-angle-right"></i>

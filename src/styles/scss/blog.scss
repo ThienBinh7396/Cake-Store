@@ -154,13 +154,14 @@
     }
   }
 
-  & .blog-commtent-wrapper {
+  & .blog-send-commtent-wrapper {
     h3 {
       text-transform: uppercase;
       color: lighten($blackColor, $amount: 15);
     }
 
     form {
+      input,
       .textarea {
         width: 100%;
         max-width: 100%;
@@ -178,6 +179,10 @@
         &:focus {
           border-color: $primaryColor;
         }
+      }
+
+      input {
+        min-height: 36px;
       }
     }
   }
@@ -257,4 +262,61 @@
 .blog-card .blog-card-des {
   margin-bottom: 32px;
   font-size: 15px;
+}
+
+.widget-blog-comment {
+  .title {
+    margin-bottom: 0;
+  }
+  & > .content {
+    padding: 18px 12px;
+    background-color: #dfdfdfd1;
+
+    &::before {
+      @include getPseudoOverlayContent(
+        $top: -14px,
+        $left: 32px,
+        $width: 0,
+        $height: 0
+      );
+
+      @include getTriangle(#dfdfdfd1, top, 14px, 12px, 12px);
+    }
+  }
+
+  .blog-comment-item {
+    padding-bottom: 20px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #cfcfcf;
+
+    .thumbnail {
+      @include getDimension(42px, 42px, true);
+
+      @include xs {
+        @include getDimension(36px, 36px, true);
+      }
+      img {
+        @extend %maxWidthHeight;
+      }
+    }
+    .blog-title {
+      font-weight: bold;
+
+      @extend %text-truncate;
+      @extend %h5;
+    }
+
+    .info {
+      margin: -2px 8px;
+      @include displayFlexWithProperty($ai: center);
+      color: darken($greyColor, 10);
+      font-size: 13px;
+    }
+
+    .message {
+      margin-top: 8px;
+      font-size: 14px;
+      overflow-wrap: break-word;
+    }
+  }
 }

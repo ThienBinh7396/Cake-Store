@@ -26,7 +26,7 @@
       }
     }
 
-    @include getTransition(fast);
+    @extend %fastTransition;
 
     &::before {
       content: "\f053";
@@ -74,7 +74,7 @@
       background: darken($lightColor, $amount: 20);
       margin: 0 5px;
       cursor: pointer;
-      @include getTransition(fast);
+      @extend %fastTransition;
 
       &.slick-active {
         width: 60px;

@@ -207,7 +207,7 @@ class Store extends React.PureComponent {
 
   getLeftSidebar = () => (
     <>
-      <div className="widget widget-search">
+      <div className="widget widget-search ">
         <div className="title">Search</div>
         <div className="content">
           <form className="search">
@@ -221,7 +221,7 @@ class Store extends React.PureComponent {
           </form>
         </div>
       </div>
-      <div className="widget widget-category">
+      <div className="widget widget-category ">
         <div className="title">Categories</div>
         <div className="content">
           <FormControl component="fieldset">

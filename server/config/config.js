@@ -8,6 +8,7 @@ let config = {
   dialect: "postgres",
   port: process.env.DB_PORT,
   ssl: true,
+  logging: false,
   dialectOptions: {
     ssl: true
   }

@@ -1,0 +1,145 @@
+.client-feedback-form {
+  padding: 50px;
+  background-color: rgba(41, 32, 60, 0.85);
+  color: #fff;
+
+  .client-form-title {
+    font-size: 35px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .client-form-control {
+    margin-bottom: 35px;
+
+    & > label {
+      position: relative;
+      display: block;
+      width: fit-content;
+      font-size: 14px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+
+      &.required::before {
+        content: "*";
+        position: absolute;
+        right: -12px;
+        color: $primaryColor;
+      }
+    }
+
+    & .textarea,
+    & input {
+      position: relative;
+      width: 100%;
+      height: 30px;
+      padding: 0 12px;
+      border: none;
+      color: $lightColor;
+      background-color: transparent;
+      border-bottom: 1px solid $lightColor;
+      border-radius: 0;
+      font-size: 15px;
+      outline: none !important;
+    }
+
+    & .textarea {
+      resize: none;
+      min-height: 120px;
+      padding-bottom: 16px;
+      overflow: hidden;
+      transition: none;
+    }
+  }
+
+  .client-form-control-wrapper {
+    position: relative;
+
+    .client-form-control-line {
+      @include mapPositionWithCoordinate(absolute, calc(100% - 2px), 50%, true);
+      @include getDimension(0, 1.5px);
+      background-color: $primaryColor;
+
+      @include getTransition(fast);
+    }
+
+    & .textarea:focus ~ .client-form-control-line,
+    & input:focus ~ .client-form-control-line {
+      width: 100%;
+    }
+
+    & textarea ~ .client-form-control-line {
+      top: calc(100% - 7px);
+    }
+  }
+
+  .btn-card-wrapper {
+    min-width: 60%;
+    margin: auto;
+    margin-top: 32px;
+
+    .btn-card {
+      width: 100%;
+    }
+  }
+
+  &.review-form {
+    @include mapPositionWithCoordinate(sticky, 0, 0);
+    
+    .reply {
+      @include getElevation(3);
+      padding: 16px;
+      margin-bottom: 35px;
+      @include contrastView(light);
+      border-left: 8px solid $primaryColor;
+      border-radius: 4px;
+
+      .reply-info {
+        @include displayFlexWithProperty($ai: center);
+
+        i {
+          transform: rotateY(180deg);
+          color: $primaryColor;
+        }
+        strong {
+          width: 0;
+          flex-grow: 1;
+          @extend %text-truncate;
+        }
+      }
+
+      .close {
+        top: 16px;
+        right: 16px;
+
+        @include getLinkCSS(lighten($blackColor, 20%));
+      }
+
+      .content{
+        overflow-wrap: break-word;
+      }
+    }
+
+    .rate {
+      margin-bottom: 4px;
+    }
+    .rating-wrapper {
+      display: flex;
+      margin-bottom: 24px;
+
+      & > label {
+        font-size: 12px;
+        margin: -1px 12px 0;
+        color: darken($color: $lightColor, $amount: 5);
+      }
+
+      .MuiRating-root {
+        font-size: 14px;
+      }
+    }
+
+    .switch-anonymous {
+      @include mapPositionWithCoordinate(absolute, 10px, calc(100% - 168px));
+    }
+  }
+}

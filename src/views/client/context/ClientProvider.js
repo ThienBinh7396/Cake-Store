@@ -16,6 +16,31 @@ const axiosInstance = Axios.create({
 
 class ClientProvider extends React.Component {
   client = {
+    anonymous: localStore.getDataStorage("_anonymous"),
+    checkAndUpdateAnonymous: () => {
+      if (!this.client.anonymous) {
+        let _anonymous = `anonimous_${Date.now()}@demo.com`;
+        localStore.setDataStorage("_anonymous", _anonymous);
+
+        this.setState({
+          client: {
+            ...this.state.client,
+            anonymous: _anonymous
+          }
+        });
+      }
+    },
+    tempEmailInStorage: localStore.getDataStorage("_tempMail"),
+    updateTempEmail: _email => {
+      localStore.setDataStorage("_tempMail", _email);
+
+      this.setState({
+        client: {
+          ...this.state.client,
+          tempEmailInStorage: _email
+        }
+      });
+    },
     data: cookie.getCookie("_client"),
     updateData: _client => {
       this.setState({
@@ -179,7 +204,7 @@ class ClientProvider extends React.Component {
         total: _total
       });
     },
-    remove: ({ product }) => {
+    remove: ({ product }, callback) => {
       let _cart = this.state.cart.data.filter(
         it => it.product.id !== product.id
       );
@@ -188,6 +213,7 @@ class ClientProvider extends React.Component {
           data: _cart
         },
         () => {
+          if (callback) callback();
           this.state.cart.setDataToLocal();
         }
       );
@@ -599,6 +625,43 @@ class ClientProvider extends React.Component {
     }
   };
 
+  productReview = {
+    targetReview: null,
+    update: _target => {
+      this.setState({
+        productReview: {
+          ...this.state.productReview,
+          targetReview: _target
+        }
+      });
+    },
+    updateProductReviewToProduct: (_productId, _productReview) => {
+      console.log("Product review: ", _productReview);
+
+      let _newProducts = this.state.products.data.map(it => {
+        if (it.id === _productId) {
+          if (_productReview.parent_id === 0) {
+            it.ProductReviews.splice(0, 0, _productReview);
+          } else {
+            it.ProductReviews = it.ProductReviews.map(_productReviewItem => {
+              if (_productReviewItem.id === _productReview.parent_id) {
+                _productReviewItem.children.push(_productReview);
+              }
+
+              return _productReviewItem;
+            });
+          }
+        }
+
+        return it;
+      });
+
+      this.state.products.updateData({
+        data: _newProducts
+      });
+    }
+  };
+
   feedback = {
     data: null,
     loading: false,
@@ -953,16 +1016,47 @@ class ClientProvider extends React.Component {
         );
       }
     },
+    addBlogComment: _comment => {
+      let _findBlog = this.state.blog.data.find(
+        it => it.id === _comment.blog_id
+      );
+
+      _findBlog.BlogComments = [_comment, ..._findBlog.BlogComments].reduce(
+        (arr, current) => {
+          return arr.findIndex(it => it.id === current.id) < 0
+            ? [...arr, current]
+            : arr;
+        },
+        []
+      );
+
+      console.log("FIND BLOG: ", _findBlog);
+
+      this.state.blog.updateData(
+        {
+          data: _findBlog
+        },
+        () => {
+          console.log("After Update: ", this.state.blog.data);
+        }
+      );
+    },
     updateData: (_blog, callback) => {
+      console.log(
+        "DATA>>>>>>>>>>>>>>>>>>>>>>>>>",
+        _blog,
+        _blog.hasOwnProperty("data")
+      );
+
       if (_blog.hasOwnProperty("data")) {
-        _blog.data = [...(this.state.blog.data || []), ..._blog.data].reduce(
-          (arr, current) => {
-            return arr.findIndex(it => it.id === current.id) < 0
-              ? [...arr, current]
-              : arr;
-          },
-          []
-        );
+        _blog.data = [
+          ...(this.state.blog.data || []),
+          ...(Array.isArray(_blog.data) ? _blog.data : [_blog.data])
+        ].reduce((arr, current) => {
+          return arr.findIndex(it => it.id === current.id) < 0
+            ? [...arr, current]
+            : arr;
+        }, []);
 
         console.log("Blog .............");
         console.log(_blog);
@@ -1072,6 +1166,7 @@ class ClientProvider extends React.Component {
     },
     cart: this.cart,
     products: this.products,
+    productReview: this.productReview,
     feedback: this.feedback,
     blogTags: this.blogTags,
     toBlog: ({ title, id }) => {

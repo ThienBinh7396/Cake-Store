@@ -34,6 +34,7 @@ input {
   border: none;
   outline: none;
   @include getTransition(fast);
+  @include getFontFamily(serif);
 }
 
 ul {
@@ -62,13 +63,14 @@ button {
   }
 }
 
-button.btn-awesome {
+.btn-awesome {
   @include getDimension(100%, 36px, true);
   @include displayFlexWithProperty($jc: center, $ai: center);
   font-size: map-get($font-size, sm);
   @include contrastView(daken);
   text-transform: uppercase;
-  &:hover {
+
+  %not-select &:hover {
     @include getElevation(3);
   }
 
@@ -92,12 +94,15 @@ button.btn-awesome {
   }
 }
 
-button.btn-awesome-outline {
+.btn-awesome-outline {
+  cursor: pointer;
   padding: 13px 17px;
   line-height: 12px;
   border-radius: 4px;
   border: 1px solid $blurColor;
   @include mapColorWithBackground($blurColor, transparent);
+
+  @extend %not-select;
 
   &:hover {
     @include mapColorWithBackground($lightColor, $blurColor);
@@ -109,6 +114,16 @@ button.btn-awesome-outline {
 
     &:hover {
       @include mapColorWithBackground($lightColor, $primaryColor);
+    }
+  }
+
+  &.grey {
+    color: $greyColor;
+    border-color: $greyColor;
+
+    &.active,
+    &:hover {
+      @include mapColorWithBackground($lightColor, $greyColor);
     }
   }
 }
@@ -188,23 +203,33 @@ button.btn-awesome-outline {
 
   padding-bottom: 42px;
 
+  .widget-sticky-wrapper {
+    @include mapPositionWithCoordinate(sticky, -30px, 0);
+    height: calc(100vh - 120px);
+    overflow: auto;
+    padding-bottom: 60px;
+  }
+
   &.right .widget {
     padding: 42px 32px 0 32px;
 
+    &:first-child {
+      padding-top: 24px;
+    }
     @include xs {
       padding: 36px 10% 0 32px;
     }
   }
 
   & .widget {
-    padding: 42px 32px 0 32px;
+    padding: 42px 28px 0 0;
 
     @include xs {
       padding: 36px 32px 0 10%;
     }
 
     & .title {
-      @extend %h3;
+      @extend %h4;
       text-transform: uppercase;
       margin-bottom: 16px;
     }
@@ -333,10 +358,101 @@ button.btn-awesome-outline {
     @include displayFlexWithProperty($ai: center);
     width: 0;
     flex-grow: 1;
-    
+
     .alert-title {
       font-size: 1rem;
       font-weight: bold;
+    }
+  }
+}
+
+.google-map-embed {
+  @include mapPositionWithCoordinate(absolute, 0, 0);
+  @include getDimension();
+
+  @include xs {
+    position: relative;
+  }
+
+  #map {
+    @include getDimension();
+    min-height: 100vh;
+  }
+}
+
+.center-background {
+  @extend %centerBackgroundImage;
+}
+.fixed-background {
+  @extend %centerBackgroundImage;
+  background-attachment: fixed;
+}
+
+.expanded-view {
+  height: 0;
+  overflow-y: hidden;
+  transition: 0.35s linear;
+}
+
+.overlay {
+  @include getPseudoOverlayContent();
+  background-color: $lightColor;
+
+  opacity: 0.9;
+}
+
+.no-comment {
+  @include displayFlexWithProperty($fd: column, $ai: center);
+  @include getFontFamily(sans-serif);
+  color: $blackColor;
+
+  .title {
+    margin: 42px 0 0 0 !important;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  .sub-title {
+    margin-top: 4px;
+    font-size: 0.95rem;
+  }
+}
+
+.clearfix {
+  @extend %clearfix;
+}
+
+.responsive-table {
+  width: 100%;
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    @include getTransition(fast);
+  }
+
+  position: relative;
+  td,
+  th {
+    padding: 8px 12px;
+    @extend %clearfix;
+  }
+
+  @include xs {
+    @include style-table-small-screen;
+  }
+
+  @each $key, $value in $breakpoint-keys {
+    @debug $key;
+
+    @if $key != xs {
+      &.#{$key}{
+        @media (max-width: $value ) {
+          @include style-table-small-screen;
+        }
+      }
     }
   }
 }

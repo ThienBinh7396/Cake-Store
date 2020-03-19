@@ -8,6 +8,7 @@ import {
   Card,
   CardActions
 } from "@material-ui/core";
+import { stopPropagationEvent } from "../../../utils/helper";
 
 class LayoutNotificationCartAction extends React.PureComponent {
   static contextType = ClientContext;
@@ -50,7 +51,7 @@ class LayoutNotificationCartAction extends React.PureComponent {
   };
 
   removeProduct = (e, product) => {
-    e.stopPropagation();
+    stopPropagationEvent(e);
 
     if (this.state.cart !== null) {
       this.state.cart.remove({ product });
@@ -61,14 +62,15 @@ class LayoutNotificationCartAction extends React.PureComponent {
     return (
       <Card className="cart-snackbar">
         <CardActions className="header">
-          <Typography variant="subtitle1" className="title">
+          <div className="title">
             {this.state.message}
-          </Typography>
+          </div>
           <div className="icons">
             <IconButton
-              className="expanded"
+              className={`expanded ${!this.state.expand && 'hide'}`}
               aria-label="Show more"
               onClick={this.handleExpandClick}
+              classes=""
             >
               <i className="fas fa-angle-down" />
             </IconButton>

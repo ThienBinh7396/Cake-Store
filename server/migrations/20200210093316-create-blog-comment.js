@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.TEXT
       },
       customer_info: {
-        type: Sequelize.JSON
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

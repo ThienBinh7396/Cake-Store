@@ -1,0 +1,47 @@
+.snackbar-wrapper {
+  max-width: 360px;
+  min-width: 320px;
+
+  .header {
+    @include getSpacing(py, 1);
+    @include getSpacing(px, 2 0, 5);
+    background-color: $primaryColor;
+    color: $lightColor;
+
+    .title {
+      @include displayFlexWithProperty($ai: center);
+      font-size: 0.95rem;
+      @extend %text-truncate;
+      font-weight: bold;
+      @include getFontFamily(sans-serif);
+
+      i {
+        margin: -1px 4px 0 0;
+        font-size: 13px;
+      }
+    }
+
+    .icons {
+      margin-left: auto;
+
+      button {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        color: $lightColor;
+        font-size: 18px;
+        line-height: 38px;
+        @include getTransition(fast);
+
+        &.expanded.hide {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    &.dark,
+    &.dark button {
+      color: $secondaryColor !important;
+    }
+  }
+}

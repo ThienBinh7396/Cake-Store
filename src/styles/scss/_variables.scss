@@ -12,6 +12,13 @@ $highZIndex: 11;
 $higherZIndex: 12;
 $highestZIndex: 13;
 
+$zIndexs: (
+    default: $defaultZIndex,
+    high: $highZIndex,
+    higher: $higherZIndex,
+    highest: $highestZIndex
+  );
+
 $xs: 0;
 $sm: 600px;
 $md: 960px;
@@ -24,6 +31,8 @@ $mapBreakpoints: (
   md: 1280px,
   lg: 1920px
 );
+
+$breakpoint-keys: (xs: 600px, sm: 960px, md: 1280px,lg: 1920);
 
 $breakpoints: (
   null: (
@@ -102,7 +111,7 @@ $typeContrasts: (
 
 $positions: relative, absolute, fixed, sticky;
 
-$displays: block, flex, inline, none;  
+$displays: block, flex, inline, none;
 
 $flex-direction: row, row-reverse, column, column-reverse;
 
