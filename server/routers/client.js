@@ -2,15 +2,18 @@ const express = require('express');
 const router = express.Router();
 
 const {
+  CustomerController,
   BlogTagController,
   BlogController,
-  EmployeeController,
   ProductController,
   FeedbackController,
-  CategoryController
+  CategoryController,
+  OrderController
 } = require("./../controllers");
 const Auth = require('../middlewares/auth');
 
+
+router.post('/customer/checkExists', [CustomerController.checkExists.bind(CustomerController)]);
 
 router.get('/category/findAll', [CategoryController.findAll.bind(CategoryController)]);
 
@@ -31,4 +34,7 @@ router.get('/blog/lastestBlogs', [BlogController.lastestBlog.bind(BlogController
 router.get('/blog/findOne', [BlogController.findOne.bind(BlogController)]);
 router.get('/blog/filter', [BlogController.filter.bind(BlogController)]);
 router.post('/blog/createComment', [BlogController.createComment.bind(BlogController)])
+
+router.post('/order/create', [OrderController.create.bind(OrderController)]);
+
 module.exports = router;

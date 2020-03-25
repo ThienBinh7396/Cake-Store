@@ -659,7 +659,7 @@ class ProductDetails extends React.PureComponent {
                         </strong>
                       </div>
                       <div
-                        className="close pos-absolute close"
+                        className="close pos-absolute "
                         onClick={this._clearProductReview}
                       >
                         <i className="fas fa-times" />

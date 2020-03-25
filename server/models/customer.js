@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     name: DataTypes.STRING,
     thumbnail: DataTypes.TEXT,
-    anonymous: DataTypes.INTEGER
+    anonymous: DataTypes.INTEGER,
+    address_delivery: DataTypes.JSONB
   }, {});
   Customer.associate = function(models) {
     Customer.hasMany(models.ProductReviews, {

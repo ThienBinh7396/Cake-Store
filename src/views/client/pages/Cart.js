@@ -224,7 +224,7 @@ class Cart extends React.PureComponent {
                 <div className="alert-content">
                   <div>Your card is empty</div>{" "}
                   <button
-                    className="ml-4 btn-awesome-outline primary"
+                    className="ml-4 btn-awesome-outline primary xs-size text-uppercase"
                     onClick={this.returnToStore}
                   >
                     Return to store
@@ -255,9 +255,9 @@ class Cart extends React.PureComponent {
                     <TableRow className="cart-summary">
                       <TableCell colSpan={4}></TableCell>
                       <TableCell colSpan={3}>
-                        <div className="cart-summary-wrapper">
-                          <div className="cart-summary-title">Cart Sumary</div>
-                          <div className="cart-summary-content">
+                        <div className="client-summary-wrapper">
+                          <div className="client-summary-title">Cart Sumary</div>
+                          <div className="client-summary-content">
                             <div className="row">
                               <label>Subtotal: </label>
                               <div>${this.state.cart.total.toFixed(2)}</div>
@@ -271,7 +271,7 @@ class Cart extends React.PureComponent {
                               <div>${this.state.cart.total.toFixed(2)}</div>
                             </div>
                           </div>
-                          <button className="btn-awesome primary cart-summary-checkout"
+                          <button className="btn-awesome primary client-summary-checkout"
                             onClick={this._toCheckout}
                           >
                             Checkout

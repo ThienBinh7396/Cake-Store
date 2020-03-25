@@ -25,6 +25,7 @@ export default class ComponentWrapperHelper extends React.PureComponent {
 
   handleScrollMainContent() {
     if (!this.state.first && this.elementInViewport(this.componentRef)) {
+      console.log(this.elementInViewport(this.componentRef), this.props.children);
       document
         .getElementById("main-content")
         .removeEventListener("scroll", this.handleScrollMainContent);

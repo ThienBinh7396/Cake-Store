@@ -8,11 +8,7 @@
     color: $primaryColor;
   }
 
-  button {
-    padding: 6px 11px;
-    font-size: 12px;
-    text-transform: uppercase;
-  }
+  
 }
 
 
@@ -56,33 +52,7 @@
         text-align: left !important;
         padding: 0;
 
-        .cart-summary-wrapper {
-          margin: 42px 0 0 0;
-          padding: 16px !important;
-          background-color: rgba($color: #eeeeee, $alpha: 0.45);
-
-          .cart-summary-title {
-            margin-bottom: 20px;
-            @include th-table;
-          }
-
-          .cart-summary-content {
-            color: #6b6b6b;
-
-            .row {
-              @include displayFlexWithProperty($jc: space-between);
-              margin-bottom: 16px;
-            }
-          }
-
-          .cart-summary-checkout {
-            @extend %btn-block;
-            display: block;
-            width: 100%;
-            margin: 42px 0 24px;
-            float: none;
-          }
-        }
+      
       }
     }
 
@@ -238,5 +208,36 @@
 
   .cart-content-row {
     @extend %cart-content-row;
+  }
+}
+
+
+.client-summary-wrapper {
+  margin: 42px 0 0 0;
+  padding: 16px !important;
+  background-color: rgba($color: #eeeeee, $alpha: 0.45);
+
+  .client-summary-title {
+    margin-bottom: 20px;
+    @include th-table;
+    @include getFontFamily(sans-serif);
+
+  }
+
+  .client-summary-content {
+    color: #6b6b6b;
+
+    .row {
+      @include displayFlexWithProperty($jc: space-between);
+      margin-bottom: 16px;
+    }
+  }
+
+  .client-summary-checkout {
+    @extend %btn-block;
+    display: block;
+    width: 100%;
+    margin: 42px 0 8px;
+    float: none;
   }
 }

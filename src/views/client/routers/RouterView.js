@@ -1,27 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import ClientProvider from "../context/ClientProvider";
 import CommonComponent from "../component/CommonComponent";
+import LoadingComponentRelative from '../../../common/component/LoadingComponentRelative';
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 
 import "../../../styles/scss/index.scss";
 import "../../../styles/client.css";
 
-import Home from "../pages/Home";
-import Store from "../pages/Store";
-import Blog from "../pages/Blog";
-import Contact from "../pages/Contact";
-import ProductDetails from "../pages/ProductDetails";
-import BlogDetails from "./../pages/BlogDetails";
-import Cart from "./../pages/Cart";
-import Checkout from "../pages/Checkout";
 
 function RouterView(props) {
-  useEffect(() => {
-    console.log("props.location change...............");
-    setTimeout(() => {
-      document.getElementById("main-content").scrollTop = 0;
-    }, 100);
-  }, [props.location]);
+  useEffect(() => {}, [props.location]);
 
   return (
     <ClientProvider>
@@ -32,37 +20,38 @@ function RouterView(props) {
   );
 }
 
+const Blog = lazy(() => import("../pages/Blog"));
+const BlogDetails = lazy(() => import("../pages/BlogDetails"));
+const Home = lazy(() => import("../pages/Home"));
+const Store = lazy(() => import("../pages/Store"));
+const ProductDetails = lazy(() => import("../pages/ProductDetails"));
+const Contact = lazy(() => import("../pages/Contact"));
+const Cart = lazy(() => import("../pages/Cart"));
+const Checkout = lazy(() => import("../pages/Checkout"));
+
+
 function SwitchPage({ location }) {
   return (
-    <Switch key={location.key}>
-      <Route exact path="/blog">
-        <Blog />
-      </Route>
-      <Route exact path="/contact">
-        <Contact xxx={1} />
-      </Route>
-      <Route exact path="/blog/:title/:id">
-        <BlogDetails />
-      </Route>
-      <Route exact path="/store">
-        <Store />
-      </Route>
-      <Route exact path="/cart">
-        <Cart />
-      </Route>
-      <Route exact path="/checkout">
-        <Checkout />
-      </Route>
-      <Route exact path="/product/:id">
-        <ProductDetails />
-      </Route>
-      <Route exact path="/home">
-        <Home />
-      </Route>
-      <Route exact path="/">
-        <Redirect to="/home"></Redirect>
-      </Route>
-    </Switch>
+    <Suspense
+      fallback={<LoadingComponentRelative style={{minHeight: '320px'}}>Loading...</LoadingComponentRelative>}
+    >
+      <Switch key={location.key}>
+        <Route exact path="/blog" component={Blog} />
+        <Route exact path="/blog/:title/:id" component={BlogDetails} />
+
+        <Route exact path="/contact" component={Contact} />
+        <Route exact path="/store" component={Store} />
+        <Route exact path="/product/:id" component={ProductDetails} />
+        
+        <Route exact path="/cart" component={Cart}/>
+        <Route exact path="/checkout" component={Checkout} />
+        
+        <Route exact path="/home" component={Home} />
+        <Route exact path="/">
+          <Redirect to="/home"></Redirect>
+        </Route>
+      </Switch>
+    </Suspense>
   );
 }
 export default withRouter(RouterView);

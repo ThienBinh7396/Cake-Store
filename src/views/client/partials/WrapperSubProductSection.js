@@ -23,77 +23,75 @@ export default function WrapperSubProductSection(props) {
   }, [clientContext.products, data]);
 
   return (
-    <ComponentWrapperHelper>
-      <Box>
-        {props.title && (
-          <div className="wrapper-sub-section-title">{props.title}</div>
-        )}
-        {!data || data.loading || !data.data
-          ? Array(3)
-              .fill(null)
-              .map((it, index) => (
-                <Box
-                  display="flex"
-                  mt={2}
-                  flexDirection="row"
-                  key={`#${props.title}-${index}`}
-                >
-                  {props.small ? (
-                    <Skeleton
-                      variant="rect"
-                      animation="wave"
-                      width="86px"
-                      height="86px"
-                    />
-                  ) : (
-                    <Skeleton
-                      variant="rect"
-                      animation="wave"
-                      width="30%"
-                      height="180px"
-                    />
-                  )}
-                  {props.small ? (
-                    <Box width="70%" pl={2}>
-                      <Skeleton animation="wave" width="180px" />
-                      <Skeleton animation="wave" width="120px" />
-                      <Skeleton animation="wave" />
+    <Box>
+      {props.title && (
+        <div className="wrapper-sub-section-title">{props.title}</div>
+      )}
+      {!data || data.loading || !data.data
+        ? Array(3)
+            .fill(null)
+            .map((it, index) => (
+              <Box
+                display="flex"
+                mt={2}
+                flexDirection="row"
+                key={`#${props.title}-${index}`}
+              >
+                {props.small ? (
+                  <Skeleton
+                    variant="rect"
+                    animation="wave"
+                    width="86px"
+                    height="86px"
+                  />
+                ) : (
+                  <Skeleton
+                    variant="rect"
+                    animation="wave"
+                    width="30%"
+                    height="180px"
+                  />
+                )}
+                {props.small ? (
+                  <Box width="70%" pl={2}>
+                    <Skeleton animation="wave" width="180px" />
+                    <Skeleton animation="wave" width="120px" />
+                    <Skeleton animation="wave" />
+                  </Box>
+                ) : (
+                  <Box width="70%" pl={2}>
+                    <Skeleton animation="wave" width="180px" />
+                    <Skeleton animation="wave" width="120px" />
+                    <Skeleton animation="wave" />
+                    <Box mt={4}>
+                      <Skeleton
+                        animation="wave"
+                        variant="rect"
+                        width="220px"
+                        height="24px"
+                      />
                     </Box>
-                  ) : (
-                    <Box width="70%" pl={2}>
-                      <Skeleton animation="wave" width="180px" />
-                      <Skeleton animation="wave" width="120px" />
-                      <Skeleton animation="wave" />
-                      <Box mt={4}>
-                        <Skeleton
-                          animation="wave"
-                          variant="rect"
-                          width="220px"
-                          height="24px"
-                        />
-                      </Box>
-                      <Box mt={1}>
-                        <Skeleton
-                          animation="wave"
-                          variant="rect"
-                          width="180px"
-                          height="34px"
-                        />
-                      </Box>
+                    <Box mt={1}>
+                      <Skeleton
+                        animation="wave"
+                        variant="rect"
+                        width="180px"
+                        height="34px"
+                      />
                     </Box>
-                  )}
-                </Box>
-              ))
-          : data.data.map(it => (
-              <ProductCard
-                type="list"
-                small={props.small || false}
-                id={it.id}
-                norate
-                key={`#wrapper-section-${props.title}-${it.id}`}
-              />
-            ))}
-      </Box>
-    </ComponentWrapperHelper>
+                  </Box>
+                )}
+              </Box>
+            ))
+        : data.data.map(it => (
+            <ProductCard
+              type="list"
+              small={props.small || false}
+              id={it.id}
+              norate
+              key={`#wrapper-section-${props.title}-${it.id}`}
+            />
+          ))}
+    </Box>
   );
 }

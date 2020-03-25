@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import LazyImage from "../../../common/component/LazyImage";
 import { formatDate, trimText, validateEmail } from "../../../utils/helper";
 import { ClientContext } from "./../context/ClientProvider";
 import { Chip, TextareaAutosize, CircularProgress } from "@material-ui/core";
@@ -189,7 +188,7 @@ class BlogListWrapper extends React.PureComponent {
               />
             ) : (
               <div className="blog-thumbnail" onClick={this.toBlog}>
-                <LazyImage src={this.state.blog.thumbnail} />
+                <img alt="Blog thumbnail" src={this.state.blog.thumbnail} />
               </div>
             )}
             <div className="blog-header">
@@ -260,7 +259,7 @@ class BlogListWrapper extends React.PureComponent {
                     {this.state.blog.upload_id === -1 ? (
                       <div>ADM</div>
                     ) : (
-                      <LazyImage src={this.state.blog.Customer.thumbnail} />
+                      <img alt="Blog thumbnail" src={this.state.blog.Customer.thumbnail} />
                     )}
                   </div>
                   <div className="info">

@@ -7,6 +7,11 @@ $greyColor: #989898;
 $widgetColor: #f7f7f7;
 $avatarIconColor: #63feec;
 
+$infoColor: #4c9cf3;
+$successColor: #4caf50;
+$warningColor: #ff9800;
+$errorColor: #f44336;
+
 $defaultZIndex: 10;
 $highZIndex: 11;
 $higherZIndex: 12;
@@ -125,7 +130,7 @@ $font-family: (
     serif
   ),
   "sans-serif": (
-    "Varela Round",
+    'Lato',
     "Helvetica",
     "Arial",
     sans-serif
@@ -222,3 +227,6 @@ $ambient-map: (
   23: "0px 9px 44px 8px",
   24: "0px 9px 46px 8px"
 ) !default;
+
+
+$textTransform: uppercase, lowercase, normal;

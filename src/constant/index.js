@@ -1,3 +1,18 @@
+import data from './city_vietnam.json';
+
+export const PAYMENT_METHOD = {
+  0: {
+    code: 0,
+    title: 'Cash on delivery'
+  },
+  1: {
+    code: 1,
+    title: 'Cash by Paypal'
+  }
+}
+
+export const CITY_IN_VIETNAM = data;
+
 export const BASE_URL = "http://localhost:5000/api/";
 //export const BASE_URL = "/api/"
 

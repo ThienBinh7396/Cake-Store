@@ -1,11 +1,12 @@
-import React  from "react";
+import React from "react";
 import { PropTypes } from "prop-types";
 import { ClientContext } from "./../context/ClientProvider";
 import { Rating } from "@material-ui/lab";
 import { ButtonBase, Box } from "@material-ui/core";
-import LazyImage from "./../../../common/component/LazyImage";
 import { withRouter } from "react-router-dom";
-import ComponentWrapperHelper from "../../../common/component/ComponentWrapperHelper";
+
+import LazyLoad from "react-lazyload";
+import LoadingPlaceholder from "../../../common/component/LoadingPlaceholder";
 
 class ProductCard extends React.PureComponent {
   static contextType = ClientContext;
@@ -16,11 +17,18 @@ class ProductCard extends React.PureComponent {
     id: -1,
     hightlighttitleregex: null,
     small: "",
-    norate: null
+    norate: null,
+    noAnimate: false
   };
 
   componentDidMount() {
     const { products } = this.context;
+
+    let _findProduct = null;
+    if (products.data !== null) {
+      _findProduct = products.data.find(it => it.id === this.state.id);
+
+    }
 
     this.setState(
       {
@@ -28,14 +36,9 @@ class ProductCard extends React.PureComponent {
         id: this.props.id || -1,
         hightlighttitleregex: this.props.hightlighttitleregex || null,
         small: this.props.small || "",
-        norate: this.props.norate || null
-      },
-      () => {
-        if (products.data !== null) {
-          this.setState({
-            product: products.data.find(it => it.id === this.state.id)
-          });
-        }
+        norate: this.props.norate || null,
+        noAnimate: this.props.noAnimate || false,
+        product: _findProduct
       }
     );
   }
@@ -53,15 +56,15 @@ class ProductCard extends React.PureComponent {
   };
 
   addToCart = () => {
-    const {cart} = this.context;
+    const { cart } = this.context;
 
-    cart.control({product: this.state.product, amount: 1});
+    cart.control({ product: this.state.product, amount: 1 });
   };
 
   componentDidUpdate() {
     const { products } = this.context;
 
-    if (products.data !== null && this.state.product) {
+    if (products.data !== null && !this.state.product) {
       this.setState({
         product: products.data.find(it => it.id === this.state.id)
       });
@@ -70,90 +73,54 @@ class ProductCard extends React.PureComponent {
 
   render() {
     return (
-      <ComponentWrapperHelper>
-        <div className="animated faster slideInUp">
-          {this.state.product && (
-            <div
-              className={`card-product ${this.state.type} ${
-                this.state.small ? "small-size" : ""
-              }`}
-            >
-              {this.state.type === "grid" ? (
-                <div
-                  className="card-product-image"
-                  // style={{
-                  //   backgroundImage: `url(${product.thumbnail})`
-                  // }}
+      <div
+        className={`${this.props.noAnimate ? "" : "animated faster slideInUp"}`}
+      >
+        {this.state.product && (
+          <div
+            className={`card-product ${this.state.type} ${
+              this.state.small ? "small-size" : ""
+            }`}
+          >
+            {this.state.type === "grid" ? (
+              <div
+                className="card-product-image"
+                // style={{
+                //   backgroundImage: `url(${product.thumbnail})`
+                // }}
+              >
+                <LazyLoad
+                  resize
+                  scrollContainer={"#main-content"}
+                  placeholder={
+                    <LoadingPlaceholder width="100%" height="240px" />
+                  }
                 >
-                  <LazyImage
-                    placeHolder={"/img/placeholder.png"}
+                  <img
                     src={this.state.product.thumbnail}
-                    effect={"opacity"}
                     alt={this.state.product.thumbnail}
                   />
-                  {this.state.product.discount !== 0 && (
-                    <div className="card-product-discount">
-                      <span>{this.state.product.discount}%</span>
-                    </div>
-                  )}
-                  <div className="card-product-action">
-                    <button
-                      className="button-icon"
-                      onClick={this.navigationToProductDetails}
-                    >
-                      <i className="pe-7s-search"></i>
-                    </button>
-                    <button className="button-icon">
-                      <i className="far fa-heart"></i>
-                    </button>
-                    <button className="button-icon" onClick={this.addToCart}>
-                      <i className="pe-7s-cart"></i>
-                    </button>
+                </LazyLoad>
+                {this.state.product.discount !== 0 && (
+                  <div className="card-product-discount">
+                    <span>{this.state.product.discount}%</span>
                   </div>
-                  {!this.state.norate && (
-                    <div className="card-product-rate">
-                      <Rating
-                        precision={0.5}
-                        value={this.state.product.rate}
-                        size="small"
-                        name="rating-product"
-                        icon={<i className="far fa-star"></i>}
-                        style={{ color: "#fa6e75" }}
-                      />
-                    </div>
-                  )}
+                )}
+                <div className="card-product-action">
+                  <button
+                    className="button-icon"
+                    onClick={this.navigationToProductDetails}
+                  >
+                    <i className="pe-7s-search"></i>
+                  </button>
+                  <button className="button-icon">
+                    <i className="far fa-heart"></i>
+                  </button>
+                  <button className="button-icon" onClick={this.addToCart}>
+                    <i className="pe-7s-cart"></i>
+                  </button>
                 </div>
-              ) : (
-                <div
-                  className="card-product-image"
-                  // style={{
-                  //   backgroundImage: `url(${product.thumbnail})`
-                  // }}
-                >
-                  <LazyImage
-                    placeHolder={"/img/image-placeholder.webp"}
-                    src={this.state.product.thumbnail}
-                    effect={"opacity"}
-                    alt={this.state.product.thumbnail}
-                  />
-                  {this.state.product.discount !== 0 && (
-                    <div className="card-product-discount">
-                      <span>{this.state.product.discount}%</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="card-product-content">
-                <div
-                  className="card-product-title"
-                  dangerouslySetInnerHTML={{
-                    __html: this.state.hightlighttitleregex
-                      ? this.hightlightTitle(this.state.product.title)
-                      : this.state.product.title
-                  }}
-                ></div>
-
-                {this.state.type === "list" && !this.state.norate && (
+                {!this.state.norate && (
                   <div className="card-product-rate">
                     <Rating
                       precision={0.5}
@@ -165,58 +132,106 @@ class ProductCard extends React.PureComponent {
                     />
                   </div>
                 )}
-                {this.state.type === "list" && !this.state.small && (
-                  <div className="card-product-short-des">
-                    {this.state.product.short_description}
+              </div>
+            ) : (
+              <div
+                className="card-product-image"
+                // style={{
+                //   backgroundImage: `url(${product.thumbnail})`
+                // }}
+              >
+                <LazyLoad
+                  resize
+                  scrollContainer={"#main-content"}
+                  placeholder={
+                    <LoadingPlaceholder width="100%" height="240px" />
+                  }
+                >
+                  <img
+                    src={this.state.product.thumbnail}
+                    alt={this.state.product.thumbnail}
+                  />
+                </LazyLoad>
+                {this.state.product.discount !== 0 && (
+                  <div className="card-product-discount">
+                    <span>{this.state.product.discount}%</span>
                   </div>
                 )}
-                <div className="card-product-price">
-                  {this.state.product.discount !== 0 && (
-                    <span className="origin">${this.state.product.price}</span>
-                  )}
-                  <span className="real">
-                    $
-                    {(
-                      (this.state.product.price *
-                        (100 - this.state.product.discount)) /
-                      100
-                    ).toFixed(2)}
-                  </span>
-                </div>
-                {this.state.type === "list" && (
-                  <Box display="flex" flexDirection="row">
-                    <ButtonBase
-                      className="btn-card-wrapper btn-add-to-cart-large"
-                      onClick={this.addToCart}
-                    >
-                      <div className="btn-card">
-                        Add to cart
-                        <i className="fas fa-angle-right"></i>
-                      </div>
-                    </ButtonBase>
-
-                    <div className="card-product-action">
-                      {!this.state.small && (
-                        <>
-                          <button className="button-icon">
-                            <i className="pe-7s-search"></i>
-                          </button>
-                          <button className="button-icon">
-                            <i className="far fa-heart"></i>
-                          </button>
-                          <button className="button-icon btn-add-to-cart-small">
-                            <i className="pe-7s-cart"></i>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </Box>
-                )}
               </div>
+            )}
+            <div className="card-product-content">
+              <div
+                className="card-product-title"
+                dangerouslySetInnerHTML={{
+                  __html: this.state.hightlighttitleregex
+                    ? this.hightlightTitle(this.state.product.title)
+                    : this.state.product.title
+                }}
+              ></div>
+
+              {this.state.type === "list" && !this.state.norate && (
+                <div className="card-product-rate">
+                  <Rating
+                    precision={0.5}
+                    value={this.state.product.rate}
+                    size="small"
+                    name="rating-product"
+                    icon={<i className="far fa-star"></i>}
+                    style={{ color: "#fa6e75" }}
+                  />
+                </div>
+              )}
+              {this.state.type === "list" && !this.state.small && (
+                <div className="card-product-short-des">
+                  {this.state.product.short_description}
+                </div>
+              )}
+              <div className="card-product-price">
+                {this.state.product.discount !== 0 && (
+                  <span className="origin">${this.state.product.price}</span>
+                )}
+                <span className="real">
+                  $
+                  {(
+                    (this.state.product.price *
+                      (100 - this.state.product.discount)) /
+                    100
+                  ).toFixed(2)}
+                </span>
+              </div>
+              {this.state.type === "list" && (
+                <Box display="flex" flexDirection="row">
+                  <ButtonBase
+                    className="btn-card-wrapper btn-add-to-cart-large"
+                    onClick={this.addToCart}
+                  >
+                    <div className="btn-card">
+                      Add to cart
+                      <i className="fas fa-angle-right"></i>
+                    </div>
+                  </ButtonBase>
+
+                  <div className="card-product-action">
+                    {!this.state.small && (
+                      <>
+                        <button className="button-icon">
+                          <i className="pe-7s-search"></i>
+                        </button>
+                        <button className="button-icon">
+                          <i className="far fa-heart"></i>
+                        </button>
+                        <button className="button-icon btn-add-to-cart-small">
+                          <i className="pe-7s-cart"></i>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </Box>
+              )}
             </div>
-          )}
-        </div>
-      </ComponentWrapperHelper>
+          </div>
+        )}
+      </div>
     );
   }
 }

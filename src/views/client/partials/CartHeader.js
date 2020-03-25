@@ -9,7 +9,9 @@ import PerfectScrollbar from "@opuscapita/react-perfect-scrollbar";
 import LayoutNotificationCartAction from "../partials/LayoutNotificationCartAction";
 import { withSnackbar } from "notistack";
 
-import {stopPropagationEvent} from "../../../utils/helper"
+import { stopPropagationEvent } from "../../../utils/helper";
+
+import _ from "lodash";
 
 class CartHeader extends React.PureComponent {
   static contextType = ClientContext;
@@ -132,6 +134,10 @@ class CartHeader extends React.PureComponent {
     if (this.state.cart !== null) {
       this.state.cart.remove({ product }, () => {
         this.showToast({ product, amount });
+
+        try {
+          this._scrollBarCartHeaderContentRef.ps.update();
+        } catch (error) {}
       });
     }
   };
@@ -202,7 +208,7 @@ class CartHeader extends React.PureComponent {
           <PerfectScrollbar
             className="cart-header-content"
             style={{ height: this.state.height }}
-            onScroll={stopPropagationEvent}
+            ref={ref => (this._scrollBarCartHeaderContentRef = ref)}
           >
             <div
               className="wrapper"

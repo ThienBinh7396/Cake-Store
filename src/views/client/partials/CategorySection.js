@@ -98,7 +98,7 @@ export default class CategorySection extends React.PureComponent {
     <SectionWrapper
       title={"Cake Categories"}
       titleDes={"Our Cakes"}
-      style={{ minHeight: "280px" }}
+      style={{ minHeight: "280px", paddingBottom: 0 }}
     >
       <Slider {...this.state.settings} className="base-carousel dots">
         {this.state.categories && this.state.categories.data
@@ -125,7 +125,7 @@ export default class CategorySection extends React.PureComponent {
                 </div>
               </div>
             ))
-          : Array(8)
+          : Array(5)
               .fill(null)
               .map((it, index) => (
                 <div key={`#carousel-category-${Date.now() + index}`}>

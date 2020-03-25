@@ -11,8 +11,6 @@ module.exports = {
       order_code: {
         type: Sequelize.STRING
       },
-      // Ex: {type: anonymous, email: Ex..., phone: Ex...} 
-      // {type: customer, customer_id: Ex...}
       customer_id: {
         type: Sequelize.INTEGER,
         reference: {
@@ -20,14 +18,18 @@ module.exports = {
           key: 'id'
         }
       },
-      total: {
-        type: Sequelize.FLOAT
+      note: {
+        type: Sequelize.TEXT
       },
       status: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        default: 0
       },
       address_delivery: {
-        type: Sequelize.STRING
+        type: Sequelize.JSONB
+      },
+      payment_info: {
+        type: Sequelize.JSONB
       },
       employee_update_id: {
         type: Sequelize.INTEGER,

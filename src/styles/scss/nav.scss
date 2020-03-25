@@ -147,7 +147,9 @@
       overflow-x: hidden;
       
       .wrapper{
-        @include getTransition(fast);
+        width: 99%;
+        margin: auto;
+        @include getTransition(medium);
         
         .cart-content-row {
           @extend %cart-content-row;

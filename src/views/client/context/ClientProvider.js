@@ -6,6 +6,8 @@ import { BASE_URL } from "../../../constant";
 import cookie from "./../../../utils/cookie";
 import localStore from "./../../../utils/localStore";
 
+import _ from "lodash";
+
 export const ClientContext = createContext();
 const axiosInstance = Axios.create({
   baseURL: BASE_URL,
@@ -29,6 +31,17 @@ class ClientProvider extends React.Component {
           }
         });
       }
+    },
+    addressDelivery: localStore.getDataStorage("_address_delivery"),
+    updateAddressDelivery: _addressDelivery => {
+      localStore.setDataStorage("_address_delivery", _addressDelivery);
+
+      this.setState({
+        client: {
+          ...this.state.client,
+          addressDelivery: _addressDelivery
+        }
+      });
     },
     tempEmailInStorage: localStore.getDataStorage("_tempMail"),
     updateTempEmail: _email => {
@@ -373,67 +386,71 @@ class ClientProvider extends React.Component {
         );
       },
       fetchData: () => {
-        this.state.products.topDiscounts.updateData(
-          {
-            loading: true
-          },
-          () => {
-            this.state.axios
-              .connect({
-                method: "GET",
-                url: "client/product/topDiscounts"
-              })
-              .then(rs => {
-                const { data, type } = rs.data;
-                if (type === "success") {
-                  this.state.products.topDiscounts.updateData({
-                    loading: false,
-                    data: data.data
-                  });
-                }
-              })
-              .catch(err => {
-                console.log("Fetch top discount failded!");
-              });
-          }
-        );
+        _.debounce(() => {
+          this.state.products.topDiscounts.updateData(
+            {
+              loading: true
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  method: "GET",
+                  url: "client/product/topDiscounts"
+                })
+                .then(rs => {
+                  const { data, type } = rs.data;
+                  if (type === "success") {
+                    this.state.products.topDiscounts.updateData({
+                      loading: false,
+                      data: data.data
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.log("Fetch top discount failded!");
+                });
+            }
+          );
+        }, 800).apply();
       }
     },
     topSell: {
       data: null,
       loading: false,
       fetchData: () => {
-        this.setState(
-          {
-            products: {
-              ...this.state.products,
-              topSell: {
-                ...this.state.products.topSell,
-                loading: true
-              }
-            }
-          },
-          () => {
-            this.state.axios
-              .connect({
-                method: "GET",
-                url: "client/product/topSell"
-              })
-              .then(rs => {
-                let { type, data } = rs.data;
-                if (type === "success") {
-                  this.state.products.updateData({
-                    data: [...(this.state.products.data || []), ...data.data],
-                    topSell: {
-                      ...this.state.products.topSell,
-                      data: data.data,
-                      loading: false
-                    }
-                  });
+        _.debounce(() => {
+          this.setState(
+            {
+              products: {
+                ...this.state.products,
+                topSell: {
+                  ...this.state.products.topSell,
+                  loading: true
                 }
-              });
-          }
-        );
+              }
+            },
+            () => {
+              this.state.axios
+                .connect({
+                  method: "GET",
+                  url: "client/product/topSell"
+                })
+                .then(rs => {
+                  let { type, data } = rs.data;
+                  if (type === "success") {
+                    this.state.products.updateData({
+                      data: [...(this.state.products.data || []), ...data.data],
+                      topSell: {
+                        ...this.state.products.topSell,
+                        data: data.data,
+                        loading: false
+                      }
+                    });
+                  }
+                });
+            }
+          );
+        }, 200).apply();
       }
     },
     filter: {
@@ -674,34 +691,38 @@ class ClientProvider extends React.Component {
       });
     },
     fetchData: () => {
-      this.setState(
-        {
-          feedback: {
-            ...this.state.feedback,
-            loading: true
-          }
-        },
-        () => {
-          this.state.axios
-            .connect({
-              method: "GET",
-              url: "client/feedback/show"
-            })
-            .then(rs => {
-              let { data, type } = rs.data;
+      let _debounce = _.debounce(() => {
+        console.log("Lodash debounce");
 
-              if (type === "success") {
-                this.state.feedback.updateData({
-                  loading: false,
-                  data
-                });
-              }
-            })
-            .catch(err => {
-              console.log(err);
-            });
-        }
-      );
+        this.setState(
+          {
+            feedback: {
+              ...this.state.feedback,
+              loading: true
+            }
+          },
+          () => {
+            this.state.axios
+              .connect({
+                method: "GET",
+                url: "client/feedback/show"
+              })
+              .then(rs => {
+                let { data, type } = rs.data;
+
+                if (type === "success") {
+                  this.state.feedback.updateData({
+                    loading: false,
+                    data
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
+        );
+      }, 500).apply();
     }
   };
 
@@ -1081,6 +1102,45 @@ class ClientProvider extends React.Component {
           dialogReloadPage: {
             ...this.state.dialogReloadPage,
             open: _open
+          }
+        });
+      }
+    },
+    dialog: {
+      data: {
+        title: "Base Dialog",
+        type: "text",
+        content:
+          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+        onClose: null,
+        onSubmit: null
+      },
+      open: false,
+      show: ({ open, title, type, content, onClose, onSubmit } = {}) => {
+        if (!open) {
+          onClose = null;
+          onSubmit = null;
+        }
+
+        this.setState({
+          dialog: {
+            ...this.state.dialog,
+            open: open !== undefined ? open : this.state.dialog.open,
+            data: {
+              ...this.state.dialog.data,
+              title: title !== undefined ? title : this.state.dialog.data.title,
+              type: type !== undefined ? type : this.state.dialog.data.type,
+              content:
+                content !== undefined
+                  ? content
+                  : this.state.dialog.data.content,
+              onSubmit:
+                onSubmit !== undefined
+                  ? onSubmit
+                  : this.state.dialog.data.onSubmit,
+              onClose:
+                onClose !== undefined ? onClose : this.state.dialog.data.onClose
+            }
           }
         });
       }

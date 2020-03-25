@@ -318,7 +318,7 @@ class BlogDetails extends React.PureComponent {
               <Grid item xs={12} md={7} lg={7}>
                 {this.getLeftContent()}
               </Grid>
-              <Grid item xs={12} md={5} lg={5} className="widget-wrapper ">
+              <Grid item xs={12} md={5} lg={5} className="widget-wrapper pl-12">
                 {this.getRightContent()}
               </Grid>
             </Grid>

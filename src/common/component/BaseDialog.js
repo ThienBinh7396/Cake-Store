@@ -14,10 +14,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-
 export default function BaseDialog(props) {
   const useStyles = makeStyles(theme => ({
     root: {
+      userSelect: "none",
       zIndex: `${props.zIndex || 1301} !important`,
       fontFamily: "Varela Round, sans-serif",
       "& .MuiDialog-paper": {
@@ -52,7 +52,10 @@ export default function BaseDialog(props) {
             ×
           </Box>
         </Box>
-        <Box className="base-dialog-body" style={{padding: props.type === 'component' ? '0' : null}}>
+        <Box
+          className="base-dialog-body"
+          style={{ padding: props.type === "component" ? "0" : null }}
+        >
           {props.type === "text" ? (
             <Box className="base-dialog-body-text">
               {props.children ||
@@ -62,37 +65,41 @@ export default function BaseDialog(props) {
           {props.type === "component" ? <Box>{props.children}</Box> : null}
         </Box>
         <Divider />
-        {props.type !== 'component' && <Box className="base-dialog-footer">
-          {props.onSubmit && (
+        {props.type !== "component" && (
+          <Box className="base-dialog-footer">
+            {props.onSubmit && (
+              <BaseButton
+                color="#37c93e"
+                margin="0 8px 0 0"
+                rounded="false"
+                onClick={() => {
+                  if (props.onSubmit) {
+                    props.onSubmit();
+                  }
+                }}
+              >
+                Submit
+                <BaseIcon
+                  icon="fas fa-check-circle"
+                  margin="-2px 0 0 4px"
+                ></BaseIcon>
+              </BaseButton>
+            )}
             <BaseButton
-              color="#37c93e"
-              margin="0 8px 0 0"
+              color="#f72e2e"
               rounded="false"
               onClick={() => {
-                props.onSubmit();
+                props.onClose();
               }}
             >
-              Submit
+              Close
               <BaseIcon
-                icon="fas fa-check-circle"
+                icon="fas fa-times-circle"
                 margin="-2px 0 0 4px"
               ></BaseIcon>
             </BaseButton>
-          )}
-          <BaseButton
-            color="#f72e2e"
-            rounded="false"
-            onClick={() => {
-              props.onClose();
-            }}
-          >
-            Close
-            <BaseIcon
-              icon="fas fa-times-circle"
-              margin="-2px 0 0 4px"
-            ></BaseIcon>
-          </BaseButton>
-        </Box>}
+          </Box>
+        )}
       </DialogContent>
     </Dialog>
   );

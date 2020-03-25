@@ -1,47 +1,35 @@
 import React from "react";
-import ComponentWrapperHelper from "../../../common/component/ComponentWrapperHelper";
 import { ClientContext } from "./../context/ClientProvider";
 import { Skeleton } from "@material-ui/lab";
 import { Box } from "@material-ui/core";
 import FeedbackCard from "../partials/FeedbackCard";
 import Slider from "react-slick";
+import LazyLoad from "react-lazyload";
+import LoadingPlaceholder from "../../../common/component/LoadingPlaceholder";
 
 export default class FeedbackSection extends React.PureComponent {
   static contextType = ClientContext;
 
   state = {
-    feedback: null,
     settings: {}
   };
 
-  componentDidUpdate() {
+  render() {
     const { feedback } = this.context;
 
-    if (feedback.data !== null && this.state.feedback === null) {
-      this.setState({
-        feedback
-      });
-    }
-  }
-
-  render() {
     return (
-      <ComponentWrapperHelper>
+     
         <section>
           <div
             className={
-              !this.state.feedback ||
-              this.state.feedback.loading ||
-              !this.state.feedback.data
+              !feedback || feedback.loading || !feedback.data
                 ? ""
                 : "feedback-section"
             }
             mt={4}
           >
             <Slider dots={true} autoplay={true} className="base-carousel dots">
-              {!this.state.feedback ||
-              this.state.feedback.loading ||
-              !this.state.feedback.data
+              {!feedback || feedback.loading || !feedback.data
                 ? [1, 2].map(it => (
                     <div
                       key={`#skeleton-section-product-${it}`}
@@ -77,7 +65,7 @@ export default class FeedbackSection extends React.PureComponent {
                       </Box>
                     </div>
                   ))
-                : this.state.feedback.data.map(it => (
+                : feedback.data.map(it => (
                     <FeedbackCard
                       key={`#feedback-section-${it.id}`}
                       id={it.id}
@@ -86,7 +74,6 @@ export default class FeedbackSection extends React.PureComponent {
             </Slider>
           </div>
         </section>
-      </ComponentWrapperHelper>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import Slider from "react-slick";
 import { Grid, Box, ButtonBase } from "@material-ui/core";
-import LazyImage from "./../../../common/component/LazyImage";
+import LazyLoad from "react-lazyload";
 
 export default class CarouselHeader extends React.PureComponent {
   state = {
@@ -58,7 +58,15 @@ export default class CarouselHeader extends React.PureComponent {
               className="carousel-header"
             >
               <Grid item lg={7} md={6} sm={5} xs={12}>
-                <LazyImage src={it.image}  alt={it.title} effect={"opacity"} />
+                <LazyLoad
+                  once
+                  throttle
+                  resize
+                  height={200}
+                  scrollContainer={"#main-content"}
+                >
+                  <img src={it.image} alt={it.title} effect={"opacity"} />
+                </LazyLoad>
               </Grid>
               <Grid item lg={5} md={6} sm={7} xs={12}>
                 <Box
@@ -67,9 +75,7 @@ export default class CarouselHeader extends React.PureComponent {
                     marginTop: "24px"
                   }}
                 >
-                  <div className="base-carousel-item-title">
-                    {it.title}
-                  </div>
+                  <div className="base-carousel-item-title">{it.title}</div>
                   <div className="base-carousel-item-description">
                     {it.description}
                   </div>

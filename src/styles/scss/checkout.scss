@@ -1,0 +1,225 @@
+.blur-hidden {
+  filter: blur(1.2px);
+  background: rgba($lightColor, 0.8);
+  z-index: $highZIndex;
+}
+
+.alert-successed-payment {
+  p {
+    line-height: 24px;
+    letter-spacing: .85px;
+  }
+}
+
+.form-checkout {
+  .title {
+    margin: 32px 0 24px;
+    font-size: 1.25rem;
+  }
+
+  .highlight {
+    color: $primaryColor;
+  }
+
+  .form-checkout-row {
+    position: relative;
+    @include displayFlexWithProperty($ai: center);
+    margin-bottom: 32px;
+    @include getTransition(fast);
+
+    @include sm {
+      flex-wrap: wrap;
+    }
+
+    label {
+      width: 0;
+      flex-grow: 1;
+
+      font-size: 15px;
+      @include sm {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+    }
+
+    &.required {
+      label::after {
+        @include getPseudoOverlayContent(relative, -2px, 8px);
+        content: "*";
+        color: $primaryColor;
+      }
+    }
+
+    .outline-input {
+      width: 100%;
+      max-width: 570px;
+      min-width: 0;
+
+      @include md {
+        max-width: 75%;
+      }
+
+      @include sm {
+        max-width: 100%;
+      }
+    }
+
+    .error-text {
+      position: absolute;
+      bottom: -20px;
+      left: calc(100% - 570px);
+      color: red;
+      font-size: 12px;
+      @include getFontFamily(sans-serif);
+      opacity: 0;
+      @include getTransition(fast);
+
+      @include md {
+        left: 25%;
+      }
+
+      @include sm {
+        left: 0;
+      }
+    }
+
+    .outline-input.error ~ .error-text {
+      opacity: 1;
+    }
+
+    &:last-child {
+      align-items: baseline;
+    }
+
+    .collapse-address-delivery {
+      min-height: 36px;
+      &.border {
+        border: 1px dashed rgba($primaryColor, 0.6);
+      }
+
+      .collapse-content {
+        i {
+          font-size: 13px;
+          transform: translate(0, -2px);
+        }
+      }
+
+      .collapse-form {
+        padding: 16px;
+        background-color: white;
+        border: 1px dashed #3f6ad8;
+        @include getFontFamily(sans-serif);
+
+        & .d-flex {
+          margin-bottom: 16px;
+          align-items: center;
+
+          @include xs {
+            flex-wrap: wrap;
+          }
+
+          label {
+            font-size: 12px;
+            font-weight: bold;
+
+            @include xs {
+              width: 100%;
+              margin-bottom: 6px;
+            }
+          }
+
+          .outline-input {
+            height: 36px;
+          }
+
+          .save {
+            padding: 2px 8px;
+            font-size: 0.75rem;
+          }
+
+          & .collapse-form-field {
+            width: 360px;
+            max-width: 64%;
+
+            .MuiInputBase-root {
+              @extend .outline-input;
+              min-height: 36px;
+              padding: 0;
+            }
+
+            .MuiInputBase-root,
+            .MuiSelect-root {
+              &:focus {
+                background-color: transparent;
+              }
+            }
+            .MuiInputBase-root {
+              padding: 0 12px 0 12px;
+
+              &::before,
+              &::after {
+                display: none;
+              }
+            }
+
+            @include xs {
+              width: 100%;
+              max-width: 100%;
+            }
+          }
+
+          .MuiFormHelperText-root {
+            color: #4b76e4e8;
+          }
+        }
+      }
+    }
+  }
+
+  .client-summary-wrapper {
+    @include getFontFamily(sans-serif);
+
+    .MuiSvgIcon-root {
+      font-size: 1.25rem;
+    }
+    label {
+      font-size: 0.9rem;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .row {
+      padding-bottom: 11px;
+
+      &:not(.no-border) {
+        border-bottom: 1px solid darken($lightColor, 20);
+      }
+
+      .bold {
+        color: $blackColor;
+      }
+    }
+  }
+  .zoid-outlet,
+  .btn-paypal {
+    width: 100% !important;
+    @include mapPositionWithCoordinate(absolute);
+    opacity: 1;
+    display: none;
+  }
+  .btn-paypal {
+    transform: translateY(200px);
+
+    &.show {
+      display: block;
+      transform: translateY(0);
+    }
+  }
+
+  .label-start {
+    align-items: flex-start !important;
+    & > label {
+      transform: translateY(12px);
+    }
+  }
+}

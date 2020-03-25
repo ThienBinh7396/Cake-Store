@@ -484,7 +484,7 @@ class Store extends React.PureComponent {
           title="Stores"
         />
         <div className="pos-relative widget-wrapper-hightlight container container-3">
-          <Container>
+          <Container >
             <Grid container>
               <Grid
                 item

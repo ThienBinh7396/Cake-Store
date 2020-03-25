@@ -3,9 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const Order = sequelize.define('Order', {
     order_code: DataTypes.STRING,
     customer_id: DataTypes.INTEGER,
-    total: DataTypes.FLOAT,
     status: DataTypes.INTEGER,
-    address_delivery: DataTypes.STRING,
+    address_delivery: DataTypes.TEXT,
+    payment_info: DataTypes.TEXT,
+    note: DataTypes.TEXT,
     employee_update_id: DataTypes.INTEGER
   }, {});
   Order.associate = function(models) {

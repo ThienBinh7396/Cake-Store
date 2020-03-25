@@ -61,6 +61,10 @@ button {
     transition: 0.1s;
     transform: scale(0.96);
   }
+
+  &:disabled{
+    filter: brightness(0.6);
+  }
 }
 
 .btn-awesome {
@@ -76,6 +80,10 @@ button {
 
   &.block {
     border-radius: 0;
+  }
+
+  &.width-auto{
+    width: fit-content;
   }
 
   &.primary {
@@ -103,6 +111,11 @@ button {
   @include mapColorWithBackground($blurColor, transparent);
 
   @extend %not-select;
+
+  &.xs-size {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
 
   &:hover {
     @include mapColorWithBackground($lightColor, $blurColor);
@@ -158,6 +171,36 @@ button {
   }
 }
 
+.outline-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 2px;
+  border: 1.2px solid transparent;
+  @include outlineStyle(
+    $blackColor,
+    $widgetColor,
+    $background-color: $widgetColor
+  );
+  font-size: 14px;
+
+  &.error {
+    border-style: dashed;
+    border-color: $primaryColor;
+  }
+
+  &:focus {
+    border-style: solid;
+    border-color: $primaryColor;
+  }
+}
+
+input.outline-input {
+  min-height: 36px;
+}
+
 .base-carousel-item {
   @include getTransition(fast);
 }
@@ -211,7 +254,7 @@ button {
   }
 
   &.right .widget {
-    padding: 42px 32px 0 32px;
+    padding: 42px 24px 0 32px;
 
     &:first-child {
       padding-top: 24px;
@@ -348,6 +391,45 @@ button {
   @include displayFlexWithProperty($ai: center);
   width: 100%;
   padding: 12px 24px;
+  background-color: #f7f7f7;
+
+  $types: (
+    info: $infoColor,
+    success: $successColor,
+    warning: $warningColor,
+    error: $errorColor
+  );
+
+  @each $type, $color in $types {
+    @debug $type;
+
+    &.alert-#{$type} {
+      border-color: $color;
+
+      & .alert-icon {
+        color: $color;
+      }
+    }
+  }
+
+  &.alert-border {
+    &.alert-border-top {
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+    &.alert-border-right {
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+    &.alert-border-bottom {
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+    &.alert-border-left {
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+  }
 
   .alert-icon {
     font-size: 18px;
@@ -363,6 +445,12 @@ button {
       font-size: 1rem;
       font-weight: bold;
     }
+  }
+
+  .alert-close {
+    top: 16px;
+    right: 16px;
+    @include getLinkCSS(lighten($blackColor, 20%));
   }
 }
 
@@ -448,11 +536,37 @@ button {
     @debug $key;
 
     @if $key != xs {
-      &.#{$key}{
-        @media (max-width: $value ) {
+      &.#{$key} {
+        @media (max-width: $value) {
           @include style-table-small-screen;
         }
       }
     }
+  }
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+@each $text-transform in $textTransform {
+  .text-#{$text-transform} {
+    text-transform: #{$text-transform};
+  }
+}
+
+.paypal-logo{
+  font-size: 18px;
+  font-weight: bold;
+
+  span{
+    text-transform: capitalize;
+  }
+
+  span:first-child{
+    color: #012F88;
+  }
+  span:last-child{
+    color: #008DDE;
   }
 }

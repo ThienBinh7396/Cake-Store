@@ -27,7 +27,6 @@ import QueueAnim from "rc-queue-anim";
 import BaseDialog from "../../../common/component/BaseDialog";
 import { withSnackbar } from "notistack";
 import BaseWrapperImage from "./../../../common/component/BaseWrapperImage";
-import LazyImage from "./../../../common/component/LazyImage";
 
 const useStyles = theme => ({
   paperContainer: {
@@ -251,11 +250,11 @@ class Categories extends React.Component {
             case "thumbnail": {
               return (
                 <StyledTableCell key={`#colume-${i}`}>
-                  <LazyImage
+                  <img
                     src={it[_column.field]}
+                    alt="category"
                     width={"62px"}
                     height={"auto"}
-                    containertarget={".main-content"}
                   />
                 </StyledTableCell>
               );
@@ -376,8 +375,7 @@ class Categories extends React.Component {
         thumbnail: {
           ...this.state.thumbnail,
           file: null,
-          url: resultUploadThumbnail[0].file.path,
-          
+          url: resultUploadThumbnail[0].file.path
         }
       });
     }
@@ -391,10 +389,10 @@ class Categories extends React.Component {
           this.state.type === "add" ? "create" : "update"
         }`,
         data: {
-          id: this.state.id ,
+          id: this.state.id,
           title: this.state.title.value,
           alias: Helper.change_alias(this.state.title.value),
-          thumbnail: thumbnailUrl,
+          thumbnail: thumbnailUrl
         }
       })
       .then(rs => {

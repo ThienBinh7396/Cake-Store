@@ -19,7 +19,17 @@ const useStyles = makeStyles(theme => ({
     "& .MuiDialog-container": {
       position: "absolute"
     },
-    "&.dense ": {
+    "&.fulldark": {
+      height: "100vh",
+      top: "0 !important",
+      width: "100vw",
+      left: "0 !important",
+
+      "& .loader-wrapper": {
+        background: "#f6fcff !important"
+      }
+    },
+    "&.dense": {
       height: "calc(100% - 56px)",
       top: "56px !important",
       width: "calc(100% - 72px)",
@@ -64,12 +74,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function LoadingComponent({ open, dense }) {
+function LoadingComponent({ open, dense, fulldark }) {
   const classes = useStyles();
   return (
     <Dialog
       open={open}
-      className={`${classes.loadingComponent} ${dense ? "dense" : ""}`}
+      className={`${classes.loadingComponent} ${fulldark ? 'fulldark' : (dense ? "dense" : "")}`}
       disableBackdropClick
       disableEscapeKeyDown
     >

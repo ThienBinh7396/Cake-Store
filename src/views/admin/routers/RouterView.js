@@ -1,75 +1,68 @@
-import React from "react";
-import { Switch, Route, useRouteMatch, Redirect } from "react-router-dom";
-import Home from "../pages/Home";
+import React, { Suspense, lazy } from "react";
+import {
+  Switch,
+  Route,
+  useRouteMatch,
+  Redirect,
+  withRouter
+} from "react-router-dom";
 
-import Employee from "../pages/Employee";
-import Cake from "../pages/Cake";
 import AdminProvider from "../context/AdminProvider";
 import CommonComponent from "../component/CommonComponent";
-import Cakes from "../pages/Cakes";
-import Blog from "../pages/Blog";
-import Tags from './../pages/Tags';
-import Blogs from "../pages/Blogs";
-import Categories from "../pages/Categories";
 
-
+import LoadingComponentRelative from "../../../common/component/LoadingComponentRelative";
 
 function ContentView(props) {
   return (
     <AdminProvider>
       <CommonComponent>
-        <SwitchPages />
+        <SwitchPages location={props.location} />
       </CommonComponent>
     </AdminProvider>
   );
 }
 
-function SwitchPages() {
+const Home = lazy(() => import("../pages/Home"));
+const Employee = lazy(() => import("../pages/Employee"));
+const Cake = lazy(() => import("../pages/Cake"));
+const Cakes = lazy(() => import("../pages/Cakes"));
+const Categories = lazy(() => import("../pages/Categories"));
+const Tags = lazy(() => import("../pages/Tags"));
+const Blog = lazy(() => import("../pages/Blog"));
+const Blogs = lazy(() => import("../pages/Blogs"));
+
+function SwitchPages({ location }) {
   const { url } = useRouteMatch();
 
   return (
-    <Switch>
-      <Route path={`${url}/contact`}>
-        <Home />
-      </Route>
-      <Route exact path={`${url}/employee`}>
-        <Employee />
-      </Route>
-      <Route exact path={`${url}/cake/edit/:id`}>
-        <Cake />
-      </Route>
-      <Route exact path={`${url}/cake/add`}>
-        <Cake />
-      </Route>
-      <Route exact path={`${url}/category`}>
-        <Categories />
-      </Route>
-      <Route exact path={`${url}/cake`}>
-        <Cakes />
-      </Route>
-      <Route exact path={`${url}/tag`}>
-        <Tags />
-      </Route>
-      <Route exact path={`${url}/blog/edit/:id`}>
-        <Blog />
-      </Route>
-      <Route exact path={`${url}/blog/add`}>
-        <Blog />
-      </Route>
-      <Route exact path={`${url}/blog`}>
-        <Blogs />
-      </Route>
-      <Route exact path={`${url}/dashboard`}>
-        <Home />
-      </Route>
+    <Suspense
+      fallback={<LoadingComponentRelative style={{minHeight: '320px'}}>Loading...</LoadingComponentRelative>}
+    >
+      <Switch key={location.key}>
+        <Route path={`${url}/contact`} component={Home} />
+        <Route exact path={`${url}/employee`} component={Employee} />
 
-      <Route exact path={`${url}`}>
-        <Redirect to={`${url}/dashboard`}>
-          <Home />
-        </Redirect>
-      </Route>
-    </Switch>
+        <Route exact path={`${url}/cake/edit/:id`} component={Cake} />
+        <Route exact path={`${url}/cake`} component={Cakes} />
+        <Route exact path={`${url}/cake/add`} component={Cake} />
+
+        <Route exact path={`${url}/category`} component={Categories} />
+
+        <Route exact path={`${url}/tag`} component={Tags} />
+
+        <Route exact path={`${url}/blog/edit/:id`} component={Blog} />
+        <Route exact path={`${url}/blog/add`} component={Blog} />
+        <Route exact path={`${url}/blog`} component={Blogs} />
+        <Route exact path={`${url}/dashboard`} component={Home} />
+
+        <Route exact path={`${url}`}>
+          <Redirect to={`${url}/dashboard`}>
+            <Home />
+          </Redirect>
+        </Route>
+      </Switch>
+    </Suspense>
   );
 }
 
-export default ContentView;
+export default withRouter(ContentView);

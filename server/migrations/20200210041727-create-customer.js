@@ -28,6 +28,9 @@ module.exports = {
         type: Sequelize.TEXT,
         defaultValue: '/img/avatar.png'
       },
+      address_delivery: {
+        type: Sequelize.JSONB,
+      },
       anonymous: {
         type: Sequelize.INTEGER,
         defaultValue: 0

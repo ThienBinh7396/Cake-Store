@@ -3,6 +3,7 @@ import { ClientContext } from "./../context/ClientProvider";
 import { useEffect } from "react";
 import { Rating } from "@material-ui/lab";
 
+
 export default function FeedbackCard(props) {
   const clientContext = useContext(ClientContext);
   const [feedback, setFeedback] = useState(null);
@@ -23,7 +24,10 @@ export default function FeedbackCard(props) {
     feedback && (
       <div className="card-feedback">
         <div className="card-feedback-thumbnail">
-          <img src={feedback.thumbnail || '/img/avatar.png'} alt={feedback.thumbnail} />
+          <img
+            src={feedback.thumbnail || "/img/avatar.png"}
+            alt={feedback.thumbnail}
+          />
         </div>
         <Rating
           disabled

@@ -125,3 +125,12 @@ export const validateEmail = (email) => {
 export const stopPropagationEvent = e => {
   e.stopPropagation();
 }
+
+export const copyObject = (sourceObject, propertyArray) => {
+  return propertyArray.reduce((obj, currentProperty) => {
+    let _tempObject = {};
+    _tempObject[currentProperty] = sourceObject[currentProperty];
+    return { ...obj, ..._tempObject };
+  }, {})
+
+}

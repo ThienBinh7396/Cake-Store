@@ -707,8 +707,6 @@ class ProductController {
     if (!signIn) {
       let check = await CustomerController._helperGetCustomer({ email });
 
-      console.log(check);
-
       if (!anonymous) {
         if (check) {
           if (check.anonymous !== 1) {
@@ -717,7 +715,7 @@ class ProductController {
                 "warning",
                 `<strong>${email}</strong> has been taken! <br>You can login or choose orther.`
               )
-            );
+              );
             return;
           }
         } else {
@@ -727,10 +725,10 @@ class ProductController {
         _createNewCustomer = anonymous && !check;
       }
     }
-    console.log("Email: ", email, _createNewCustomer);
+
 
     let _customer = _createNewCustomer
-      ? await CustomerController._helperCreateAnonymousCustomer(email)
+      ? await CustomerController._helperCreateAnonymousCustomer({email})
       : await CustomerController._helperGetCustomer({ email });
 
     if (!_customer) {

@@ -502,7 +502,7 @@ class BlogController {
 
     let _customer = !_createNewCustomer
       ? await CustomerController._helperGetCustomer({ email })
-      : await CustomerController._helperCreateAnonymousCustomer(email);
+      : await CustomerController._helperCreateAnonymousCustomer({email});
 
     if (!_customer) {
       res.send(helper.getStatus("error", "Something went wrong. Try again!"));

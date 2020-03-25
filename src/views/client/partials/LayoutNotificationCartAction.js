@@ -3,7 +3,6 @@ import { withSnackbar } from "notistack";
 import { ClientContext } from "./../context/ClientProvider";
 import {
   Collapse,
-  Typography,
   IconButton,
   Card,
   CardActions
@@ -67,10 +66,9 @@ class LayoutNotificationCartAction extends React.PureComponent {
           </div>
           <div className="icons">
             <IconButton
-              className={`expanded ${!this.state.expand && 'hide'}`}
+              className={`expanded ${!this.state.expand ? 'hide' : ''}`}
               aria-label="Show more"
               onClick={this.handleExpandClick}
-              classes=""
             >
               <i className="fas fa-angle-down" />
             </IconButton>

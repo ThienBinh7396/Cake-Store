@@ -163,22 +163,7 @@
     form {
       input,
       .textarea {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100%;
-        min-height: 120px;
-        padding: 16px 20px;
-        border-radius: 2px;
-        @include outlineStyle(
-          $blackColor,
-          $widgetColor,
-          $background-color: $widgetColor
-        );
-        font-size: 14px;
-
-        &:focus {
-          border-color: $primaryColor;
-        }
+        @extend .outline-input;
       }
 
       input {
@@ -287,7 +272,12 @@
   .blog-comment-item {
     padding-bottom: 20px;
     margin-bottom: 16px;
-    border-bottom: 1px solid #cfcfcf;
+
+    &:not(:last-child){
+      border-bottom: 1px solid #cfcfcf;
+    }
+
+
 
     .thumbnail {
       @include getDimension(42px, 42px, true);
@@ -299,6 +289,13 @@
         @extend %maxWidthHeight;
       }
     }
+
+    .blog-comment-content {
+      width: 0;
+      flex-grow: 1;
+      padding-left: 12px;
+    }
+
     .blog-title {
       font-weight: bold;
 

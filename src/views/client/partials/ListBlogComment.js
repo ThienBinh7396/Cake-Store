@@ -32,19 +32,20 @@ export default class ListBlogComment extends Component {
 
   _renderRow = _comment => {
     return (
+
       <div
         className="blog-comment-item d-flex"
         key={`#blog-comment-${_comment.id}`}
-      >
+        >
         <div
           style={{
             backgroundColor:
-              MATERIAL_COLOR[parseInt(Math.random() * MATERIAL_COLOR.length)]
+            MATERIAL_COLOR[parseInt(Math.random() * MATERIAL_COLOR.length)]
           }}
           className={["thumbnail", _comment.Customer.anonymous && "p-2"].join(
             " "
           )}
-        >
+          >
           <img
             containertarget={`#${this.state.containerId}`}
             width="48px"
@@ -52,7 +53,7 @@ export default class ListBlogComment extends Component {
             alt={"customer"}
           />
         </div>
-        <div className="content">
+        <div className="blog-comment-content">
           <div className="d-flex">
             <div className="blog-title">
               {_comment.Customer.name || _comment.Customer.email}

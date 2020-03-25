@@ -22,7 +22,7 @@ module.exports = {
           key: 'id'
         }
       },
-      real_price: {
+      current_price: {
         type: Sequelize.FLOAT
       },
       amount: {

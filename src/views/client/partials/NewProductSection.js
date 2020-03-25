@@ -5,6 +5,7 @@ import Slider from "react-slick";
 import { Box } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import ProductCard from "./ProductCard";
+import { compareArray } from "../../../utils/helper";
 
 export default class NewProductSection extends React.PureComponent {
   static contextType = ClientContext;
@@ -43,22 +44,39 @@ export default class NewProductSection extends React.PureComponent {
             slidesToShow: 1,
             slidesToScroll: 1
           }
-        },
+        }
       ]
     }
   };
 
-  componentDidUpdate() {
-    const { products } = this.context;
+  componentDidMount() {
+    this.setState({
+      newProducts: this.context.products
+    });
+  }
 
-    if (products.newProducts.data !== null && this.state.newProducts === null) {
+  componentDidUpdate() {
+    const { newProducts } = this.context.products;
+
+    if (
+      newProducts.data &&
+      (!this.state.newProducts.data ||
+       ! compareArray(newProducts.data, this.state.newProducts.data, "id"))
+    ) {
+      console.log("Update new Products: ");
+
       this.setState({
-        newProducts: products.newProducts
+        newProducts: {
+          ...this.state.newProducts,
+          data: newProducts.data
+        }
       });
     }
   }
 
   render() {
+    console.log("RENDER NEW PRODUCTS");
+
     return (
       <SectionWrapper
         title={"New Products"}
@@ -84,7 +102,9 @@ export default class NewProductSection extends React.PureComponent {
                 </Box>
               ))
             : this.state.newProducts.data.map((it, index) => {
-                return <ProductCard id={it.id} key={`#product-${it.id}`} />;
+                return (
+                  <ProductCard noAnimate id={it.id} key={`#product-${it.id}`} />
+                );
               })}
         </Slider>
       </SectionWrapper>
